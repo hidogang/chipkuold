@@ -15,6 +15,13 @@ export default function MarketPage() {
     wheat_bag: 1,
     eggs: 1
   });
+  
+  // Track if input field is currently being edited
+  const [inputActive, setInputActive] = useState({
+    water_bucket: false,
+    wheat_bag: false,
+    eggs: false
+  });
 
   const pricesQuery = useQuery<Price[]>({
     queryKey: ["/api/prices"],
@@ -88,23 +95,33 @@ export default function MarketPage() {
                 <Input
                   type="number"
                   min="1"
-                  value={quantities.water_bucket}
-                  onChange={(e) => setQuantities({
-                    ...quantities,
-                    water_bucket: parseInt(e.target.value) || 1
-                  })}
+                  value={inputActive.water_bucket ? quantities.water_bucket : quantities.water_bucket || ""}
+                  onFocus={() => setInputActive({...inputActive, water_bucket: true})}
+                  onBlur={() => {
+                    setInputActive({...inputActive, water_bucket: false});
+                    if (!quantities.water_bucket) {
+                      setQuantities({...quantities, water_bucket: 1});
+                    }
+                  }}
+                  onChange={(e) => {
+                    const value = e.target.value === "" ? 0 : parseInt(e.target.value);
+                    setQuantities({
+                      ...quantities,
+                      water_bucket: value
+                    });
+                  }}
                 />
                 <span className="text-lg font-semibold">
-                  ${(getPrice("water_bucket") * quantities.water_bucket).toFixed(2)}
+                  ${(getPrice("water_bucket") * (quantities.water_bucket || 0)).toFixed(2)}
                 </span>
               </div>
               <Button
                 className="w-full"
                 onClick={() => buyResourceMutation.mutate({
                   itemType: "water_bucket",
-                  quantity: quantities.water_bucket
+                  quantity: quantities.water_bucket || 1
                 })}
-                disabled={buyResourceMutation.isPending}
+                disabled={buyResourceMutation.isPending || quantities.water_bucket === 0}
               >
                 Buy Water Buckets
               </Button>
@@ -120,23 +137,33 @@ export default function MarketPage() {
                 <Input
                   type="number"
                   min="1"
-                  value={quantities.wheat_bag}
-                  onChange={(e) => setQuantities({
-                    ...quantities,
-                    wheat_bag: parseInt(e.target.value) || 1
-                  })}
+                  value={inputActive.wheat_bag ? quantities.wheat_bag : quantities.wheat_bag || ""}
+                  onFocus={() => setInputActive({...inputActive, wheat_bag: true})}
+                  onBlur={() => {
+                    setInputActive({...inputActive, wheat_bag: false});
+                    if (!quantities.wheat_bag) {
+                      setQuantities({...quantities, wheat_bag: 1});
+                    }
+                  }}
+                  onChange={(e) => {
+                    const value = e.target.value === "" ? 0 : parseInt(e.target.value);
+                    setQuantities({
+                      ...quantities,
+                      wheat_bag: value
+                    });
+                  }}
                 />
                 <span className="text-lg font-semibold">
-                  ${(getPrice("wheat_bag") * quantities.wheat_bag).toFixed(2)}
+                  ${(getPrice("wheat_bag") * (quantities.wheat_bag || 0)).toFixed(2)}
                 </span>
               </div>
               <Button
                 className="w-full"
                 onClick={() => buyResourceMutation.mutate({
                   itemType: "wheat_bag",
-                  quantity: quantities.wheat_bag
+                  quantity: quantities.wheat_bag || 1
                 })}
-                disabled={buyResourceMutation.isPending}
+                disabled={buyResourceMutation.isPending || quantities.wheat_bag === 0}
               >
                 Buy Wheat Bags
               </Button>
@@ -156,20 +183,30 @@ export default function MarketPage() {
                   type="number"
                   min="1"
                   max={resourcesQuery.data?.eggs || 0}
-                  value={quantities.eggs}
-                  onChange={(e) => setQuantities({
-                    ...quantities,
-                    eggs: parseInt(e.target.value) || 1
-                  })}
+                  value={inputActive.eggs ? quantities.eggs : quantities.eggs || ""}
+                  onFocus={() => setInputActive({...inputActive, eggs: true})}
+                  onBlur={() => {
+                    setInputActive({...inputActive, eggs: false});
+                    if (!quantities.eggs) {
+                      setQuantities({...quantities, eggs: 1});
+                    }
+                  }}
+                  onChange={(e) => {
+                    const value = e.target.value === "" ? 0 : parseInt(e.target.value);
+                    setQuantities({
+                      ...quantities,
+                      eggs: value
+                    });
+                  }}
                 />
                 <span className="text-lg font-semibold">
-                  ${(getPrice("egg") * quantities.eggs).toFixed(2)}
+                  ${(getPrice("egg") * (quantities.eggs || 0)).toFixed(2)}
                 </span>
               </div>
               <Button
                 className="w-full"
-                onClick={() => sellEggsMutation.mutate(quantities.eggs)}
-                disabled={sellEggsMutation.isPending}
+                onClick={() => sellEggsMutation.mutate(quantities.eggs || 1)}
+                disabled={sellEggsMutation.isPending || quantities.eggs === 0 || (resourcesQuery.data?.eggs || 0) === 0}
               >
                 Sell Eggs
               </Button>
