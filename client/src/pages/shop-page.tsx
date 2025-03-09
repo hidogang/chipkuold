@@ -62,7 +62,7 @@ export default function ShopPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Chicken Shop</h1>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {CHICKEN_TYPES.map((chicken) => (
           <Card key={chicken.type}>
@@ -74,7 +74,7 @@ export default function ShopPage() {
               <p className="text-sm">Requires: {chicken.requirements}</p>
               <div className="flex justify-between items-center">
                 <span className="text-lg font-semibold">
-                  ₹{getPrice(chicken.type)}
+                  ${getPrice(chicken.type)}
                 </span>
                 <Button
                   onClick={() => buyChickenMutation.mutate(chicken.type)}
