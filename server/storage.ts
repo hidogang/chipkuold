@@ -1,4 +1,4 @@
-import { User, Chicken, Resource, Transaction, Price, InsertUser } from "@shared/schema";
+import { User, Chicken, Resource, Transaction, Price, InsertUser, UserProfile, InsertUserProfile } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
 import { randomBytes } from "crypto";
@@ -40,6 +40,11 @@ export interface IStorage {
   getPrices(): Promise<Price[]>;
   updatePrice(itemType: string, price: number): Promise<void>;
 
+  // User Profile operations
+  getUserProfile(userId: number): Promise<UserProfile | undefined>;
+  createUserProfile(profile: InsertUserProfile): Promise<UserProfile>;
+  updateUserProfile(userId: number, updates: Partial<InsertUserProfile>): Promise<UserProfile>;
+
   // Admin methods
   getTransactions(): Promise<Transaction[]>;
   getTransactionByTransactionId(transactionId: string): Promise<Transaction | undefined>;
@@ -53,6 +58,7 @@ export class MemStorage implements IStorage {
   private resources: Map<number, Resource>;
   private transactions: Map<number, Transaction>;
   private prices: Map<string, Price>;
+  private userProfiles: Map<number, UserProfile>;
   private paymentAddress: string;
   private withdrawalTax: number;
   public sessionStore: session.Store;
@@ -64,8 +70,9 @@ export class MemStorage implements IStorage {
     this.resources = new Map();
     this.transactions = new Map();
     this.prices = new Map();
+    this.userProfiles = new Map();
     this.sessionStore = new MemoryStore({ checkPeriod: 86400000 });
-    this.currentIds = { users: 1, chickens: 1, transactions: 1, prices: 1 };
+    this.currentIds = { users: 1, chickens: 1, transactions: 1, prices: 1, userProfiles: 1 };
     this.paymentAddress = "TRX8nHHo2Jd7H9ZwKhh6h8h";
     this.withdrawalTax = 5; // 5% default tax
 
@@ -290,6 +297,47 @@ export class MemStorage implements IStorage {
 
   async updateWithdrawalTax(percentage: number): Promise<void> {
     this.withdrawalTax = percentage;
+  }
+
+  // User Profile methods
+  async getUserProfile(userId: number): Promise<UserProfile | undefined> {
+    return this.userProfiles.get(userId);
+  }
+
+  async createUserProfile(profile: InsertUserProfile): Promise<UserProfile> {
+    const id = this.currentIds.userProfiles++;
+    const newProfile: UserProfile = {
+      id,
+      userId: profile.userId,
+      farmName: profile.farmName || null,
+      avatarColor: profile.avatarColor || "#6366F1",
+      avatarStyle: profile.avatarStyle || "default",
+      farmBackground: profile.farmBackground || "default",
+      lastUpdated: new Date(),
+    };
+    this.userProfiles.set(profile.userId, newProfile);
+    return newProfile;
+  }
+
+  async updateUserProfile(userId: number, updates: Partial<InsertUserProfile>): Promise<UserProfile> {
+    const currentProfile = await this.getUserProfile(userId);
+    
+    if (!currentProfile) {
+      // If no profile exists, create a new one with the updates
+      return this.createUserProfile({
+        userId,
+        ...updates,
+      });
+    }
+
+    const updatedProfile: UserProfile = {
+      ...currentProfile,
+      ...updates,
+      lastUpdated: new Date(),
+    };
+
+    this.userProfiles.set(userId, updatedProfile);
+    return updatedProfile;
   }
 }
 

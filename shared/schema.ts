@@ -46,6 +46,16 @@ export const prices = pgTable("prices", {
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
 });
 
+export const userProfiles = pgTable("user_profiles", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().unique(),
+  farmName: text("farm_name"),
+  avatarColor: text("avatar_color").default("#6366F1"), // Default indigo color
+  avatarStyle: text("avatar_style").default("default"),
+  farmBackground: text("farm_background").default("default"),
+  lastUpdated: timestamp("last_updated").notNull().defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -58,6 +68,10 @@ export const insertChickenSchema = createInsertSchema(chickens);
 export const insertResourceSchema = createInsertSchema(resources);
 export const insertTransactionSchema = createInsertSchema(transactions);
 export const insertPriceSchema = createInsertSchema(prices);
+export const insertUserProfileSchema = createInsertSchema(userProfiles).omit({
+  id: true,
+  lastUpdated: true,
+});
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -65,6 +79,8 @@ export type Chicken = typeof chickens.$inferSelect;
 export type Resource = typeof resources.$inferSelect;
 export type Transaction = typeof transactions.$inferSelect;
 export type Price = typeof prices.$inferSelect;
+export type UserProfile = typeof userProfiles.$inferSelect;
+export type InsertUserProfile = z.infer<typeof insertUserProfileSchema>;
 
 // Admin types
 export interface AdminStats {
