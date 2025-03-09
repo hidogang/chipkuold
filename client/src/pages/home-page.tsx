@@ -1,9 +1,10 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import ChickenCard from "@/components/chicken-card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { Chicken, Resource } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function HomePage() {
   const { toast } = useToast();
@@ -40,35 +41,87 @@ export default function HomePage() {
 
   if (chickensQuery.isLoading || resourcesQuery.isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {[1, 2, 3].map((i) => (
-          <Skeleton key={i} className="h-[200px] w-full" />
-        ))}
+      <div className="h-screen bg-gradient-to-b from-primary/5 to-background">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex justify-between mb-6">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-12 w-24" />
+            ))}
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <Skeleton key={i} className="h-48 w-full" />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
 
-  if (!chickensQuery.data?.length) {
-    return (
-      <div className="text-center">
-        <h2 className="text-2xl font-bold mb-4">Welcome to your farm!</h2>
-        <p className="text-muted-foreground">
-          Visit the shop to buy your first chicken and start your farming journey.
-        </p>
-      </div>
-    );
-  }
+  const resources = resourcesQuery.data || { waterBuckets: 0, wheatBags: 0, eggs: 0 };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {chickensQuery.data.map((chicken) => (
-        <ChickenCard
-          key={chicken.id}
-          chicken={chicken}
-          resources={resourcesQuery.data!}
-          onHatch={() => hatchMutation.mutate(chicken.id)}
-        />
-      ))}
+    <div className="min-h-screen bg-gradient-to-b from-primary/5 to-background pb-16">
+      {/* Game Header with Resources */}
+      <div className="bg-card shadow-lg p-4 sticky top-0 z-10">
+        <div className="container mx-auto">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-2">
+              <img src="/assets/water-bucket.png" alt="Water" className="w-6 h-6" />
+              <span className="font-bold">{resources.waterBuckets}</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <img src="/assets/wheat-bag.png" alt="Wheat" className="w-6 h-6" />
+              <span className="font-bold">{resources.wheatBags}</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <img src="/assets/egg.png" alt="Eggs" className="w-6 h-6" />
+              <span className="font-bold">{resources.eggs}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Game Area */}
+      <div className="container mx-auto px-4 py-6">
+        {!chickensQuery.data?.length ? (
+          <Card className="p-6 text-center bg-card/50 backdrop-blur-sm">
+            <h2 className="text-2xl font-bold mb-4">Welcome to your farm!</h2>
+            <p className="text-muted-foreground mb-4">
+              Start your farming journey by getting your first chicken from the shop.
+            </p>
+            <Button asChild className="bg-primary/90 hover:bg-primary">
+              <a href="/shop">Visit Shop</a>
+            </Button>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {chickensQuery.data.map((chicken) => (
+              <Card key={chicken.id} className="p-4 bg-card/50 backdrop-blur-sm">
+                <div className="relative aspect-square mb-4">
+                  <img
+                    src={`/assets/chicken-${chicken.type}.png`}
+                    alt={`${chicken.type} Chicken`}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="font-bold text-center capitalize">
+                    {chicken.type} Chicken
+                  </h3>
+                  <Button
+                    className="w-full bg-primary/90 hover:bg-primary"
+                    onClick={() => hatchMutation.mutate(chicken.id)}
+                    disabled={hatchMutation.isPending}
+                  >
+                    Collect Eggs
+                  </Button>
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
