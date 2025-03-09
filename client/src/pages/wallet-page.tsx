@@ -39,6 +39,10 @@ export default function WalletPage() {
   const { toast } = useToast();
   const { user } = useAuth();
 
+  // Get tab from URL if present
+  const params = new URLSearchParams(window.location.search);
+  const defaultTab = params.get('tab') || 'recharge';
+
   const rechargeForm = useForm({
     resolver: zodResolver(rechargeSchema),
     defaultValues: {
@@ -128,7 +132,7 @@ export default function WalletPage() {
         </div>
       </div>
 
-      <Tabs defaultValue="recharge">
+      <Tabs defaultValue={defaultTab}>
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="recharge">Recharge</TabsTrigger>
           <TabsTrigger value="withdraw">Withdraw</TabsTrigger>
