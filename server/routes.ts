@@ -187,16 +187,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const resources = await storage.getResourcesByUserId(req.user.id);
       res.json(resources);
     } catch (err) {
-      // If resources not found, create them
-      const newResources = {
-        id: req.user.id,
-        userId: req.user.id,
-        waterBuckets: 0,
-        wheatBags: 0,
-        eggs: 0
-      };
-      storage.resources.set(req.user.id, newResources);
-      res.json(newResources);
+      // If resources not found, create a default resource
+      try {
+        // Create a default resource by updating with empty values
+        const defaultResource = await storage.updateResources(req.user.id, {
+          waterBuckets: 0,
+          wheatBags: 0,
+          eggs: 0
+        });
+        res.json(defaultResource);
+      } catch (err) {
+        res.status(500).json({ error: "Failed to create resources" });
+      }
     }
   });
 
@@ -319,7 +321,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         "recharge",
         result.data.amount,
         result.data.transactionId,
-        referralCommission
+        referralCommission || undefined
       );
 
       res.json(transaction);

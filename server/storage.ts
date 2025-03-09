@@ -139,10 +139,12 @@ export class MemStorage implements IStorage {
     const id = this.currentIds.users++;
     const referralCode = randomBytes(4).toString('hex');
     const user: User = {
-      ...insertUser,
       id,
+      username: insertUser.username,
+      password: insertUser.password,
       usdtBalance: "0",
       referralCode,
+      referredBy: insertUser.referredBy || null,
       isAdmin: false,
       lastLoginAt: null,
     };
@@ -229,8 +231,8 @@ export class MemStorage implements IStorage {
       type,
       amount: amount.toString(),
       status: "pending",
-      transactionId: transactionId || randomBytes(16).toString('hex'),
-      referralCommission: referralCommission?.toString(),
+      transactionId: transactionId ? transactionId : randomBytes(16).toString('hex'),
+      referralCommission: referralCommission ? referralCommission.toString() : null,
       createdAt: new Date(),
       bankDetails: bankDetails || null
     };
