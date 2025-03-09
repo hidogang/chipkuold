@@ -30,10 +30,7 @@ const rechargeSchema = z.object({
 
 const withdrawalSchema = z.object({
   amount: z.number().positive("Amount must be positive"),
-  bankDetails: z.object({
-    accountNumber: z.string().min(9, "Invalid account number"),
-    ifsc: z.string().regex(/^[A-Z]{4}0[A-Z0-9]{6}$/, "Invalid IFSC code"),
-  }),
+  usdtAddress: z.string().min(5, "USDT address is required").max(100, "USDT address too long"),
 });
 
 export default function WalletPage() {
@@ -56,10 +53,7 @@ export default function WalletPage() {
     resolver: zodResolver(withdrawalSchema),
     defaultValues: {
       amount: 0,
-      bankDetails: {
-        accountNumber: "",
-        ifsc: "",
-      },
+      usdtAddress: "",
     },
   });
 
@@ -262,27 +256,17 @@ export default function WalletPage() {
                     />
                     <FormField
                       control={withdrawalForm.control}
-                      name="bankDetails.accountNumber"
+                      name="usdtAddress"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Account Number</FormLabel>
+                          <FormLabel>USDT Address (TRC20)</FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Input {...field} placeholder="Enter your USDT TRC20 address" />
                           </FormControl>
                           <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={withdrawalForm.control}
-                      name="bankDetails.ifsc"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>IFSC Code</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
+                          <p className="text-xs text-muted-foreground">
+                            Enter a valid USDT TRC20 address to receive your withdrawal
+                          </p>
                         </FormItem>
                       )}
                     />

@@ -337,10 +337,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     const schema = z.object({
       amount: z.number().positive(),
-      bankDetails: z.object({
-        accountNumber: z.string(),
-        ifsc: z.string()
-      })
+      usdtAddress: z.string().min(5).max(100)
     });
 
     const result = schema.safeParse(req.body);
