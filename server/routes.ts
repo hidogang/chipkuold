@@ -7,6 +7,116 @@ import { z } from "zod";
 export async function registerRoutes(app: Express): Promise<Server> {
   setupAuth(app);
 
+  // Admin middleware to protect admin routes
+  const isAdmin = (req: any, res: any, next: any) => {
+    if (!req.user?.isAdmin) {
+      return res.status(403).send("Admin access required");
+    }
+    next();
+  };
+
+  // Admin routes
+  app.get("/api/admin/transactions", isAdmin, async (req, res) => {
+    const transactions = await storage.getTransactions();
+    res.json(transactions);
+  });
+
+  app.post("/api/admin/transactions/update", isAdmin, async (req, res) => {
+    const schema = z.object({
+      transactionId: z.string(),
+      status: z.enum(["completed", "rejected"]),
+    });
+
+    const result = schema.safeParse(req.body);
+    if (!result.success) return res.status(400).json(result.error);
+
+    try {
+      await storage.updateTransactionStatus(
+        result.data.transactionId,
+        result.data.status
+      );
+
+      const transaction = await storage.getTransactionByTransactionId(result.data.transactionId);
+      if (!transaction) {
+        return res.status(404).send("Transaction not found");
+      }
+
+      // If approved deposit, update user's balance
+      if (result.data.status === "completed" && transaction.type === "recharge") {
+        await storage.updateUserBalance(transaction.userId, parseFloat(transaction.amount));
+      }
+
+      res.json({ success: true });
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(400).send(err.message);
+      } else {
+        res.status(400).send("Failed to update transaction");
+      }
+    }
+  });
+
+  app.post("/api/admin/prices/update", isAdmin, async (req, res) => {
+    const schema = z.object({
+      itemType: z.string(),
+      price: z.number().positive(),
+    });
+
+    const result = schema.safeParse(req.body);
+    if (!result.success) return res.status(400).json(result.error);
+
+    try {
+      await storage.updatePrice(result.data.itemType, result.data.price);
+      res.json({ success: true });
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(400).send(err.message);
+      } else {
+        res.status(400).send("Failed to update price");
+      }
+    }
+  });
+
+  app.post("/api/admin/qrcode", isAdmin, async (req, res) => {
+    const schema = z.object({
+      address: z.string(),
+    });
+
+    const result = schema.safeParse(req.body);
+    if (!result.success) return res.status(400).json(result.error);
+
+    try {
+      await storage.updatePaymentAddress(result.data.address);
+      res.json({ success: true });
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(400).send(err.message);
+      } else {
+        res.status(400).send("Failed to update payment address");
+      }
+    }
+  });
+
+  app.post("/api/admin/withdrawal-tax", isAdmin, async (req, res) => {
+    const schema = z.object({
+      taxPercentage: z.number().min(0).max(100),
+    });
+
+    const result = schema.safeParse(req.body);
+    if (!result.success) return res.status(400).json(result.error);
+
+    try {
+      await storage.updateWithdrawalTax(result.data.taxPercentage);
+      res.json({ success: true });
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(400).send(err.message);
+      } else {
+        res.status(400).send("Failed to update withdrawal tax");
+      }
+    }
+  });
+
   // Chickens
   app.get("/api/chickens", async (req, res) => {
     if (!req.user) return res.sendStatus(401);

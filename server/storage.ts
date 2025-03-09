@@ -38,6 +38,12 @@ export interface IStorage {
   // Price operations
   getPrices(): Promise<Price[]>;
   updatePrice(itemType: string, price: number): Promise<void>;
+
+  // Admin methods
+  getTransactions(): Promise<Transaction[]>;
+  getTransactionByTransactionId(transactionId: string): Promise<Transaction | undefined>;
+  updatePaymentAddress(address: string): Promise<void>;
+  updateWithdrawalTax(percentage: number): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -46,6 +52,8 @@ export class MemStorage implements IStorage {
   private resources: Map<number, Resource>;
   private transactions: Map<number, Transaction>;
   private prices: Map<string, Price>;
+  private paymentAddress: string;
+  private withdrawalTax: number;
   public sessionStore: session.Store;
   private currentIds: { [key: string]: number };
 
@@ -57,8 +65,10 @@ export class MemStorage implements IStorage {
     this.prices = new Map();
     this.sessionStore = new MemoryStore({ checkPeriod: 86400000 });
     this.currentIds = { users: 1, chickens: 1, transactions: 1, prices: 1 };
+    this.paymentAddress = "TRX8nHHo2Jd7H9ZwKhh6h8h";
+    this.withdrawalTax = 5; // 5% default tax
 
-    // Initialize default prices and admin user
+    // Initialize defaults
     this.initializePrices();
     this.initializeAdminUser();
   }
@@ -255,6 +265,24 @@ export class MemStorage implements IStorage {
       ...existing,
       price: price.toString()
     });
+  }
+
+  async getTransactions(): Promise<Transaction[]> {
+    return Array.from(this.transactions.values())
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async getTransactionByTransactionId(transactionId: string): Promise<Transaction | undefined> {
+    return Array.from(this.transactions.values())
+      .find(tx => tx.transactionId === transactionId);
+  }
+
+  async updatePaymentAddress(address: string): Promise<void> {
+    this.paymentAddress = address;
+  }
+
+  async updateWithdrawalTax(percentage: number): Promise<void> {
+    this.withdrawalTax = percentage;
   }
 }
 

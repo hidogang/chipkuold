@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { Home, ShoppingBag, BarChart2, Wallet, User } from "lucide-react";
+import { Home, ShoppingBag, BarChart2, Wallet, User, Settings } from "lucide-react";
 
 export default function Navigation() {
   const { user, logoutMutation } = useAuth();
@@ -43,6 +43,14 @@ export default function Navigation() {
                 <span>Account</span>
               </Button>
             </Link>
+            {user.isAdmin && (
+              <Link href="/admin">
+                <Button variant="ghost" className="flex items-center space-x-2">
+                  <Settings className="h-5 w-5" />
+                  <span>Admin</span>
+                </Button>
+              </Link>
+            )}
           </div>
           <Button
             variant="ghost"

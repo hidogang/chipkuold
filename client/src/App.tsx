@@ -11,6 +11,7 @@ import ShopPage from "@/pages/shop-page";
 import MarketPage from "@/pages/market-page";
 import WalletPage from "@/pages/wallet-page";
 import AccountPage from "@/pages/account-page";
+import AdminPage from "@/pages/admin-page";
 import NotFound from "@/pages/not-found";
 import Navigation from "@/components/navigation";
 
@@ -23,6 +24,7 @@ function Router() {
       <ProtectedRoute path="/market" component={MarketPage} />
       <ProtectedRoute path="/wallet" component={WalletPage} />
       <ProtectedRoute path="/account" component={AccountPage} />
+      <ProtectedRoute path="/admin" component={AdminPage} />
       <Route component={NotFound} />
     </Switch>
   );
