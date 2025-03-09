@@ -256,7 +256,7 @@ export default function AdminPage() {
                     <TableHead>Date</TableHead>
                     <TableHead>User</TableHead>
                     <TableHead>Amount (USDT)</TableHead>
-                    <TableHead>Bank Details</TableHead>
+                    <TableHead>USDT Address</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
@@ -270,9 +270,8 @@ export default function AdminPage() {
                       <TableCell>{withdrawal.userId}</TableCell>
                       <TableCell>${withdrawal.amount}</TableCell>
                       <TableCell>
-                        <div className="text-sm">
-                          <div>Acc: {withdrawal.bankDetails?.accountNumber}</div>
-                          <div>IFSC: {withdrawal.bankDetails?.ifsc}</div>
+                        <div className="text-sm font-mono truncate max-w-[200px]">
+                          {withdrawal.usdtAddress || "Not provided"}
                         </div>
                       </TableCell>
                       <TableCell>

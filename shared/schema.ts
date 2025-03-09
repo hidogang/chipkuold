@@ -81,3 +81,8 @@ export interface BankDetails {
   ifsc: string;
   accountName: string;
 }
+
+export interface USDTWithdrawal {
+  amount: number;
+  usdtAddress: string;
+}
