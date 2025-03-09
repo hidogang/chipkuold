@@ -14,19 +14,19 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 // Import game icons as React components
 function HomeIcon() {
-  return <img src="/attached_assets/home icon.png" className="w-6 h-6" alt="Home" />;
+  return <img src="attached_assets/home icon.png" className="w-8 h-8 object-contain" alt="Home" />;
 }
 
 function ShopIcon() {
-  return <img src="/attached_assets/shop icon.png" className="w-6 h-6" alt="Shop" />;
+  return <img src="attached_assets/shop icon.png" className="w-8 h-8 object-contain" alt="Shop" />;
 }
 
 function MarketIcon() {
-  return <img src="/attached_assets/Market icon.png" className="w-6 h-6" alt="Market" />;
+  return <img src="attached_assets/Market icon.png" className="w-8 h-8 object-contain" alt="Market" />;
 }
 
 function WalletIcon() {
-  return <img src="/attached_assets/wallet icon.png" className="w-6 h-6" alt="Wallet" />;
+  return <img src="attached_assets/wallet icon.png" className="w-8 h-8 object-contain" alt="Wallet" />;
 }
 
 export default function Navigation() {
@@ -48,26 +48,26 @@ export default function Navigation() {
             <Link href="/">
               <Button variant="ghost" className="flex flex-col items-center space-y-1 h-auto py-2 px-4 hover:bg-primary/10">
                 <HomeIcon />
-                <span className="text-xs">Home</span>
+                <span className="text-xs font-medium">Home</span>
               </Button>
             </Link>
             <Link href="/shop">
               <Button variant="ghost" className="flex flex-col items-center space-y-1 h-auto py-2 px-4 hover:bg-primary/10">
                 <ShopIcon />
-                <span className="text-xs">Shop</span>
+                <span className="text-xs font-medium">Shop</span>
               </Button>
             </Link>
             <Link href="/market">
               <Button variant="ghost" className="flex flex-col items-center space-y-1 h-auto py-2 px-4 hover:bg-primary/10">
                 <MarketIcon />
-                <span className="text-xs">Market</span>
+                <span className="text-xs font-medium">Market</span>
               </Button>
             </Link>
             {user.isAdmin && (
               <Link href="/admin">
                 <Button variant="ghost" className="flex flex-col items-center space-y-1 h-auto py-2 px-4 hover:bg-primary/10">
                   <Settings className="h-6 w-6" />
-                  <span className="text-xs">Admin</span>
+                  <span className="text-xs font-medium">Admin</span>
                 </Button>
               </Link>
             )}
