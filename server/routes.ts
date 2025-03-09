@@ -16,7 +16,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/chickens/buy", async (req, res) => {
     if (!req.user) return res.sendStatus(401);
-    
+
     const schema = z.object({ type: z.enum(["baby", "regular", "golden"]) });
     const result = schema.safeParse(req.body);
     if (!result.success) return res.status(400).json(result.error);
@@ -30,7 +30,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const chicken = await storage.createChicken(req.user.id, result.data.type);
       res.json(chicken);
     } catch (err) {
-      res.status(400).send(err.message);
+      if (err instanceof Error) {
+        res.status(400).send(err.message);
+      } else {
+        res.status(400).send("Failed to buy chicken");
+      }
     }
   });
 
@@ -80,12 +84,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/market/buy", async (req, res) => {
     if (!req.user) return res.sendStatus(401);
-    
+
     const schema = z.object({
       itemType: z.enum(["water_bucket", "wheat_bag"]),
       quantity: z.number().positive()
     });
-    
+
     const result = schema.safeParse(req.body);
     if (!result.success) return res.status(400).json(result.error);
 
@@ -98,25 +102,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       await storage.updateUserBalance(req.user.id, -totalCost);
       const resources = await storage.getResourcesByUserId(req.user.id);
-      
+
       const updates = result.data.itemType === "water_bucket" 
         ? { waterBuckets: resources.waterBuckets + result.data.quantity }
         : { wheatBags: resources.wheatBags + result.data.quantity };
-      
+
       await storage.updateResources(req.user.id, updates);
       res.json({ success: true });
     } catch (err) {
-      res.status(400).send(err.message);
+      if (err instanceof Error) {
+        res.status(400).send(err.message);
+      } else {
+        res.status(400).send("Failed to buy resource");
+      }
     }
   });
 
   app.post("/api/market/sell", async (req, res) => {
     if (!req.user) return res.sendStatus(401);
-    
+
     const schema = z.object({
       quantity: z.number().positive()
     });
-    
+
     const result = schema.safeParse(req.body);
     if (!result.success) return res.status(400).json(result.error);
 
@@ -138,7 +146,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       res.json({ success: true });
     } catch (err) {
-      res.status(400).send(err.message);
+      if (err instanceof Error) {
+        res.status(400).send(err.message);
+      } else {
+        res.status(400).send("Failed to sell eggs");
+      }
     }
   });
 
@@ -151,49 +163,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/wallet/recharge", async (req, res) => {
     if (!req.user) return res.sendStatus(401);
-    
+
     const schema = z.object({
       amount: z.number().positive(),
-      transactionId: z.string()
+      transactionId: z.string(),
+      currency: z.enum(["INR", "USDT"]),
     });
-    
+
     const result = schema.safeParse(req.body);
     if (!result.success) return res.status(400).json(result.error);
 
-    const transaction = await storage.createTransaction(
-      req.user.id,
-      "recharge",
-      result.data.amount,
-      result.data.transactionId
-    );
-    
-    res.json(transaction);
+    try {
+      // If user was referred, calculate commission
+      let referralCommission = null;
+      if (req.user.referredBy) {
+        const referrer = await storage.getUserByReferralCode(req.user.referredBy);
+        if (referrer) {
+          referralCommission = result.data.amount * 0.1; // 10% commission
+          await storage.updateUserBalance(referrer.id, referralCommission, result.data.currency);
+
+          // Create commission transaction for referrer
+          await storage.createTransaction(
+            referrer.id,
+            "commission",
+            referralCommission,
+            result.data.currency
+          );
+        }
+      }
+
+      const transaction = await storage.createTransaction(
+        req.user.id,
+        "recharge",
+        result.data.amount,
+        result.data.currency,
+        result.data.transactionId,
+        referralCommission
+      );
+
+      res.json(transaction);
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(400).send(err.message);
+      } else {
+        res.status(400).send("Failed to process recharge");
+      }
+    }
   });
 
   app.post("/api/wallet/withdraw", async (req, res) => {
     if (!req.user) return res.sendStatus(401);
-    
+
     const schema = z.object({
       amount: z.number().positive(),
+      currency: z.enum(["INR", "USDT"]),
       bankDetails: z.object({
         accountNumber: z.string(),
         ifsc: z.string()
       })
     });
-    
+
     const result = schema.safeParse(req.body);
     if (!result.success) return res.status(400).json(result.error);
 
     try {
-      await storage.updateUserBalance(req.user.id, -result.data.amount);
+      await storage.updateUserBalance(req.user.id, -result.data.amount, result.data.currency);
       const transaction = await storage.createTransaction(
         req.user.id,
         "withdrawal",
-        result.data.amount
+        result.data.amount,
+        result.data.currency
       );
       res.json(transaction);
     } catch (err) {
-      res.status(400).send(err.message);
+      if (err instanceof Error) {
+        res.status(400).send(err.message);
+      } else {
+        res.status(400).send("Failed to process withdrawal");
+      }
     }
   });
 
