@@ -38,77 +38,135 @@ export default function Navigation() {
   const initials = user.username.split(" ").map((n) => n[0]).join("").toUpperCase();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-card border-t shadow-lg md:hidden">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between py-2">
-          <Link href="/">
-            <Button variant={location === "/" ? "default" : "ghost"} 
-              className="flex flex-col items-center space-y-1 h-auto py-2 px-3">
-              <HomeIcon />
-              <span className="text-xs font-medium">Home</span>
-            </Button>
-          </Link>
-
-          <Link href="/shop">
-            <Button variant={location === "/shop" ? "default" : "ghost"}
-              className="flex flex-col items-center space-y-1 h-auto py-2 px-3">
-              <ShopIcon />
-              <span className="text-xs font-medium">Shop</span>
-            </Button>
-          </Link>
-
-          <Link href="/market">
-            <Button variant={location === "/market" ? "default" : "ghost"}
-              className="flex flex-col items-center space-y-1 h-auto py-2 px-3">
-              <MarketIcon />
-              <span className="text-xs font-medium">Market</span>
-            </Button>
-          </Link>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex flex-col items-center space-y-1 h-auto py-2 px-3">
-                <Avatar className="h-8 w-8 ring-2 ring-primary/20">
-                  <AvatarFallback className="bg-primary/10">{initials}</AvatarFallback>
-                </Avatar>
-                <span className="text-xs font-medium">Menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 mb-2">
-              <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{user.username}</p>
-                  <p className="text-xs leading-none text-muted-foreground">
-                    Balance: ${user.usdtBalance || 0}
-                  </p>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <Link href="/wallet">
-                <DropdownMenuItem className="cursor-pointer">
-                  <WalletIcon />
-                  <span className="ml-2">My Wallet</span>
-                </DropdownMenuItem>
+    <>
+      {/* Desktop navigation */}
+      <nav className="hidden md:block fixed top-0 left-0 right-0 bg-background/90 backdrop-blur-sm border-b shadow-sm z-20">
+        <div className="container mx-auto">
+          <div className="flex items-center justify-between h-14">
+            <div className="flex items-center space-x-1">
+              <Link href="/">
+                <Button variant={location === "/" ? "default" : "ghost"} 
+                  className="flex items-center h-10 gap-2 font-medium" size="sm">
+                  <HomeIcon />
+                  <span>Home</span>
+                </Button>
               </Link>
-              {user.isAdmin && (
-                <Link href="/admin">
+              <Link href="/shop">
+                <Button variant={location === "/shop" ? "default" : "ghost"}
+                  className="flex items-center h-10 gap-2 font-medium" size="sm">
+                  <ShopIcon />
+                  <span>Shop</span>
+                </Button>
+              </Link>
+              <Link href="/market">
+                <Button variant={location === "/market" ? "default" : "ghost"}
+                  className="flex items-center h-10 gap-2 font-medium" size="sm">
+                  <MarketIcon />
+                  <span>Market</span>
+                </Button>
+              </Link>
+              <Link href="/wallet">
+                <Button variant={location === "/wallet" ? "default" : "ghost"}
+                  className="flex items-center h-10 gap-2 font-medium" size="sm">
+                  <WalletIcon />
+                  <span>Wallet</span>
+                </Button>
+              </Link>
+            </div>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="flex items-center gap-2 h-10">
+                  <span className="font-medium">{user.username}</span>
+                  <Avatar className="h-7 w-7 ring-2 ring-primary/20">
+                    <AvatarFallback className="bg-primary/10 text-xs">{initials}</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{user.username}</p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      Balance: ${user.usdtBalance || 0}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <Link href="/account">
                   <DropdownMenuItem className="cursor-pointer">
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Admin Panel</span>
+                    My Account
                   </DropdownMenuItem>
                 </Link>
-              )}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem 
-                className="cursor-pointer text-destructive"
-                onClick={() => logoutMutation.mutate()}
-              >
-                Logout
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                {user.isAdmin && (
+                  <Link href="/admin">
+                    <DropdownMenuItem className="cursor-pointer">
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Admin Panel</span>
+                    </DropdownMenuItem>
+                  </Link>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  className="cursor-pointer text-destructive"
+                  onClick={() => logoutMutation.mutate()}
+                >
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+      
+      {/* Mobile navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-card border-t shadow-lg md:hidden z-20">
+        <div className="container mx-auto px-2">
+          <div className="flex items-center justify-between py-1">
+            <Link href="/">
+              <Button variant={location === "/" ? "default" : "ghost"} 
+                className="flex flex-col items-center space-y-1 h-auto py-1 px-2">
+                <HomeIcon />
+                <span className="text-xs font-medium">Home</span>
+              </Button>
+            </Link>
+
+            <Link href="/shop">
+              <Button variant={location === "/shop" ? "default" : "ghost"}
+                className="flex flex-col items-center space-y-1 h-auto py-1 px-2">
+                <ShopIcon />
+                <span className="text-xs font-medium">Shop</span>
+              </Button>
+            </Link>
+
+            <Link href="/market">
+              <Button variant={location === "/market" ? "default" : "ghost"}
+                className="flex flex-col items-center space-y-1 h-auto py-1 px-2">
+                <MarketIcon />
+                <span className="text-xs font-medium">Market</span>
+              </Button>
+            </Link>
+            
+            <Link href="/wallet">
+              <Button variant={location === "/wallet" ? "default" : "ghost"}
+                className="flex flex-col items-center space-y-1 h-auto py-1 px-2">
+                <WalletIcon />
+                <span className="text-xs font-medium">Wallet</span>
+              </Button>
+            </Link>
+
+            <Link href="/account">
+              <Button variant={location === "/account" ? "default" : "ghost"} 
+                className="flex flex-col items-center space-y-1 h-auto py-1 px-2">
+                <Avatar className="h-7 w-7 ring-1 ring-primary/20">
+                  <AvatarFallback className="bg-primary/10 text-xs">{initials}</AvatarFallback>
+                </Avatar>
+                <span className="text-xs font-medium">Account</span>
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </nav>
+    </>
   );
 }

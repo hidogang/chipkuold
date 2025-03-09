@@ -14,7 +14,7 @@ export default function BalanceBar() {
   if (!user || resourcesQuery.isLoading) return null;
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-2 sticky top-0 z-10 bg-background pt-2 pb-2">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-2 sticky md:top-14 top-0 z-10 bg-background pt-2 pb-2">
       <Card className="p-3 shadow-sm border border-border/40">
         <div className="flex items-center space-x-2">
           <Droplet className="h-4 w-4 text-blue-500" />
