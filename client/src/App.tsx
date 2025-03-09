@@ -35,12 +35,13 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Navigation />
-        <main className="container mx-auto px-4 py-8">
-          <BalanceBar />
-          <Router />
-        </main>
-        <Toaster />
+        <div className="min-h-screen">
+          <main className="container mx-auto px-4 py-8 pb-20 md:pb-8">
+            <Router />
+          </main>
+          <Navigation />
+          <Toaster />
+        </div>
       </AuthProvider>
     </QueryClientProvider>
   );

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Price } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import BalanceBar from "@/components/balance-bar";
 
 const CHICKEN_TYPES = [
   {
