@@ -62,10 +62,21 @@ export default function AdminPage() {
         description: "Transaction status updated successfully",
       });
     },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
   });
 
   if (transactionsQuery.isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      </div>
+    );
   }
 
   return (
@@ -81,9 +92,10 @@ export default function AdminPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Date</TableHead>
-                <TableHead>User ID</TableHead>
+                <TableHead>User</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Amount (USDT)</TableHead>
+                <TableHead>Transaction ID</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -97,7 +109,22 @@ export default function AdminPage() {
                   <TableCell>{transaction.userId}</TableCell>
                   <TableCell className="capitalize">{transaction.type}</TableCell>
                   <TableCell>${transaction.amount}</TableCell>
-                  <TableCell className="capitalize">{transaction.status}</TableCell>
+                  <TableCell className="font-mono">
+                    {transaction.transactionId || "-"}
+                  </TableCell>
+                  <TableCell>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        transaction.status === "completed"
+                          ? "bg-green-100 text-green-800"
+                          : transaction.status === "pending"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {transaction.status}
+                    </span>
+                  </TableCell>
                   <TableCell>
                     {transaction.status === "pending" && (
                       <div className="space-x-2">
@@ -110,7 +137,7 @@ export default function AdminPage() {
                             })
                           }
                         >
-                          Approve
+                          Verify & Approve
                         </Button>
                         <Button
                           size="sm"

@@ -18,13 +18,13 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QrCode, Copy } from "lucide-react";
-import { QRCodeSVG } from 'qrcode.react'; // Updated import
+import { QRCodeSVG } from 'qrcode.react';
 import { useState, useEffect } from 'react';
 
 
 const rechargeSchema = z.object({
   amount: z.number().positive("Amount must be positive"),
-  transactionId: z.string().min(1, "Transaction ID is required"),
+  transactionId: z.string().min(1, "Transaction ID is required").regex(/^[A-Za-z0-9]+$/, "Transaction ID must contain only letters and numbers"),
 });
 
 const withdrawalSchema = z.object({
@@ -114,10 +114,8 @@ export default function WalletPage() {
 
   useEffect(() => {
     const amount = rechargeForm.watch("amount");
-    const txId = `CHK${Date.now()}`;
-    const qrData = `trc20:TRX8nHHo2Jd7H9ZwKhh6h8h?amount=${amount}&memo=${txId}`;
+    const qrData = `trc20:TRX8nHHo2Jd7H9ZwKhh6h8h?amount=${amount}`;
     setQrCodeData(qrData);
-    rechargeForm.setValue("transactionId", txId);
   }, [rechargeForm.watch("amount")]);
 
   return (
@@ -151,7 +149,7 @@ export default function WalletPage() {
                       className="mx-auto"
                     />
                     <p className="text-sm font-medium">Scan QR to pay with USDT (TRC20)</p>
-                    <p className="text-xs text-muted-foreground">Transaction ID: {rechargeForm.watch("transactionId")}</p>
+                    <p className="text-xs text-muted-foreground">Enter your transaction ID after payment</p>
                   </div>
                   <Button
                     variant="outline"
@@ -196,9 +194,15 @@ export default function WalletPage() {
                         <FormItem>
                           <FormLabel>Transaction ID</FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Input 
+                              {...field} 
+                              placeholder="Enter your USDT transaction ID"
+                            />
                           </FormControl>
                           <FormMessage />
+                          <p className="text-xs text-muted-foreground">
+                            Enter the transaction ID from your USDT transfer
+                          </p>
                         </FormItem>
                       )}
                     />
@@ -207,7 +211,7 @@ export default function WalletPage() {
                       className="w-full"
                       disabled={rechargeMutation.isPending}
                     >
-                      Recharge Now
+                      Submit Recharge Request
                     </Button>
                   </form>
                 </Form>
