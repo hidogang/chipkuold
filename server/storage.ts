@@ -26,9 +26,9 @@ export interface IStorage {
 
   // Transaction operations
   createTransaction(
-    userId: number, 
-    type: string, 
-    amount: number, 
+    userId: number,
+    type: string,
+    amount: number,
     transactionId?: string,
     referralCommission?: number
   ): Promise<Transaction>;
@@ -76,6 +76,15 @@ export class MemStorage implements IStorage {
         isAdmin: true,
       };
       this.users.set(adminUser.id, adminUser);
+
+      // Initialize resources for admin user
+      this.resources.set(adminUser.id, {
+        id: adminUser.id,
+        userId: adminUser.id,
+        waterBuckets: 0,
+        wheatBags: 0,
+        eggs: 0
+      });
     }
   }
 
@@ -117,9 +126,9 @@ export class MemStorage implements IStorage {
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.currentIds.users++;
     const referralCode = randomBytes(4).toString('hex');
-    const user: User = { 
-      ...insertUser, 
-      id, 
+    const user: User = {
+      ...insertUser,
+      id,
       usdtBalance: "0",
       referralCode,
       isAdmin: false,

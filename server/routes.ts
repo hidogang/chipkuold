@@ -72,8 +72,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Resources
   app.get("/api/resources", async (req, res) => {
     if (!req.user) return res.sendStatus(401);
-    const resources = await storage.getResourcesByUserId(req.user.id);
-    res.json(resources);
+    try {
+      const resources = await storage.getResourcesByUserId(req.user.id);
+      res.json(resources);
+    } catch (err) {
+      // If resources not found, create them
+      const newResources = {
+        id: req.user.id,
+        userId: req.user.id,
+        waterBuckets: 0,
+        wheatBags: 0,
+        eggs: 0
+      };
+      storage.resources.set(req.user.id, newResources);
+      res.json(newResources);
+    }
   });
 
   // Market
@@ -103,7 +116,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.updateUserBalance(req.user.id, -totalCost);
       const resources = await storage.getResourcesByUserId(req.user.id);
 
-      const updates = result.data.itemType === "water_bucket" 
+      const updates = result.data.itemType === "water_bucket"
         ? { waterBuckets: resources.waterBuckets + result.data.quantity }
         : { wheatBags: resources.wheatBags + result.data.quantity };
 
