@@ -1,0 +1,18 @@
+i want you to build a investment website were users will have 5 tabs home, shop, market, wallet, account in home they will see the chickens which they will buy from shop and they will see a hatch option on those chicken if user have 1 water bucket and 1 wheat bag then he can hatch 2 egg from a baby chicken but he need to buy baby chicken before. then after one hatch he will have a cooldown of 6hours then again user can click on hatch. users can buy water bucket and wheat bag from market and can sell eggs in market. in shop users can buy 3 types of chicken baby chicken, chicken, golden chicken price will be 500rs for baby chicken, 1500rs for chicken, 4000rs for golden chicken and production of eggs will be different. baby chicken will take 1 water bucket and 1 wheat bag per hatch and cool down will be 6hr and will give 2 eggs , chicken will take 2 water bucket and 2 wheat bag and will give 5 eggs per hatch and cooldown will be 5hr, and for golden chicken it will take 10 water bucket and 15 wheat bag and will give 20eggs per hatch and cooldown will be 3hr for golden chicken. and in wallet they will have a recharge option where they will see a qrcode and upi id where they can recharge there wallet and use that money to buy chickens and wheat bag and water bucket they will also have withdrawal option in wallet tab were they and withdrawal there money they got form selling eggs in market they will enter there bank details and can withdrawl there money i will have a admin panel where i can see rechargers and confirm those by checking there trx number which they will fill in recharge option and i will have a dashboard where i will see users info and can also set the price for chicken and egg and water bucket and wheat bag and at last they will have account option where they can see there truncation history of every thing they did and will have a reffrence or promotion link and can see there commission on users they got to register
+
+
+A web-based investment game centered around chicken farming and egg production. The platform will feature:
+
+- Five main tabs: Home, Shop, Market, Wallet, and Account
+- Three types of chickens (Baby, Regular, Golden) with varying costs and egg production rates
+- Resource management system involving water buckets and wheat bags
+- Egg hatching mechanism with cooldown periods
+- Market for buying resources and selling eggs
+- Wallet system for in-game currency management, including recharge and withdrawal options
+- User account features including transaction history and referral system
+- Admin panel for transaction verification and game economy management
+
+UI/Style:
+- Rustic farm aesthetic with modern, clean UI elements
+- Animated chicken characters with distinct personalities for each type
+- Intuitive icons for resources and actions, with subtle haptic feedback on interaction
