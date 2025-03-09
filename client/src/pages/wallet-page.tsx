@@ -20,6 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QrCode, Copy } from "lucide-react";
 import { QRCodeSVG } from 'qrcode.react';
 import { useState, useEffect } from 'react';
+import BalanceBar from "@/components/balance-bar";
 
 
 const rechargeSchema = z.object({
@@ -123,57 +124,125 @@ export default function WalletPage() {
   }, [rechargeForm.watch("amount")]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Wallet</h1>
-        <div className="text-right">
-          <p className="text-sm text-muted-foreground">USDT Balance</p>
-          <p className="text-2xl font-bold">${user?.usdtBalance || 0}</p>
+    <div>
+      <BalanceBar />
+      
+      <div className="space-y-6 mt-4">
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold">Wallet</h1>
+          <div className="text-right">
+            <p className="text-sm text-muted-foreground">USDT Balance</p>
+            <p className="text-2xl font-bold">${user?.usdtBalance || 0}</p>
+          </div>
         </div>
-      </div>
 
-      <Tabs defaultValue={defaultTab}>
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="recharge">Recharge</TabsTrigger>
-          <TabsTrigger value="withdraw">Withdraw</TabsTrigger>
-        </TabsList>
+        <Tabs defaultValue={defaultTab}>
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="recharge">Recharge</TabsTrigger>
+            <TabsTrigger value="withdraw">Withdraw</TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="recharge">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recharge Wallet</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div className="bg-primary/10 p-4 rounded-lg text-center space-y-2">
-                    <QRCodeSVG 
-                      value={qrCodeData}
-                      size={160}
-                      className="mx-auto"
-                    />
-                    <p className="text-sm font-medium">Scan QR to pay with USDT (TRC20)</p>
-                    <p className="text-xs text-muted-foreground">Enter your transaction ID after payment</p>
+          <TabsContent value="recharge">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle>Recharge Wallet</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="bg-primary/10 p-4 rounded-lg text-center space-y-2">
+                      <QRCodeSVG 
+                        value={qrCodeData}
+                        size={160}
+                        className="mx-auto"
+                      />
+                      <p className="text-sm font-medium">Scan QR to pay with USDT (TRC20)</p>
+                      <p className="text-xs text-muted-foreground">Enter your transaction ID after payment</p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={handleCopyUSDT}
+                    >
+                      <Copy className="mr-2 h-4 w-4" />
+                      Copy USDT Address (TRC20)
+                    </Button>
                   </div>
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={handleCopyUSDT}
-                  >
-                    <Copy className="mr-2 h-4 w-4" />
-                    Copy USDT Address (TRC20)
-                  </Button>
-                </div>
 
-                <Form {...rechargeForm}>
+                  <Form {...rechargeForm}>
+                    <form
+                      onSubmit={rechargeForm.handleSubmit((data) =>
+                        rechargeMutation.mutate(data)
+                      )}
+                      className="space-y-4"
+                    >
+                      <FormField
+                        control={rechargeForm.control}
+                        name="amount"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Amount (USDT)</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                {...field}
+                                onChange={(e) =>
+                                  field.onChange(parseFloat(e.target.value))
+                                }
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={rechargeForm.control}
+                        name="transactionId"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Transaction ID</FormLabel>
+                            <FormControl>
+                              <Input 
+                                {...field} 
+                                placeholder="Enter your USDT transaction ID"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                            <p className="text-xs text-muted-foreground">
+                              Enter the transaction ID from your USDT transfer
+                            </p>
+                          </FormItem>
+                        )}
+                      />
+                      <Button
+                        type="submit"
+                        className="w-full"
+                        disabled={rechargeMutation.isPending}
+                      >
+                        Submit Recharge Request
+                      </Button>
+                    </form>
+                  </Form>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="withdraw">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle>Withdraw USDT</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Form {...withdrawalForm}>
                   <form
-                    onSubmit={rechargeForm.handleSubmit((data) =>
-                      rechargeMutation.mutate(data)
+                    onSubmit={withdrawalForm.handleSubmit((data) =>
+                      withdrawalMutation.mutate(data)
                     )}
                     className="space-y-4"
                   >
                     <FormField
-                      control={rechargeForm.control}
+                      control={withdrawalForm.control}
                       name="amount"
                       render={({ field }) => (
                         <FormItem>
@@ -192,109 +261,45 @@ export default function WalletPage() {
                       )}
                     />
                     <FormField
-                      control={rechargeForm.control}
-                      name="transactionId"
+                      control={withdrawalForm.control}
+                      name="bankDetails.accountNumber"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Transaction ID</FormLabel>
+                          <FormLabel>Account Number</FormLabel>
                           <FormControl>
-                            <Input 
-                              {...field} 
-                              placeholder="Enter your USDT transaction ID"
-                            />
+                            <Input {...field} />
                           </FormControl>
                           <FormMessage />
-                          <p className="text-xs text-muted-foreground">
-                            Enter the transaction ID from your USDT transfer
-                          </p>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={withdrawalForm.control}
+                      name="bankDetails.ifsc"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>IFSC Code</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
                     <Button
                       type="submit"
                       className="w-full"
-                      disabled={rechargeMutation.isPending}
+                      disabled={withdrawalMutation.isPending}
                     >
-                      Submit Recharge Request
+                      Withdraw USDT
                     </Button>
                   </form>
                 </Form>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="withdraw">
-          <Card>
-            <CardHeader>
-              <CardTitle>Withdraw USDT</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Form {...withdrawalForm}>
-                <form
-                  onSubmit={withdrawalForm.handleSubmit((data) =>
-                    withdrawalMutation.mutate(data)
-                  )}
-                  className="space-y-4"
-                >
-                  <FormField
-                    control={withdrawalForm.control}
-                    name="amount"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Amount (USDT)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            {...field}
-                            onChange={(e) =>
-                              field.onChange(parseFloat(e.target.value))
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={withdrawalForm.control}
-                    name="bankDetails.accountNumber"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Account Number</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={withdrawalForm.control}
-                    name="bankDetails.ifsc"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>IFSC Code</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={withdrawalMutation.isPending}
-                  >
-                    Withdraw USDT
-                  </Button>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }

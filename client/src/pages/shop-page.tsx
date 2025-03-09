@@ -61,32 +61,36 @@ export default function ShopPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Chicken Shop</h1>
+    <div>
+      <BalanceBar />
+      
+      <div className="space-y-6 mt-4">
+        <h1 className="text-2xl font-bold">Chicken Shop</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {CHICKEN_TYPES.map((chicken) => (
-          <Card key={chicken.type}>
-            <CardHeader>
-              <CardTitle>{chicken.name}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground">{chicken.description}</p>
-              <p className="text-sm">Requires: {chicken.requirements}</p>
-              <div className="flex justify-between items-center">
-                <span className="text-lg font-semibold">
-                  ${getPrice(chicken.type)}
-                </span>
-                <Button
-                  onClick={() => buyChickenMutation.mutate(chicken.type)}
-                  disabled={buyChickenMutation.isPending}
-                >
-                  Buy Now
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {CHICKEN_TYPES.map((chicken) => (
+            <Card key={chicken.type}>
+              <CardHeader className="pb-2">
+                <CardTitle>{chicken.name}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground">{chicken.description}</p>
+                <p className="text-sm">Requires: {chicken.requirements}</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-semibold">
+                    ${getPrice(chicken.type)}
+                  </span>
+                  <Button
+                    onClick={() => buyChickenMutation.mutate(chicken.type)}
+                    disabled={buyChickenMutation.isPending}
+                  >
+                    Buy Now
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     </div>
   );
