@@ -6,7 +6,6 @@ export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
-  balance: decimal("balance", { precision: 10, scale: 2 }).notNull().default("0"),
   usdtBalance: decimal("usdt_balance", { precision: 10, scale: 2 }).notNull().default("0"),
   referralCode: text("referral_code").notNull().unique(),
   referredBy: text("referred_by"),
@@ -33,7 +32,6 @@ export const transactions = pgTable("transactions", {
   userId: integer("user_id").notNull(),
   type: text("type").notNull(), // recharge, withdrawal, purchase, commission
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
-  currency: text("currency").notNull().default("INR"), // INR or USDT
   status: text("status").notNull(), // pending, completed, rejected
   transactionId: text("transaction_id"),
   referralCommission: decimal("referral_commission", { precision: 10, scale: 2 }),

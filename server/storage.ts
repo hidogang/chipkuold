@@ -12,7 +12,7 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  updateUserBalance(userId: number, amount: number, currency?: string): Promise<void>;
+  updateUserBalance(userId: number, amount: number): Promise<void>;
   getUserByReferralCode(referralCode: string): Promise<User | undefined>;
 
   // Chicken operations
@@ -29,7 +29,6 @@ export interface IStorage {
     userId: number, 
     type: string, 
     amount: number, 
-    currency?: string,
     transactionId?: string,
     referralCommission?: number
   ): Promise<Transaction>;
@@ -71,7 +70,6 @@ export class MemStorage implements IStorage {
         id: this.currentIds.users++,
         username: "adminraja",
         password: "admin8751",
-        balance: "0",
         usdtBalance: "0",
         referralCode: "ADMIN",
         referredBy: null,
@@ -83,12 +81,12 @@ export class MemStorage implements IStorage {
 
   private async initializePrices() {
     const defaultPrices = [
-      { itemType: "baby_chicken", price: "500" },
-      { itemType: "regular_chicken", price: "1500" },
-      { itemType: "golden_chicken", price: "4000" },
-      { itemType: "water_bucket", price: "50" },
-      { itemType: "wheat_bag", price: "50" },
-      { itemType: "egg", price: "10" }
+      { itemType: "baby_chicken", price: "5" },
+      { itemType: "regular_chicken", price: "15" },
+      { itemType: "golden_chicken", price: "40" },
+      { itemType: "water_bucket", price: "0.5" },
+      { itemType: "wheat_bag", price: "0.5" },
+      { itemType: "egg", price: "0.1" }
     ];
 
     for (const price of defaultPrices) {
@@ -122,7 +120,6 @@ export class MemStorage implements IStorage {
     const user: User = { 
       ...insertUser, 
       id, 
-      balance: "0",
       usdtBalance: "0",
       referralCode,
       isAdmin: false,
@@ -141,25 +138,17 @@ export class MemStorage implements IStorage {
     return user;
   }
 
-  async updateUserBalance(userId: number, amount: number, currency: string = "INR"): Promise<void> {
+  async updateUserBalance(userId: number, amount: number): Promise<void> {
     const user = await this.getUser(userId);
     if (!user) throw new Error("User not found");
 
-    if (currency === "USDT") {
-      const newBalance = parseFloat(user.usdtBalance) + amount;
-      if (newBalance < 0) throw new Error("Insufficient USDT balance");
-      this.users.set(userId, {
-        ...user,
-        usdtBalance: newBalance.toFixed(2)
-      });
-    } else {
-      const newBalance = parseFloat(user.balance) + amount;
-      if (newBalance < 0) throw new Error("Insufficient balance");
-      this.users.set(userId, {
-        ...user,
-        balance: newBalance.toFixed(2)
-      });
-    }
+    const newBalance = parseFloat(user.usdtBalance) + amount;
+    if (newBalance < 0) throw new Error("Insufficient USDT balance");
+
+    this.users.set(userId, {
+      ...user,
+      usdtBalance: newBalance.toFixed(2)
+    });
   }
 
   async getChickensByUserId(userId: number): Promise<Chicken[]> {
@@ -207,7 +196,6 @@ export class MemStorage implements IStorage {
     userId: number,
     type: string,
     amount: number,
-    currency: string = "INR",
     transactionId?: string,
     referralCommission?: number
   ): Promise<Transaction> {
@@ -217,7 +205,6 @@ export class MemStorage implements IStorage {
       userId,
       type,
       amount: amount.toString(),
-      currency,
       status: "pending",
       transactionId: transactionId || randomBytes(16).toString('hex'),
       referralCommission: referralCommission?.toString(),

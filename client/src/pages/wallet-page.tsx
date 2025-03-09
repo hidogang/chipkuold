@@ -17,17 +17,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { QrCode, Copy, IndianRupee } from "lucide-react";
+import { QrCode, Copy } from "lucide-react";
 
 const rechargeSchema = z.object({
   amount: z.number().positive("Amount must be positive"),
   transactionId: z.string().min(1, "Transaction ID is required"),
-  currency: z.enum(["INR", "USDT"]),
 });
 
 const withdrawalSchema = z.object({
   amount: z.number().positive("Amount must be positive"),
-  currency: z.enum(["INR", "USDT"]),
   bankDetails: z.object({
     accountNumber: z.string().min(9, "Invalid account number"),
     ifsc: z.string().regex(/^[A-Z]{4}0[A-Z0-9]{6}$/, "Invalid IFSC code"),
@@ -43,7 +41,6 @@ export default function WalletPage() {
     defaultValues: {
       amount: 0,
       transactionId: "",
-      currency: "INR" as const,
     },
   });
 
@@ -51,7 +48,6 @@ export default function WalletPage() {
     resolver: zodResolver(withdrawalSchema),
     defaultValues: {
       amount: 0,
-      currency: "INR" as const,
       bankDetails: {
         accountNumber: "",
         ifsc: "",
@@ -68,7 +64,7 @@ export default function WalletPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       toast({
         title: "Recharge Requested",
-        description: "Your recharge request has been submitted for verification.",
+        description: "Your USDT recharge request has been submitted for verification.",
       });
       rechargeForm.reset();
     },
@@ -90,7 +86,7 @@ export default function WalletPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       toast({
         title: "Withdrawal Initiated",
-        description: "Your withdrawal request has been processed.",
+        description: "Your USDT withdrawal request has been processed.",
       });
       withdrawalForm.reset();
     },
@@ -102,14 +98,6 @@ export default function WalletPage() {
       });
     },
   });
-
-  const handleCopyUPI = () => {
-    navigator.clipboard.writeText("farm.game@upi");
-    toast({
-      title: "UPI ID Copied",
-      description: "The UPI ID has been copied to your clipboard.",
-    });
-  };
 
   const handleCopyUSDT = () => {
     navigator.clipboard.writeText("TRX8nHHo2Jd7H9ZwKhh6h8h");
@@ -123,15 +111,9 @@ export default function WalletPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Wallet</h1>
-        <div className="text-right space-y-2">
-          <div>
-            <p className="text-sm text-muted-foreground">INR Balance</p>
-            <p className="text-2xl font-bold">₹{user?.balance || 0}</p>
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">USDT Balance</p>
-            <p className="text-2xl font-bold">${user?.usdtBalance || 0}</p>
-          </div>
+        <div className="text-right">
+          <p className="text-sm text-muted-foreground">USDT Balance</p>
+          <p className="text-2xl font-bold">${user?.usdtBalance || 0}</p>
         </div>
       </div>
 
@@ -151,16 +133,8 @@ export default function WalletPage() {
                 <div className="space-y-4">
                   <div className="bg-primary/10 p-4 rounded-lg text-center space-y-2">
                     <QrCode className="h-40 w-40 mx-auto" />
-                    <p className="text-sm font-medium">Scan QR to pay</p>
+                    <p className="text-sm font-medium">Scan QR to pay with USDT</p>
                   </div>
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={handleCopyUPI}
-                  >
-                    <Copy className="mr-2 h-4 w-4" />
-                    Copy UPI ID: farm.game@upi
-                  </Button>
                   <Button
                     variant="outline"
                     className="w-full"
@@ -180,29 +154,10 @@ export default function WalletPage() {
                   >
                     <FormField
                       control={rechargeForm.control}
-                      name="currency"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Currency</FormLabel>
-                          <FormControl>
-                            <select
-                              className="w-full p-2 border rounded"
-                              {...field}
-                            >
-                              <option value="INR">INR</option>
-                              <option value="USDT">USDT</option>
-                            </select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={rechargeForm.control}
                       name="amount"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Amount</FormLabel>
+                          <FormLabel>Amount (USDT)</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -234,7 +189,6 @@ export default function WalletPage() {
                       className="w-full"
                       disabled={rechargeMutation.isPending}
                     >
-                      <IndianRupee className="mr-2 h-4 w-4" />
                       Recharge Now
                     </Button>
                   </form>
@@ -247,7 +201,7 @@ export default function WalletPage() {
         <TabsContent value="withdraw">
           <Card>
             <CardHeader>
-              <CardTitle>Withdraw Funds</CardTitle>
+              <CardTitle>Withdraw USDT</CardTitle>
             </CardHeader>
             <CardContent>
               <Form {...withdrawalForm}>
@@ -259,29 +213,10 @@ export default function WalletPage() {
                 >
                   <FormField
                     control={withdrawalForm.control}
-                    name="currency"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Currency</FormLabel>
-                        <FormControl>
-                          <select
-                            className="w-full p-2 border rounded"
-                            {...field}
-                          >
-                            <option value="INR">INR</option>
-                            <option value="USDT">USDT</option>
-                          </select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={withdrawalForm.control}
                     name="amount"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Amount</FormLabel>
+                        <FormLabel>Amount (USDT)</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -326,7 +261,7 @@ export default function WalletPage() {
                     className="w-full"
                     disabled={withdrawalMutation.isPending}
                   >
-                    Withdraw Funds
+                    Withdraw USDT
                   </Button>
                 </form>
               </Form>

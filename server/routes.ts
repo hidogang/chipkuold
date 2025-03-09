@@ -166,8 +166,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     const schema = z.object({
       amount: z.number().positive(),
-      transactionId: z.string(),
-      currency: z.enum(["INR", "USDT"]),
+      transactionId: z.string()
     });
 
     const result = schema.safeParse(req.body);
@@ -180,14 +179,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const referrer = await storage.getUserByReferralCode(req.user.referredBy);
         if (referrer) {
           referralCommission = result.data.amount * 0.1; // 10% commission
-          await storage.updateUserBalance(referrer.id, referralCommission, result.data.currency);
+          await storage.updateUserBalance(referrer.id, referralCommission);
 
           // Create commission transaction for referrer
           await storage.createTransaction(
             referrer.id,
             "commission",
-            referralCommission,
-            result.data.currency
+            referralCommission
           );
         }
       }
@@ -196,7 +194,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         req.user.id,
         "recharge",
         result.data.amount,
-        result.data.currency,
         result.data.transactionId,
         referralCommission
       );
@@ -216,7 +213,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     const schema = z.object({
       amount: z.number().positive(),
-      currency: z.enum(["INR", "USDT"]),
       bankDetails: z.object({
         accountNumber: z.string(),
         ifsc: z.string()
@@ -227,12 +223,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (!result.success) return res.status(400).json(result.error);
 
     try {
-      await storage.updateUserBalance(req.user.id, -result.data.amount, result.data.currency);
+      await storage.updateUserBalance(req.user.id, -result.data.amount);
       const transaction = await storage.createTransaction(
         req.user.id,
         "withdrawal",
-        result.data.amount,
-        result.data.currency
+        result.data.amount
       );
       res.json(transaction);
     } catch (err) {
