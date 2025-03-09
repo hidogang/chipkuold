@@ -5,9 +5,11 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function HomePage() {
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const chickensQuery = useQuery<Chicken[]>({
     queryKey: ["/api/chickens"],
@@ -41,13 +43,17 @@ export default function HomePage() {
 
   if (chickensQuery.isLoading || resourcesQuery.isLoading) {
     return (
-      <div className="h-screen bg-gradient-to-b from-primary/5 to-background">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex justify-between mb-6">
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-12 w-24" />
-            ))}
+      <div className="h-screen bg-gradient-to-b from-primary/5 to-background pt-20">
+        <div className="fixed top-0 left-0 right-0 bg-card/95 backdrop-blur-sm border-b shadow-lg z-50">
+          <div className="container mx-auto px-4 py-3">
+            <div className="flex justify-between items-center">
+              {[1, 2, 3, 4].map((i) => (
+                <Skeleton key={i} className="h-8 w-16" />
+              ))}
+            </div>
           </div>
+        </div>
+        <div className="container mx-auto px-4 py-6">
           <div className="grid grid-cols-2 gap-4">
             {[1, 2, 3, 4].map((i) => (
               <Skeleton key={i} className="h-48 w-full" />
@@ -61,22 +67,26 @@ export default function HomePage() {
   const resources = resourcesQuery.data || { waterBuckets: 0, wheatBags: 0, eggs: 0 };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-primary/5 to-background pb-16">
-      {/* Game Header with Resources */}
-      <div className="bg-card shadow-lg p-4 sticky top-0 z-10">
-        <div className="container mx-auto">
+    <div className="min-h-screen bg-gradient-to-b from-primary/5 to-background pt-20 pb-24">
+      {/* Fixed Game Header with Resources */}
+      <div className="fixed top-0 left-0 right-0 bg-card/95 backdrop-blur-sm border-b shadow-lg z-50">
+        <div className="container mx-auto px-4 py-3">
           <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-2 bg-primary/5 rounded-lg px-3 py-1.5">
               <img src="/assets/water-bucket.png" alt="Water" className="w-6 h-6" />
               <span className="font-bold">{resources.waterBuckets}</span>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-2 bg-primary/5 rounded-lg px-3 py-1.5">
               <img src="/assets/wheat-bag.png" alt="Wheat" className="w-6 h-6" />
               <span className="font-bold">{resources.wheatBags}</span>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-2 bg-primary/5 rounded-lg px-3 py-1.5">
               <img src="/assets/egg.png" alt="Eggs" className="w-6 h-6" />
               <span className="font-bold">{resources.eggs}</span>
+            </div>
+            <div className="flex items-center gap-2 bg-primary/5 rounded-lg px-3 py-1.5">
+              <img src="/assets/usdt.png" alt="USDT" className="w-6 h-6" />
+              <span className="font-bold">${user?.usdtBalance || 0}</span>
             </div>
           </div>
         </div>
