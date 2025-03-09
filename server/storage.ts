@@ -30,7 +30,8 @@ export interface IStorage {
     type: string,
     amount: number,
     transactionId?: string,
-    referralCommission?: number
+    referralCommission?: number,
+    bankDetails?: string
   ): Promise<Transaction>;
   getTransactionsByUserId(userId: number): Promise<Transaction[]>;
   updateTransactionStatus(transactionId: string, status: string): Promise<void>;
@@ -84,6 +85,7 @@ export class MemStorage implements IStorage {
         referralCode: "ADMIN",
         referredBy: null,
         isAdmin: true,
+        lastLoginAt: null,
       };
       this.users.set(adminUser.id, adminUser);
 
@@ -142,6 +144,7 @@ export class MemStorage implements IStorage {
       usdtBalance: "0",
       referralCode,
       isAdmin: false,
+      lastLoginAt: null,
     };
     this.users.set(id, user);
 
@@ -216,7 +219,8 @@ export class MemStorage implements IStorage {
     type: string,
     amount: number,
     transactionId?: string,
-    referralCommission?: number
+    referralCommission?: number,
+    bankDetails?: string
   ): Promise<Transaction> {
     const id = this.currentIds.transactions++;
     const transaction: Transaction = {
@@ -227,7 +231,8 @@ export class MemStorage implements IStorage {
       status: "pending",
       transactionId: transactionId || randomBytes(16).toString('hex'),
       referralCommission: referralCommission?.toString(),
-      createdAt: new Date()
+      createdAt: new Date(),
+      bankDetails: bankDetails || null
     };
     this.transactions.set(id, transaction);
     return transaction;

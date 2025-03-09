@@ -271,7 +271,9 @@ export default function AdminPage() {
                       <TableCell>${withdrawal.amount}</TableCell>
                       <TableCell>
                         <div className="text-sm font-mono truncate max-w-[200px]">
-                          {withdrawal.usdtAddress || "Not provided"}
+                          {withdrawal.bankDetails 
+                            ? JSON.parse(withdrawal.bankDetails)?.usdtAddress || "Not provided" 
+                            : "Not provided"}
                         </div>
                       </TableCell>
                       <TableCell>

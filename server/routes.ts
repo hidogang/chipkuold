@@ -345,10 +345,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       await storage.updateUserBalance(req.user.id, -result.data.amount);
+      
+      // Store USDT address as bankDetails JSON field for compatibility
+      const usdtAddressData = JSON.stringify({ usdtAddress: result.data.usdtAddress });
+      
       const transaction = await storage.createTransaction(
         req.user.id,
         "withdrawal",
-        result.data.amount
+        result.data.amount,
+        undefined,
+        undefined,
+        usdtAddressData
       );
       res.json(transaction);
     } catch (err) {
