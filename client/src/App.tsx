@@ -14,6 +14,7 @@ import AccountPage from "@/pages/account-page";
 import AdminPage from "@/pages/admin-page";
 import NotFound from "@/pages/not-found";
 import Navigation from "@/components/navigation";
+import BalanceBar from "@/components/balance-bar";
 
 function Router() {
   return (
@@ -36,6 +37,7 @@ function App() {
       <AuthProvider>
         <Navigation />
         <main className="container mx-auto px-4 py-8">
+          <BalanceBar />
           <Router />
         </main>
         <Toaster />

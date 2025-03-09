@@ -18,6 +18,9 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QrCode, Copy } from "lucide-react";
+import { QRCodeSVG } from 'qrcode.react'; // Updated import
+import { useState, useEffect } from 'react';
+
 
 const rechargeSchema = z.object({
   amount: z.number().positive("Amount must be positive"),
@@ -107,6 +110,16 @@ export default function WalletPage() {
     });
   };
 
+  const [qrCodeData, setQrCodeData] = useState("");
+
+  useEffect(() => {
+    const amount = rechargeForm.watch("amount");
+    const txId = `CHK${Date.now()}`;
+    const qrData = `trc20:TRX8nHHo2Jd7H9ZwKhh6h8h?amount=${amount}&memo=${txId}`;
+    setQrCodeData(qrData);
+    rechargeForm.setValue("transactionId", txId);
+  }, [rechargeForm.watch("amount")]);
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -132,8 +145,13 @@ export default function WalletPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div className="bg-primary/10 p-4 rounded-lg text-center space-y-2">
-                    <QrCode className="h-40 w-40 mx-auto" />
-                    <p className="text-sm font-medium">Scan QR to pay with USDT</p>
+                    <QRCodeSVG 
+                      value={qrCodeData}
+                      size={160}
+                      className="mx-auto"
+                    />
+                    <p className="text-sm font-medium">Scan QR to pay with USDT (TRC20)</p>
+                    <p className="text-xs text-muted-foreground">Transaction ID: {rechargeForm.watch("transactionId")}</p>
                   </div>
                   <Button
                     variant="outline"
