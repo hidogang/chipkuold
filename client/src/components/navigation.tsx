@@ -14,19 +14,19 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 // Import game icons as React components
 function HomeIcon() {
-  return <img src="attached_assets/home icon.png" className="w-8 h-8 object-contain" alt="Home" />;
+  return <img src="/assets/home-icon.png" className="w-8 h-8 object-contain" alt="Home" />;
 }
 
 function ShopIcon() {
-  return <img src="attached_assets/shop icon.png" className="w-8 h-8 object-contain" alt="Shop" />;
+  return <img src="/assets/shop-icon.png" className="w-8 h-8 object-contain" alt="Shop" />;
 }
 
 function MarketIcon() {
-  return <img src="attached_assets/Market icon.png" className="w-8 h-8 object-contain" alt="Market" />;
+  return <img src="/assets/market-icon.png" className="w-8 h-8 object-contain" alt="Market" />;
 }
 
 function WalletIcon() {
-  return <img src="attached_assets/wallet icon.png" className="w-8 h-8 object-contain" alt="Wallet" />;
+  return <img src="/assets/wallet-icon.png" className="w-8 h-8 object-contain" alt="Wallet" />;
 }
 
 export default function Navigation() {
