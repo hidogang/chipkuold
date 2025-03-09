@@ -169,6 +169,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(400).send("Insufficient resources");
     }
 
+    // Update resources: decrease water and wheat, increase eggs
     await storage.updateResources(req.user.id, {
       waterBuckets: resources.waterBuckets - required.water,
       wheatBags: resources.wheatBags - required.wheat,

@@ -73,7 +73,7 @@ export default function MarketPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Market</h1>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card>
           <CardHeader>
@@ -91,7 +91,7 @@ export default function MarketPage() {
                 })}
               />
               <span className="text-lg font-semibold">
-                ₹{getPrice("water_bucket") * quantities.water_bucket}
+                ${(getPrice("water_bucket") * quantities.water_bucket).toFixed(2)}
               </span>
             </div>
             <Button
@@ -123,7 +123,7 @@ export default function MarketPage() {
                 })}
               />
               <span className="text-lg font-semibold">
-                ₹{getPrice("wheat_bag") * quantities.wheat_bag}
+                ${(getPrice("wheat_bag") * quantities.wheat_bag).toFixed(2)}
               </span>
             </div>
             <Button
@@ -159,7 +159,7 @@ export default function MarketPage() {
                 })}
               />
               <span className="text-lg font-semibold">
-                ₹{getPrice("egg") * quantities.eggs}
+                ${(getPrice("egg") * quantities.eggs).toFixed(2)}
               </span>
             </div>
             <Button
