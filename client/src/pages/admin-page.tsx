@@ -1,11 +1,10 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Transaction, Price } from "@shared/schema";
+import { Transaction } from "@shared/schema";
 import {
   Table,
   TableBody,
@@ -16,7 +15,16 @@ import {
 } from "@/components/ui/table";
 import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Wallet, ArrowDownToLine, ArrowUpFromLine, Activity } from "lucide-react";
+import { Users, ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
+
+interface AdminStats {
+  todayLogins: number;
+  yesterdayLogins: number;
+  totalUsers: number;
+  todayDeposits: number;
+  totalDeposits: number;
+  pendingWithdrawals: number;
+}
 
 export default function AdminPage() {
   const { toast } = useToast();
@@ -27,7 +35,7 @@ export default function AdminPage() {
     return <div>Access Denied</div>;
   }
 
-  const statsQuery = useQuery({
+  const statsQuery = useQuery<AdminStats>({
     queryKey: ["/api/admin/stats"],
   });
 

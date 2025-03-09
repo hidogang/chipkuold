@@ -10,6 +10,7 @@ export const users = pgTable("users", {
   referralCode: text("referral_code").notNull().unique(),
   referredBy: text("referred_by"),
   isAdmin: boolean("is_admin").notNull().default(false),
+  lastLoginAt: timestamp("last_login_at"),
 });
 
 export const chickens = pgTable("chickens", {
@@ -36,6 +37,7 @@ export const transactions = pgTable("transactions", {
   transactionId: text("transaction_id"),
   referralCommission: decimal("referral_commission", { precision: 10, scale: 2 }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  bankDetails: text("bank_details"), // JSON string containing bank account details
 });
 
 export const prices = pgTable("prices", {
@@ -63,3 +65,19 @@ export type Chicken = typeof chickens.$inferSelect;
 export type Resource = typeof resources.$inferSelect;
 export type Transaction = typeof transactions.$inferSelect;
 export type Price = typeof prices.$inferSelect;
+
+// Admin types
+export interface AdminStats {
+  todayLogins: number;
+  yesterdayLogins: number;
+  totalUsers: number;
+  todayDeposits: number;
+  totalDeposits: number;
+  pendingWithdrawals: number;
+}
+
+export interface BankDetails {
+  accountNumber: string;
+  ifsc: string;
+  accountName: string;
+}
