@@ -46,13 +46,13 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="grid md:grid-cols-2 gap-8 w-full max-w-4xl">
-        <Card>
-          <CardHeader>
-            <div className="flex flex-col items-center space-y-4 mb-4">
-              <img src="/assets/chickworld-logo.svg" className="h-24 w-auto" alt="ChickWorld" />
-              <CardTitle className="text-center">Welcome to ChickWorld</CardTitle>
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="grid md:grid-cols-2 gap-4 sm:gap-8 w-full max-w-4xl">
+        <Card className="shadow-md">
+          <CardHeader className="pb-2 sm:pb-4">
+            <div className="flex flex-col items-center space-y-2 sm:space-y-4 mb-2 sm:mb-4">
+              <img src="/assets/chickworld-logo.svg" className="h-16 sm:h-24 w-auto" alt="ChickWorld" />
+              <CardTitle className="text-center text-lg sm:text-xl">Welcome to ChickWorld</CardTitle>
             </div>
           </CardHeader>
           <CardContent>
@@ -64,17 +64,17 @@ export default function AuthPage() {
 
               <TabsContent value="login">
                 <Form {...loginForm}>
-                  <form onSubmit={loginForm.handleSubmit((data) => loginMutation.mutate(data))} className="space-y-4">
+                  <form onSubmit={loginForm.handleSubmit((data) => loginMutation.mutate(data))} className="space-y-3 sm:space-y-4">
                     <FormField
                       control={loginForm.control}
                       name="username"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Username</FormLabel>
+                          <FormLabel className="text-xs sm:text-sm">Username</FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Input {...field} className="h-9 sm:h-10 text-sm" />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-xs" />
                         </FormItem>
                       )}
                     />
@@ -83,32 +83,32 @@ export default function AuthPage() {
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Password</FormLabel>
+                          <FormLabel className="text-xs sm:text-sm">Password</FormLabel>
                           <FormControl>
-                            <Input type="password" {...field} />
+                            <Input type="password" {...field} className="h-9 sm:h-10 text-sm" />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-xs" />
                         </FormItem>
                       )}
                     />
-                    <Button type="submit" className="w-full">Login</Button>
+                    <Button type="submit" className="w-full h-9 sm:h-10 text-sm mt-2">Login</Button>
                   </form>
                 </Form>
               </TabsContent>
 
               <TabsContent value="register">
                 <Form {...registerForm}>
-                  <form onSubmit={registerForm.handleSubmit((data) => registerMutation.mutate(data))} className="space-y-4">
+                  <form onSubmit={registerForm.handleSubmit((data) => registerMutation.mutate(data))} className="space-y-3 sm:space-y-4">
                     <FormField
                       control={registerForm.control}
                       name="username"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Username</FormLabel>
+                          <FormLabel className="text-xs sm:text-sm">Username</FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Input {...field} className="h-9 sm:h-10 text-sm" />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-xs" />
                         </FormItem>
                       )}
                     />
@@ -117,11 +117,11 @@ export default function AuthPage() {
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Password</FormLabel>
+                          <FormLabel className="text-xs sm:text-sm">Password</FormLabel>
                           <FormControl>
-                            <Input type="password" {...field} />
+                            <Input type="password" {...field} className="h-9 sm:h-10 text-sm" />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-xs" />
                         </FormItem>
                       )}
                     />
@@ -130,15 +130,15 @@ export default function AuthPage() {
                       name="referredBy"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Referral Code (Optional)</FormLabel>
+                          <FormLabel className="text-xs sm:text-sm">Referral Code (Optional)</FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Input {...field} className="h-9 sm:h-10 text-sm" />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-xs" />
                         </FormItem>
                       )}
                     />
-                    <Button type="submit" className="w-full">Register</Button>
+                    <Button type="submit" className="w-full h-9 sm:h-10 text-sm mt-2">Register</Button>
                   </form>
                 </Form>
               </TabsContent>
@@ -146,19 +146,27 @@ export default function AuthPage() {
           </CardContent>
         </Card>
 
-        <div className="hidden md:block bg-primary/10 rounded-lg p-8">
-          <h2 className="text-2xl font-bold mb-4">Start Your Farming Journey</h2>
-          <p className="text-muted-foreground mb-4">
+        <div className="hidden md:block bg-primary/10 rounded-lg p-6 sm:p-8">
+          <h2 className="text-xl sm:text-2xl font-bold mb-4">Start Your Farming Journey</h2>
+          <p className="text-sm text-muted-foreground mb-4">
             Build your chicken farm empire! Buy and manage different types of chickens,
             gather resources, and earn profits through egg production.
           </p>
           <div className="bg-background/50 p-4 rounded">
-            <h3 className="font-semibold mb-2">Referral Program</h3>
-            <p className="text-sm text-muted-foreground">
+            <h3 className="text-base sm:text-lg font-semibold mb-2">Referral Program</h3>
+            <p className="text-xs sm:text-sm text-muted-foreground">
               Share your referral code with friends and earn 10% commission on their deposits!
               Start building your network and increase your earnings today.
             </p>
           </div>
+        </div>
+        
+        {/* Mobile version of info panel */}
+        <div className="md:hidden bg-primary/10 rounded-lg p-4 mt-2">
+          <h3 className="text-base font-semibold mb-2">Referral Program</h3>
+          <p className="text-xs text-muted-foreground">
+            Share your referral code with friends and earn 10% commission on their deposits!
+          </p>
         </div>
       </div>
     </div>
