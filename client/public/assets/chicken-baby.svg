@@ -1,0 +1,12 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Baby Chicken -->
+  <circle cx="100" cy="105" r="65" fill="#FFFCE1" />
+  <circle cx="100" cy="45" r="30" fill="#FFFCE1" />
+  <circle cx="90" cy="40" r="6" fill="#000000" />
+  <circle cx="110" cy="40" r="6" fill="#000000" />
+  <path d="M95 55 Q100 65 105 55" stroke="#FF9800" stroke-width="3" fill="none" />
+  <path d="M70 80 L40 60" stroke="#FFFCE1" stroke-width="12" stroke-linecap="round" />
+  <path d="M130 80 L160 60" stroke="#FFFCE1" stroke-width="12" stroke-linecap="round" />
+  <path d="M85 150 L70 180" stroke="#FF9800" stroke-width="8" stroke-linecap="round" />
+  <path d="M115 150 L130 180" stroke="#FF9800" stroke-width="8" stroke-linecap="round" />
+</svg>

@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
+import { Link } from "wouter";
 import BalanceBar from "@/components/balance-bar";
 
 export default function HomePage() {
@@ -70,7 +71,7 @@ export default function HomePage() {
               Start your farming journey by getting your first chicken from the shop.
             </p>
             <Button asChild className="bg-primary/90 hover:bg-primary">
-              <a href="/shop">Visit Shop</a>
+              <Link href="/shop">Visit Shop</Link>
             </Button>
           </Card>
         ) : (
@@ -79,7 +80,7 @@ export default function HomePage() {
               <Card key={chicken.id} className="p-4">
                 <div className="relative aspect-square mb-4">
                   <img
-                    src={`/assets/chicken-${chicken.type}.png`}
+                    src={`/assets/chicken-${chicken.type}.svg`}
                     alt={`${chicken.type} Chicken`}
                     className="w-full h-full object-contain"
                   />

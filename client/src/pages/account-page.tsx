@@ -48,7 +48,7 @@ export default function AccountPage() {
 
   const formatAmount = (amount: string, type: string) => {
     const value = parseFloat(amount);
-    return `${type === "withdrawal" ? "-" : "+"}₹${Math.abs(value).toFixed(2)}`;
+    return `${type === "withdrawal" ? "-" : "+"}$${Math.abs(value).toFixed(2)}`;
   };
 
   if (transactionsQuery.isLoading) {
@@ -81,7 +81,7 @@ export default function AccountPage() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Current Balance</p>
-                <p className="text-lg font-medium">₹{user?.usdtBalance || 0}</p>
+                <p className="text-lg font-medium">${user?.usdtBalance || 0}</p>
               </div>
             </CardContent>
           </Card>
