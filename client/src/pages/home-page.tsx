@@ -78,14 +78,16 @@ export default function HomePage() {
     );
   }
 
-  // Create a proper Resource type object with required fields if data is missing
-  const resources: Resource = resourcesQuery.data || { 
-    id: 0, 
-    userId: user?.id || 0, 
-    waterBuckets: 0, 
-    wheatBags: 0, 
-    eggs: 0 
-  };
+  // Create a proper Resource type object with required fields
+  const resources: Resource = resourcesQuery.data 
+    ? resourcesQuery.data 
+    : { 
+        id: 0, 
+        userId: user?.id || 0, 
+        waterBuckets: 0, 
+        wheatBags: 0, 
+        eggs: 0 
+      };
 
   // Background styles based on time of day
   const getBgStyle = () => {
