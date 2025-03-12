@@ -50,7 +50,10 @@ export default function AuthPage() {
       <div className="grid md:grid-cols-2 gap-8 w-full max-w-4xl">
         <Card>
           <CardHeader>
-            <CardTitle>Welcome to Chicken Farm</CardTitle>
+            <div className="flex flex-col items-center space-y-4 mb-4">
+              <img src="/assets/chickworld-logo.svg" className="h-24 w-auto" alt="ChickWorld" />
+              <CardTitle className="text-center">Welcome to ChickWorld</CardTitle>
+            </div>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="login">

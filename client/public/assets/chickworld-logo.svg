@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">
+  <!-- Background circle -->
+  <circle cx="150" cy="150" r="100" fill="#54d8d8" />
+  
+  <!-- Outer brown ring -->
+  <circle cx="150" cy="150" r="110" fill="none" stroke="#8B4513" stroke-width="12" />
+  
+  <!-- Green grass at bottom -->
+  <path d="M 50,170 C 80,150 120,190 150,170 C 180,190 220,150 250,170 L 250,200 C 220,180 180,220 150,200 C 120,220 80,180 50,200 Z" fill="#4CAF50" />
+  
+  <!-- Chicken body -->
+  <ellipse cx="140" cy="145" rx="45" ry="40" fill="#FECC06" />
+  
+  <!-- Head -->
+  <circle cx="100" cy="125" r="25" fill="#FECC06" />
+  
+  <!-- Comb -->
+  <path d="M 90,105 Q 95,95 100,100 Q 105,90 110,95 Q 115,85 120,90 Q 125,80 130,85 L 115,110 Z" fill="#FF5722" />
+  
+  <!-- Beak -->
+  <path d="M 75,125 L 95,120 L 90,130 Z" fill="#FFD700" />
+  
+  <!-- Eye -->
+  <circle cx="95" cy="120" r="5" fill="#8B4513" />
+  <circle cx="95" cy="120" r="2" fill="#fff" />
+  
+  <!-- Wing -->
+  <path d="M 150,140 Q 170,125 180,150 Q 160,160 150,145 Z" fill="#FDD835" />
+  
+  <!-- Wheat stems -->
+  <line x1="50" y1="140" x2="40" y2="100" stroke="#8B4513" stroke-width="3" />
+  <line x1="250" y1="140" x2="260" y2="100" stroke="#8B4513" stroke-width="3" />
+  
+  <!-- Wheat grains left -->
+  <ellipse cx="36" cy="95" rx="5" ry="10" fill="#FFD700" transform="rotate(-15,36,95)" />
+  <ellipse cx="40" cy="85" rx="5" ry="10" fill="#FFD700" transform="rotate(-15,40,85)" />
+  <ellipse cx="44" cy="75" rx="5" ry="10" fill="#FFD700" transform="rotate(-15,44,75)" />
+  
+  <!-- Wheat grains right -->
+  <ellipse cx="264" cy="95" rx="5" ry="10" fill="#FFD700" transform="rotate(15,264,95)" />
+  <ellipse cx="260" cy="85" rx="5" ry="10" fill="#FFD700" transform="rotate(15,260,85)" />
+  <ellipse cx="256" cy="75" rx="5" ry="10" fill="#FFD700" transform="rotate(15,256,75)" />
+  
+  <!-- Barn in background -->
+  <rect x="170" y="110" width="20" height="30" fill="#C62828" />
+  <polygon points="170,110 180,90 190,110" fill="#C62828" />
+  <rect x="175" y="120" width="10" height="10" fill="#fff" />
+  
+  <!-- Name banner -->
+  <rect x="70" y="185" width="160" height="40" rx="5" ry="5" fill="#8B4513" />
+  
+  <!-- Text -->
+  <text x="150" y="213" font-family="Arial Black, Gadget, sans-serif" font-size="24" fill="#FFD700" text-anchor="middle" font-weight="bold">ChickWorld</text>
+  
+  <!-- Eggs at the bottom -->
+  <circle cx="120" cy="235" r="8" fill="#fff" stroke="#ddd" stroke-width="1" />
+  <circle cx="140" cy="235" r="8" fill="#fff" stroke="#ddd" stroke-width="1" />
+  <circle cx="160" cy="235" r="8" fill="#fff" stroke="#ddd" stroke-width="1" />
+  
+  <!-- Flower -->
+  <circle cx="120" cy="235" r="4" fill="#FFEB3B" />
+  <circle cx="122" cy="232" r="1.5" fill="#fff" />
+  <circle cx="118" cy="232" r="1.5" fill="#fff" />
+  <circle cx="122" cy="238" r="1.5" fill="#fff" />
+  <circle cx="118" cy="238" r="1.5" fill="#fff" />
+</svg>

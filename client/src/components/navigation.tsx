@@ -12,6 +12,11 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Settings } from "lucide-react";
 
+// Logo component
+function Logo() {
+  return <img src="/assets/chickworld-logo.svg" className="h-10 w-auto" alt="ChickWorld" />;
+}
+
 // Game icons
 function HomeIcon() {
   return <img src="/assets/home-icon.png" className="w-8 h-8 object-contain" alt="Home" />;
@@ -43,35 +48,52 @@ export default function Navigation() {
       <nav className="hidden md:block fixed top-0 left-0 right-0 bg-background/90 backdrop-blur-sm border-b shadow-sm z-20">
         <div className="container mx-auto">
           <div className="flex items-center justify-between h-14">
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center space-x-4">
               <Link href="/">
-                <Button variant={location === "/" ? "default" : "ghost"} 
-                  className="flex items-center h-10 gap-2 font-medium" size="sm">
-                  <HomeIcon />
-                  <span>Home</span>
-                </Button>
+                <Logo />
               </Link>
-              <Link href="/shop">
-                <Button variant={location === "/shop" ? "default" : "ghost"}
-                  className="flex items-center h-10 gap-2 font-medium" size="sm">
-                  <ShopIcon />
-                  <span>Shop</span>
-                </Button>
-              </Link>
-              <Link href="/market">
-                <Button variant={location === "/market" ? "default" : "ghost"}
-                  className="flex items-center h-10 gap-2 font-medium" size="sm">
-                  <MarketIcon />
-                  <span>Market</span>
-                </Button>
-              </Link>
-              <Link href="/wallet">
-                <Button variant={location === "/wallet" ? "default" : "ghost"}
-                  className="flex items-center h-10 gap-2 font-medium" size="sm">
-                  <WalletIcon />
-                  <span>Wallet</span>
-                </Button>
-              </Link>
+              <div className="flex items-center space-x-1">
+                <Link href="/">
+                  <Button 
+                    variant={location === "/" ? "default" : "ghost"} 
+                    className="flex items-center h-10 gap-2 font-medium" 
+                    size="sm"
+                  >
+                    <HomeIcon />
+                    <span>Home</span>
+                  </Button>
+                </Link>
+                <Link href="/shop">
+                  <Button 
+                    variant={location === "/shop" ? "default" : "ghost"}
+                    className="flex items-center h-10 gap-2 font-medium" 
+                    size="sm"
+                  >
+                    <ShopIcon />
+                    <span>Shop</span>
+                  </Button>
+                </Link>
+                <Link href="/market">
+                  <Button 
+                    variant={location === "/market" ? "default" : "ghost"}
+                    className="flex items-center h-10 gap-2 font-medium" 
+                    size="sm"
+                  >
+                    <MarketIcon />
+                    <span>Market</span>
+                  </Button>
+                </Link>
+                <Link href="/wallet">
+                  <Button 
+                    variant={location === "/wallet" ? "default" : "ghost"}
+                    className="flex items-center h-10 gap-2 font-medium" 
+                    size="sm"
+                  >
+                    <WalletIcon />
+                    <span>Wallet</span>
+                  </Button>
+                </Link>
+              </div>
             </div>
             
             <DropdownMenu>
@@ -124,40 +146,50 @@ export default function Navigation() {
         <div className="container mx-auto px-2">
           <div className="flex items-center justify-between py-1">
             <Link href="/">
-              <Button variant={location === "/" ? "default" : "ghost"} 
-                className="flex flex-col items-center space-y-1 h-auto py-1 px-2">
+              <Button 
+                variant={location === "/" ? "default" : "ghost"} 
+                className="flex flex-col items-center space-y-1 h-auto py-1 px-2"
+              >
                 <HomeIcon />
                 <span className="text-xs font-medium">Home</span>
               </Button>
             </Link>
 
             <Link href="/shop">
-              <Button variant={location === "/shop" ? "default" : "ghost"}
-                className="flex flex-col items-center space-y-1 h-auto py-1 px-2">
+              <Button 
+                variant={location === "/shop" ? "default" : "ghost"}
+                className="flex flex-col items-center space-y-1 h-auto py-1 px-2"
+              >
                 <ShopIcon />
                 <span className="text-xs font-medium">Shop</span>
               </Button>
             </Link>
 
             <Link href="/market">
-              <Button variant={location === "/market" ? "default" : "ghost"}
-                className="flex flex-col items-center space-y-1 h-auto py-1 px-2">
+              <Button 
+                variant={location === "/market" ? "default" : "ghost"}
+                className="flex flex-col items-center space-y-1 h-auto py-1 px-2"
+              >
                 <MarketIcon />
                 <span className="text-xs font-medium">Market</span>
               </Button>
             </Link>
             
             <Link href="/wallet">
-              <Button variant={location === "/wallet" ? "default" : "ghost"}
-                className="flex flex-col items-center space-y-1 h-auto py-1 px-2">
+              <Button 
+                variant={location === "/wallet" ? "default" : "ghost"}
+                className="flex flex-col items-center space-y-1 h-auto py-1 px-2"
+              >
                 <WalletIcon />
                 <span className="text-xs font-medium">Wallet</span>
               </Button>
             </Link>
 
             <Link href="/account">
-              <Button variant={location === "/account" ? "default" : "ghost"} 
-                className="flex flex-col items-center space-y-1 h-auto py-1 px-2">
+              <Button 
+                variant={location === "/account" ? "default" : "ghost"} 
+                className="flex flex-col items-center space-y-1 h-auto py-1 px-2"
+              >
                 <Avatar className="h-7 w-7 ring-1 ring-primary/20">
                   <AvatarFallback className="bg-primary/10 text-xs">{initials}</AvatarFallback>
                 </Avatar>
