@@ -57,9 +57,9 @@ export default function BalanceBar() {
   ];
 
   return (
-    <div className="sticky md:top-14 top-0 z-20 backdrop-blur-md pt-2 pb-2">
+    <div className="sticky top-0 z-20 backdrop-blur-md py-2">
       <motion.div 
-        className="flex flex-wrap md:flex-nowrap gap-2 p-2 bg-white/80 dark:bg-slate-900/80 rounded-lg shadow-md mx-auto max-w-5xl"
+        className="flex flex-nowrap gap-1 px-2 py-1 bg-white/80 dark:bg-slate-900/80 rounded-lg shadow-md mx-auto max-w-5xl"
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.3 }}
@@ -67,28 +67,28 @@ export default function BalanceBar() {
         {items.map((item, index) => (
           <motion.div
             key={item.name}
-            className={`relative flex items-center justify-between flex-1 min-w-[120px] p-3 rounded-lg border ${item.borderColor} group cursor-pointer transition-all duration-200 hover:shadow-md`}
+            className={`relative flex items-center justify-between flex-1 h-12 p-1 rounded-lg border ${item.borderColor} group cursor-pointer transition-all duration-200 hover:shadow-md`}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: index * 0.08 }}
           >
             <div className={`absolute inset-0 rounded-lg opacity-0 ${item.hoverColor} transition-opacity duration-200 group-hover:opacity-100`}></div>
             
-            <div className="flex items-center space-x-2 z-10">
-              <div className={`p-2 rounded-full ${item.color} bg-opacity-20 ${item.textColor}`}>
+            <div className="flex items-center z-10 pl-1">
+              <div className={`p-1 rounded-full ${item.color} bg-opacity-20 ${item.textColor} mr-1`}>
                 {item.icon}
               </div>
-              <div>
-                <p className="text-xs text-muted-foreground font-medium">{item.name}</p>
-                <p className="text-lg font-bold">
+              <div className="flex flex-col justify-center">
+                <p className="text-[10px] leading-none text-muted-foreground font-medium">{item.name}</p>
+                <p className="text-base font-bold leading-tight">
                   {item.prefix}{item.value}
                 </p>
               </div>
             </div>
             
-            <div className={`hidden md:flex h-6 w-6 rounded-full ${item.color} items-center justify-center text-white text-xs font-bold`}>
+            <div className={`flex h-5 w-5 rounded-full ${item.color} items-center justify-center text-white text-xs font-bold mr-1`}>
               +
             </div>
           </motion.div>
