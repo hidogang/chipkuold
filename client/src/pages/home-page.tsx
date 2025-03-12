@@ -102,20 +102,20 @@ export default function HomePage() {
   };
 
   return (
-    <div className={`min-h-screen transition-colors duration-1000 ${getBgStyle()}`}>
+    <div className={`min-h-screen transition-colors duration-1000 ${getBgStyle()} pb-20 md:pb-6`}>
       <BalanceBar />
       
       {/* Main Game Area */}
-      <div className="mt-4 container mx-auto px-4 py-6">
+      <div className="mt-2 container mx-auto px-2 sm:px-4 py-3 sm:py-6">
         {!chickensQuery.data?.length ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Card className="p-6 text-center">
-              <h2 className="text-2xl font-bold mb-4">Welcome to your farm!</h2>
-              <p className="text-muted-foreground mb-4">
+            <Card className="p-4 sm:p-6 text-center">
+              <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">Welcome to your farm!</h2>
+              <p className="text-muted-foreground text-sm sm:text-base mb-4">
                 Start your farming journey by getting your first chicken from the shop.
               </p>
               <Button asChild className="bg-primary/90 hover:bg-primary">
@@ -126,7 +126,7 @@ export default function HomePage() {
         ) : (
           <div>
             <motion.h1 
-              className="text-center text-2xl font-bold mb-6"
+              className="text-center text-lg sm:text-xl md:text-2xl font-bold mb-4 sm:mb-6"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
@@ -138,13 +138,14 @@ export default function HomePage() {
                   : 'Good Evening! Your chickens are resting.'}
             </motion.h1>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
               {chickensQuery.data.map((chicken, index) => (
                 <motion.div
                   key={chicken.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
+                  className="h-full"
                 >
                   <ChickenCard 
                     chicken={chicken} 
@@ -156,15 +157,15 @@ export default function HomePage() {
             </div>
 
             <motion.div 
-              className="text-center mt-8"
+              className="text-center mt-6 sm:mt-8"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
             >
-              <p className="text-sm">
+              <p className="text-xs sm:text-sm">
                 Resources: {resources.waterBuckets} 🪣 Water, {resources.wheatBags} 🌾 Wheat, {resources.eggs} 🥚 Eggs
               </p>
-              <Button asChild className="mt-4">
+              <Button asChild className="mt-3 sm:mt-4">
                 <Link href="/shop">Visit Shop</Link>
               </Button>
             </motion.div>

@@ -79,22 +79,26 @@ export default function MarketPage() {
   };
 
   return (
-    <div>
+    <div className="pb-20 md:pb-6">
       <BalanceBar />
       
-      <div className="space-y-6 mt-4">
-        <h1 className="text-2xl font-bold">Market</h1>
+      <div className="space-y-4 sm:space-y-6 mt-2 sm:mt-4 px-2 sm:px-4">
+        <h1 className="text-xl sm:text-2xl font-bold">Market</h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle>Water Buckets</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          <Card className="overflow-hidden">
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-3">
+              <CardTitle className="flex items-center text-base sm:text-lg">
+                <span className="text-blue-600 mr-2">🪣</span>
+                Water Buckets
+              </CardTitle>
+            </div>
+            <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-4">
               <div className="flex items-center space-x-2">
                 <Input
                   type="number"
                   min="1"
+                  className="h-8 sm:h-10 text-sm"
                   value={inputActive.water_bucket ? quantities.water_bucket : quantities.water_bucket || ""}
                   onFocus={() => setInputActive({...inputActive, water_bucket: true})}
                   onBlur={() => {
@@ -111,12 +115,12 @@ export default function MarketPage() {
                     });
                   }}
                 />
-                <span className="text-lg font-semibold">
+                <span className="text-base sm:text-lg font-semibold text-blue-600">
                   ${(getPrice("water_bucket") * (quantities.water_bucket || 0)).toFixed(2)}
                 </span>
               </div>
               <Button
-                className="w-full"
+                className="w-full h-8 sm:h-10 text-xs sm:text-sm"
                 onClick={() => buyResourceMutation.mutate({
                   itemType: "water_bucket",
                   quantity: quantities.water_bucket || 1
@@ -128,15 +132,19 @@ export default function MarketPage() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle>Wheat Bags</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <Card className="overflow-hidden">
+            <div className="bg-amber-50 dark:bg-amber-900/20 p-3">
+              <CardTitle className="flex items-center text-base sm:text-lg">
+                <span className="text-amber-600 mr-2">🌾</span>
+                Wheat Bags
+              </CardTitle>
+            </div>
+            <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-4">
               <div className="flex items-center space-x-2">
                 <Input
                   type="number"
                   min="1"
+                  className="h-8 sm:h-10 text-sm"
                   value={inputActive.wheat_bag ? quantities.wheat_bag : quantities.wheat_bag || ""}
                   onFocus={() => setInputActive({...inputActive, wheat_bag: true})}
                   onBlur={() => {
@@ -153,12 +161,12 @@ export default function MarketPage() {
                     });
                   }}
                 />
-                <span className="text-lg font-semibold">
+                <span className="text-base sm:text-lg font-semibold text-amber-600">
                   ${(getPrice("wheat_bag") * (quantities.wheat_bag || 0)).toFixed(2)}
                 </span>
               </div>
               <Button
-                className="w-full"
+                className="w-full h-8 sm:h-10 text-xs sm:text-sm"
                 onClick={() => buyResourceMutation.mutate({
                   itemType: "wheat_bag",
                   quantity: quantities.wheat_bag || 1
@@ -170,19 +178,23 @@ export default function MarketPage() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle>Sell Eggs</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Current eggs: {resourcesQuery.data?.eggs || 0}
+          <Card className="overflow-hidden">
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3">
+              <CardTitle className="flex items-center text-base sm:text-lg">
+                <span className="text-yellow-600 mr-2">🥚</span>
+                Sell Eggs
+              </CardTitle>
+            </div>
+            <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-4">
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                Available: <span className="font-medium">{resourcesQuery.data?.eggs || 0} eggs</span>
               </p>
               <div className="flex items-center space-x-2">
                 <Input
                   type="number"
                   min="1"
                   max={resourcesQuery.data?.eggs || 0}
+                  className="h-8 sm:h-10 text-sm"
                   value={inputActive.eggs ? quantities.eggs : quantities.eggs || ""}
                   onFocus={() => setInputActive({...inputActive, eggs: true})}
                   onBlur={() => {
@@ -199,12 +211,12 @@ export default function MarketPage() {
                     });
                   }}
                 />
-                <span className="text-lg font-semibold">
+                <span className="text-base sm:text-lg font-semibold text-green-600">
                   ${(getPrice("egg") * (quantities.eggs || 0)).toFixed(2)}
                 </span>
               </div>
               <Button
-                className="w-full"
+                className="w-full h-8 sm:h-10 text-xs sm:text-sm"
                 onClick={() => sellEggsMutation.mutate(quantities.eggs || 1)}
                 disabled={sellEggsMutation.isPending || quantities.eggs === 0 || (resourcesQuery.data?.eggs || 0) === 0}
               >

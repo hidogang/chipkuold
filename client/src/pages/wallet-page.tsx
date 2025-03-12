@@ -118,15 +118,15 @@ export default function WalletPage() {
   }, [rechargeForm.watch("amount")]);
 
   return (
-    <div>
+    <div className="pb-20 md:pb-6">
       <BalanceBar />
       
-      <div className="space-y-6 mt-4">
+      <div className="space-y-4 sm:space-y-6 mt-2 sm:mt-4 px-2 sm:px-4">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Wallet</h1>
+          <h1 className="text-xl sm:text-2xl font-bold">Wallet</h1>
           <div className="text-right">
-            <p className="text-sm text-muted-foreground">USDT Balance</p>
-            <p className="text-2xl font-bold">${user?.usdtBalance || 0}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">USDT Balance</p>
+            <p className="text-lg sm:text-2xl font-bold">${user?.usdtBalance || 0}</p>
           </div>
         </div>
 
@@ -138,16 +138,16 @@ export default function WalletPage() {
 
           <TabsContent value="recharge">
             <Card>
-              <CardHeader className="pb-2">
-                <CardTitle>Recharge Wallet</CardTitle>
+              <CardHeader className="pb-1 sm:pb-2 p-3 sm:p-4">
+                <CardTitle className="text-base sm:text-lg">Recharge Wallet</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div className="bg-primary/10 p-4 rounded-lg text-center space-y-2">
+              <CardContent className="space-y-4 sm:space-y-6 p-3 sm:p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                  <div className="space-y-3 sm:space-y-4">
+                    <div className="bg-primary/10 p-3 sm:p-4 rounded-lg text-center space-y-2">
                       <QRCodeSVG 
                         value={qrCodeData}
-                        size={160}
+                        size={140}
                         className="mx-auto"
                       />
                       <p className="text-sm font-medium">Scan QR to pay with USDT (TRC20)</p>
@@ -155,10 +155,10 @@ export default function WalletPage() {
                     </div>
                     <Button
                       variant="outline"
-                      className="w-full"
+                      className="w-full text-xs sm:text-sm h-8 sm:h-10"
                       onClick={handleCopyUSDT}
                     >
-                      <Copy className="mr-2 h-4 w-4" />
+                      <Copy className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                       Copy USDT Address (TRC20)
                     </Button>
                   </div>
@@ -168,24 +168,25 @@ export default function WalletPage() {
                       onSubmit={rechargeForm.handleSubmit((data) =>
                         rechargeMutation.mutate(data)
                       )}
-                      className="space-y-4"
+                      className="space-y-3 sm:space-y-4"
                     >
                       <FormField
                         control={rechargeForm.control}
                         name="amount"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Amount (USDT)</FormLabel>
+                            <FormLabel className="text-xs sm:text-sm">Amount (USDT)</FormLabel>
                             <FormControl>
                               <Input
                                 type="number"
                                 {...field}
+                                className="h-8 sm:h-10 text-sm"
                                 onChange={(e) =>
                                   field.onChange(parseFloat(e.target.value))
                                 }
                               />
                             </FormControl>
-                            <FormMessage />
+                            <FormMessage className="text-xs" />
                           </FormItem>
                         )}
                       />
@@ -194,15 +195,16 @@ export default function WalletPage() {
                         name="transactionId"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Transaction ID</FormLabel>
+                            <FormLabel className="text-xs sm:text-sm">Transaction ID</FormLabel>
                             <FormControl>
                               <Input 
                                 {...field} 
+                                className="h-8 sm:h-10 text-sm"
                                 placeholder="Enter your USDT transaction ID"
                               />
                             </FormControl>
-                            <FormMessage />
-                            <p className="text-xs text-muted-foreground">
+                            <FormMessage className="text-xs" />
+                            <p className="text-xs text-muted-foreground mt-1">
                               Enter the transaction ID from your USDT transfer
                             </p>
                           </FormItem>
@@ -210,7 +212,7 @@ export default function WalletPage() {
                       />
                       <Button
                         type="submit"
-                        className="w-full"
+                        className="w-full h-8 sm:h-10 text-xs sm:text-sm mt-2"
                         disabled={rechargeMutation.isPending}
                       >
                         Submit Recharge Request
@@ -224,33 +226,34 @@ export default function WalletPage() {
 
           <TabsContent value="withdraw">
             <Card>
-              <CardHeader className="pb-2">
-                <CardTitle>Withdraw USDT</CardTitle>
+              <CardHeader className="pb-1 sm:pb-2 p-3 sm:p-4">
+                <CardTitle className="text-base sm:text-lg">Withdraw USDT</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-3 sm:p-6">
                 <Form {...withdrawalForm}>
                   <form
                     onSubmit={withdrawalForm.handleSubmit((data) =>
                       withdrawalMutation.mutate(data)
                     )}
-                    className="space-y-4"
+                    className="space-y-3 sm:space-y-4"
                   >
                     <FormField
                       control={withdrawalForm.control}
                       name="amount"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Amount (USDT)</FormLabel>
+                          <FormLabel className="text-xs sm:text-sm">Amount (USDT)</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
                               {...field}
+                              className="h-8 sm:h-10 text-sm"
                               onChange={(e) =>
                                 field.onChange(parseFloat(e.target.value))
                               }
                             />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-xs" />
                         </FormItem>
                       )}
                     />
@@ -259,12 +262,16 @@ export default function WalletPage() {
                       name="usdtAddress"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>USDT Address (TRC20)</FormLabel>
+                          <FormLabel className="text-xs sm:text-sm">USDT Address (TRC20)</FormLabel>
                           <FormControl>
-                            <Input {...field} placeholder="Enter your USDT TRC20 address" />
+                            <Input 
+                              {...field} 
+                              className="h-8 sm:h-10 text-sm"
+                              placeholder="Enter your USDT TRC20 address" 
+                            />
                           </FormControl>
-                          <FormMessage />
-                          <p className="text-xs text-muted-foreground">
+                          <FormMessage className="text-xs" />
+                          <p className="text-xs text-muted-foreground mt-1">
                             Enter a valid USDT TRC20 address to receive your withdrawal
                           </p>
                         </FormItem>
@@ -272,7 +279,7 @@ export default function WalletPage() {
                     />
                     <Button
                       type="submit"
-                      className="w-full"
+                      className="w-full h-8 sm:h-10 text-xs sm:text-sm mt-2"
                       disabled={withdrawalMutation.isPending}
                     >
                       Withdraw USDT
