@@ -90,7 +90,7 @@ export default function MarketPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        {/* Township-style title */}
+        {/* ChickFarms-style title */}
         <div className="relative">
           <motion.div 
             className="absolute inset-0 bg-blue-500/10 rounded-lg -z-10"
@@ -103,13 +103,13 @@ export default function MarketPage() {
               <ShoppingCart size={20} />
             </div>
             <div>
-              <h1 className="text-xl sm:text-3xl font-bold text-blue-800">Township Market</h1>
+              <h1 className="text-xl sm:text-3xl font-bold text-blue-800">ChickFarms Market</h1>
               <p className="text-sm text-blue-700">Buy resources and sell your eggs!</p>
             </div>
           </div>
         </div>
 
-        {/* Township-style information banner */}
+        {/* ChickFarms-style information banner */}
         <motion.div 
           className="bg-gradient-to-r from-blue-100 to-blue-50 rounded-lg p-3 sm:p-4 border border-blue-200 shadow-sm"
           initial={{ opacity: 0, x: -20 }}
@@ -128,7 +128,7 @@ export default function MarketPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
           {/* Water Resource Card */}
           <motion.div 
-            className="township-shop-item"
+            className="chickfarms-shop-item"
             initial={{ opacity: 0, y: 30, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ delay: 0.1, duration: 0.5 }}
@@ -223,7 +223,7 @@ export default function MarketPage() {
 
           {/* Wheat Resource Card */}
           <motion.div 
-            className="township-shop-item"
+            className="chickfarms-shop-item"
             initial={{ opacity: 0, y: 30, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}

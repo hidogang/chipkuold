@@ -109,13 +109,13 @@ export default function ShopPage() {
               <ShoppingCart size={20} />
             </div>
             <div>
-              <h1 className="text-xl sm:text-3xl font-bold text-amber-800">Township Chicken Shop</h1>
+              <h1 className="text-xl sm:text-3xl font-bold text-amber-800">ChickFarms Chicken Shop</h1>
               <p className="text-sm text-amber-700">Build your farm with the perfect chickens!</p>
             </div>
           </div>
         </div>
 
-        {/* Township-style information banner */}
+        {/* ChickFarms-style information banner */}
         <motion.div 
           className="bg-gradient-to-r from-amber-100 to-amber-50 rounded-lg p-3 sm:p-4 border border-amber-200 shadow-sm"
           initial={{ opacity: 0, x: -20 }}
@@ -135,7 +135,7 @@ export default function ShopPage() {
           {CHICKEN_TYPES.map((chicken, index) => (
             <motion.div 
               key={chicken.type}
-              className="township-shop-item"
+              className="chickfarms-shop-item"
               initial={{ opacity: 0, y: 30, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ delay: 0.1 + (index * 0.1), duration: 0.5 }}
@@ -227,7 +227,7 @@ export default function ShopPage() {
                     <motion.button
                       onClick={() => buyChickenMutation.mutate(chicken.type)}
                       disabled={buyChickenMutation.isPending}
-                      className="township-buy-button px-4 py-2 rounded-lg text-white font-semibold flex items-center gap-1 relative overflow-hidden"
+                      className="chickfarms-buy-button px-4 py-2 rounded-lg text-white font-semibold flex items-center gap-1 relative overflow-hidden"
                       style={{ 
                         background: "linear-gradient(to bottom, #ff9800, #ff7c2e)",
                         border: "1px solid #ffbc5b",
