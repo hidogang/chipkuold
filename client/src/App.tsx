@@ -18,7 +18,7 @@ import AccountPage from "@/pages/account-page";
 import AdminPage from "@/pages/admin-page";
 import NotFound from "@/pages/not-found";
 
-// Loading Screen Component
+// LoadingScreen component remains unchanged
 function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
   const [progress, setProgress] = useState(0);
   const [showFarm, setShowFarm] = useState(false);
@@ -180,8 +180,13 @@ function App() {
               transition={{ duration: 0.5 }}
               className="relative"
             >            
-              <Navigation />
-              <main className="relative pt-14 md:pt-14 pb-16 md:pb-0 min-h-[calc(100vh-3.5rem)] bg-gradient-to-b from-amber-50/50 to-white">
+              <div className="hidden md:block">
+                <Navigation />
+              </div>
+              <div className="block md:hidden fixed bottom-0 left-0 right-0 z-50">
+                <Navigation />
+              </div>
+              <main className="relative pb-16 md:pb-0 md:pt-14 min-h-[calc(100vh-3.5rem)] bg-gradient-to-b from-amber-50/50 to-white">
                 <Router />
               </main>
 
