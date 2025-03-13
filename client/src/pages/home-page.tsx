@@ -9,7 +9,6 @@ import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import {
-  Droplets, Wheat, Egg, DollarSign,
   ChevronRight, Home, ShoppingCart, BarChart3, Wallet, User
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -19,6 +18,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import BalanceBar from "@/components/balance-bar";
 
 export default function HomePage() {
   const { toast } = useToast();
@@ -284,92 +284,7 @@ export default function HomePage() {
   if (!chickensQuery.data?.length) {
     return (
       <div className={`h-full flex flex-col ${getBgStyle()}`}>
-        {/* Top Resource Bar */}
-        {/* Update the resource bar section for better visibility and tooltips */}
-        <div className="sticky top-0 w-full bg-gradient-to-r from-amber-800/95 to-amber-700/95 backdrop-blur-sm z-40 px-4 py-3 flex justify-between items-center border-b border-amber-600/50 shadow-lg">
-          <motion.div 
-            className="flex items-center space-x-2 group"
-            whileHover={{ scale: 1.02 }}
-          >
-            <DollarSign className="h-5 w-5 text-green-300" />
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <span className="text-white font-semibold">${user?.usdtBalance || 0}</span>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Your available USDT balance</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </motion.div>
-
-          <div className="flex space-x-6">
-            <motion.button
-              className="flex items-center space-x-2 text-white group"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => handleResourceClick('water')}
-            >
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <div className="flex items-center space-x-2">
-                      <Droplets className="h-5 w-5 text-blue-300 group-hover:text-blue-200 transition-colors" />
-                      <span className="group-hover:text-blue-200 transition-colors">{resources.waterBuckets}</span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Water buckets - Required for chickens</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </motion.button>
-
-            <motion.button
-              className="flex items-center space-x-2 text-white group"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => handleResourceClick('wheat')}
-            >
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <div className="flex items-center space-x-2">
-                      <Wheat className="h-5 w-5 text-yellow-300 group-hover:text-yellow-200 transition-colors" />
-                      <span className="group-hover:text-yellow-200 transition-colors">{resources.wheatBags}</span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Wheat bags - Feed for your chickens</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </motion.button>
-
-            <motion.button
-              className="flex items-center space-x-2 text-white group"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <div className="flex items-center space-x-2">
-                      <Egg className="h-5 w-5 text-amber-100 group-hover:text-amber-50 transition-colors" />
-                      <span className="group-hover:text-amber-50 transition-colors">{resources.eggs}</span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Eggs - Sell them in the market</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </motion.button>
-          </div>
-        </div>
-
-        {/* Welcome Screen */}
+        <BalanceBar />
         <div className="flex-1 flex items-center justify-center p-4">
           <motion.div
             className="max-w-md w-full"
@@ -458,92 +373,7 @@ export default function HomePage() {
 
   return (
     <div className={`h-full flex flex-col ${getBgStyle()}`}>
-      {/* Top Resource Bar */}
-      {/* Update the resource bar section for better visibility and tooltips */}
-      <div className="sticky top-0 w-full bg-gradient-to-r from-amber-800/95 to-amber-700/95 backdrop-blur-sm z-40 px-4 py-3 flex justify-between items-center border-b border-amber-600/50 shadow-lg">
-        <motion.div 
-          className="flex items-center space-x-2 group"
-          whileHover={{ scale: 1.02 }}
-        >
-          <DollarSign className="h-5 w-5 text-green-300" />
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                <span className="text-white font-semibold">${user?.usdtBalance || 0}</span>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Your available USDT balance</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </motion.div>
-
-        <div className="flex space-x-6">
-          <motion.button
-            className="flex items-center space-x-2 text-white group"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => handleResourceClick('water')}
-          >
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <div className="flex items-center space-x-2">
-                    <Droplets className="h-5 w-5 text-blue-300 group-hover:text-blue-200 transition-colors" />
-                    <span className="group-hover:text-blue-200 transition-colors">{resources.waterBuckets}</span>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Water buckets - Required for chickens</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </motion.button>
-
-          <motion.button
-            className="flex items-center space-x-2 text-white group"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => handleResourceClick('wheat')}
-          >
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <div className="flex items-center space-x-2">
-                    <Wheat className="h-5 w-5 text-yellow-300 group-hover:text-yellow-200 transition-colors" />
-                    <span className="group-hover:text-yellow-200 transition-colors">{resources.wheatBags}</span>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Wheat bags - Feed for your chickens</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </motion.button>
-
-          <motion.button
-            className="flex items-center space-x-2 text-white group"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <div className="flex items-center space-x-2">
-                    <Egg className="h-5 w-5 text-amber-100 group-hover:text-amber-50 transition-colors" />
-                    <span className="group-hover:text-amber-50 transition-colors">{resources.eggs}</span>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Eggs - Sell them in the market</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </motion.button>
-        </div>
-      </div>
-
-      {/* Main Chicken Coop Area */}
+      <BalanceBar />
       <div className="flex-1 overflow-auto p-4">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -774,7 +604,6 @@ export default function HomePage() {
           </motion.button>
         </motion.div>
       </div>
-
     </div>
   );
 }
