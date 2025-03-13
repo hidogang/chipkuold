@@ -13,6 +13,7 @@ import {
   ChevronRight, Home, ShoppingCart, BarChart3, Wallet, User
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from '@nextui-org/react';
 
 export default function HomePage() {
   const { toast } = useToast();
@@ -101,6 +102,7 @@ export default function HomePage() {
     return () => clearInterval(interval);
   }, [chickensQuery.data]);
 
+  // Improve loading screen
   if (chickensQuery.isLoading || resourcesQuery.isLoading) {
     return (
       <div className="h-full w-full bg-gradient-to-b from-amber-50 to-orange-50 flex flex-col items-center justify-center">
@@ -112,7 +114,7 @@ export default function HomePage() {
         >
           <img
             src="/assets/chickworld_logo_clean-removebg-preview.png"
-            alt="ChickFarms Logo"
+            alt="ChickWorld Logo"
             className="w-32 h-32 object-contain"
           />
           <motion.div
@@ -134,30 +136,26 @@ export default function HomePage() {
             />
           </motion.div>
         </motion.div>
+
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.5 }}
           className="mt-5 text-center"
         >
-          <h2 className="text-xl font-bold text-amber-800">Loading your farm...</h2>
-          <div className="mt-3 flex space-x-1 justify-center">
-            {[0, 1, 2].map(i => (
-              <motion.div
-                key={i}
-                className="w-3 h-3 rounded-full bg-amber-500"
-                animate={{
-                  y: [0, -10, 0],
-                  opacity: [0.5, 1, 0.5]
-                }}
-                transition={{
-                  duration: 0.8,
-                  repeat: Infinity,
-                  delay: i * 0.2,
-                  ease: "easeInOut"
-                }}
-              />
-            ))}
+          <h2 className="text-xl font-bold text-amber-800 mb-2">Loading your chicken farm...</h2>
+          <p className="text-sm text-amber-600 mb-4">Getting everything ready for your farming adventure!</p>
+          <div className="relative w-48 h-2 bg-amber-100 rounded-full overflow-hidden">
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-amber-500 to-orange-500"
+              initial={{ x: "-100%" }}
+              animate={{ x: "100%" }}
+              transition={{
+                repeat: Infinity,
+                duration: 1.5,
+                ease: "linear"
+              }}
+            />
           </div>
         </motion.div>
       </div>
@@ -282,40 +280,86 @@ export default function HomePage() {
     return (
       <div className={`h-full flex flex-col ${getBgStyle()}`}>
         {/* Top Resource Bar */}
-        <div className="sticky top-0 w-full bg-gradient-to-r from-amber-800/90 to-amber-700/90 backdrop-blur-sm z-50 px-4 py-2 flex justify-between items-center border-b border-amber-600/50 shadow-lg">
-          <div className="flex items-center space-x-2">
+        {/* Update the resource bar section for better visibility and tooltips */}
+        <div className="sticky top-0 w-full bg-gradient-to-r from-amber-800/95 to-amber-700/95 backdrop-blur-sm z-40 px-4 py-3 flex justify-between items-center border-b border-amber-600/50 shadow-lg">
+          <motion.div 
+            className="flex items-center space-x-2 group"
+            whileHover={{ scale: 1.02 }}
+          >
             <DollarSign className="h-5 w-5 text-green-300" />
-            <span className="text-white font-semibold">${user?.usdtBalance || 0}</span>
-          </div>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <span className="text-white font-semibold">${user?.usdtBalance || 0}</span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Your available USDT balance</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </motion.div>
 
-          <div className="flex space-x-4">
+          <div className="flex space-x-6">
             <motion.button
-              className="flex items-center space-x-1 text-white"
+              className="flex items-center space-x-2 text-white group"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => handleResourceClick('water')}
             >
-              <Droplets className="h-5 w-5 text-blue-300" />
-              <span>{resources.waterBuckets}</span>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <div className="flex items-center space-x-2">
+                      <Droplets className="h-5 w-5 text-blue-300 group-hover:text-blue-200 transition-colors" />
+                      <span className="group-hover:text-blue-200 transition-colors">{resources.waterBuckets}</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Water buckets - Required for chickens</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </motion.button>
 
             <motion.button
-              className="flex items-center space-x-1 text-white"
+              className="flex items-center space-x-2 text-white group"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => handleResourceClick('wheat')}
             >
-              <Wheat className="h-5 w-5 text-yellow-300" />
-              <span>{resources.wheatBags}</span>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <div className="flex items-center space-x-2">
+                      <Wheat className="h-5 w-5 text-yellow-300 group-hover:text-yellow-200 transition-colors" />
+                      <span className="group-hover:text-yellow-200 transition-colors">{resources.wheatBags}</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Wheat bags - Feed for your chickens</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </motion.button>
 
             <motion.button
-              className="flex items-center space-x-1 text-white"
+              className="flex items-center space-x-2 text-white group"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Egg className="h-5 w-5 text-amber-100" />
-              <span>{resources.eggs}</span>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <div className="flex items-center space-x-2">
+                      <Egg className="h-5 w-5 text-amber-100 group-hover:text-amber-50 transition-colors" />
+                      <span className="group-hover:text-amber-50 transition-colors">{resources.eggs}</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Eggs - Sell them in the market</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </motion.button>
           </div>
         </div>
@@ -410,40 +454,86 @@ export default function HomePage() {
   return (
     <div className={`h-full flex flex-col ${getBgStyle()}`}>
       {/* Top Resource Bar */}
-      <div className="sticky top-0 w-full bg-gradient-to-r from-amber-800/90 to-amber-700/90 backdrop-blur-sm z-40 px-4 py-2 flex justify-between items-center border-b border-amber-600/50 shadow-lg">
-        <div className="flex items-center space-x-2">
+      {/* Update the resource bar section for better visibility and tooltips */}
+      <div className="sticky top-0 w-full bg-gradient-to-r from-amber-800/95 to-amber-700/95 backdrop-blur-sm z-40 px-4 py-3 flex justify-between items-center border-b border-amber-600/50 shadow-lg">
+        <motion.div 
+          className="flex items-center space-x-2 group"
+          whileHover={{ scale: 1.02 }}
+        >
           <DollarSign className="h-5 w-5 text-green-300" />
-          <span className="text-white font-semibold">${user?.usdtBalance || 0}</span>
-        </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <span className="text-white font-semibold">${user?.usdtBalance || 0}</span>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Your available USDT balance</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </motion.div>
 
-        <div className="flex space-x-4">
+        <div className="flex space-x-6">
           <motion.button
-            className="flex items-center space-x-1 text-white"
+            className="flex items-center space-x-2 text-white group"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => handleResourceClick('water')}
           >
-            <Droplets className="h-5 w-5 text-blue-300" />
-            <span>{resources.waterBuckets}</span>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <div className="flex items-center space-x-2">
+                    <Droplets className="h-5 w-5 text-blue-300 group-hover:text-blue-200 transition-colors" />
+                    <span className="group-hover:text-blue-200 transition-colors">{resources.waterBuckets}</span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Water buckets - Required for chickens</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </motion.button>
 
           <motion.button
-            className="flex items-center space-x-1 text-white"
+            className="flex items-center space-x-2 text-white group"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => handleResourceClick('wheat')}
           >
-            <Wheat className="h-5 w-5 text-yellow-300" />
-            <span>{resources.wheatBags}</span>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <div className="flex items-center space-x-2">
+                    <Wheat className="h-5 w-5 text-yellow-300 group-hover:text-yellow-200 transition-colors" />
+                    <span className="group-hover:text-yellow-200 transition-colors">{resources.wheatBags}</span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Wheat bags - Feed for your chickens</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </motion.button>
 
           <motion.button
-            className="flex items-center space-x-1 text-white"
+            className="flex items-center space-x-2 text-white group"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <Egg className="h-5 w-5 text-amber-100" />
-            <span>{resources.eggs}</span>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <div className="flex items-center space-x-2">
+                    <Egg className="h-5 w-5 text-amber-100 group-hover:text-amber-50 transition-colors" />
+                    <span className="group-hover:text-amber-50 transition-colors">{resources.eggs}</span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Eggs - Sell them in the market</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </motion.button>
         </div>
       </div>
@@ -641,7 +731,7 @@ export default function HomePage() {
         >
           <Link href="/shop">
             <motion.button
-              className="w-full py-3 px-4 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 text-white font-medium flex items-center justify-center space-x-2"
+              className="w-full py-3 px-4 rounded-lg bg-gradient-to-r from-amber500 to-amber-600 text-white font-medium flex items-center justify-center space-x-2"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >

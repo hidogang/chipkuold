@@ -7,6 +7,12 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import BalanceBar from "@/components/balance-bar";
 import { motion } from "framer-motion";
 import { Info, ShoppingCart, Droplets, Wheat, Egg } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const CHICKEN_TYPES = [
   {
@@ -89,14 +95,14 @@ export default function ShopPage() {
   return (
     <div className="pb-20 md:pb-6 bg-gradient-to-b from-amber-50/50 to-white min-h-screen">
       <BalanceBar />
-      
+
       <motion.div 
         className="space-y-6 sm:space-y-8 mt-4 sm:mt-6 px-3 sm:px-6 max-w-6xl mx-auto"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        {/* ChickFarms-style title */}
+        {/* Shop Title Section */}
         <div className="relative">
           <motion.div 
             className="absolute inset-0 bg-amber-500/10 rounded-lg -z-10"
@@ -115,7 +121,7 @@ export default function ShopPage() {
           </div>
         </div>
 
-        {/* ChickFarms-style information banner */}
+        {/* Information Banner */}
         <motion.div 
           className="bg-gradient-to-r from-amber-100 to-amber-50 rounded-lg p-3 sm:p-4 border border-amber-200 shadow-sm"
           initial={{ opacity: 0, x: -20 }}
@@ -131,6 +137,7 @@ export default function ShopPage() {
           </div>
         </motion.div>
 
+        {/* Chicken Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
           {CHICKEN_TYPES.map((chicken, index) => (
             <motion.div 
@@ -145,15 +152,15 @@ export default function ShopPage() {
                 className="relative overflow-hidden rounded-lg shadow-md border border-gray-100"
                 style={{ background: "white" }}
               >
-                {/* Background decoration */}
+                {/* Card Background */}
                 <div 
                   className="absolute top-0 left-0 right-0 h-28 z-0"
                   style={{ 
                     background: `linear-gradient(135deg, ${chicken.color}30, ${chicken.accentColor}20)`
                   }}
                 />
-                
-                {/* Chicken image & name section */}
+
+                {/* Chicken Image & Name */}
                 <div className="relative pt-4 pb-2 px-4 flex flex-col items-center z-10">
                   <motion.div 
                     className="w-24 h-24 mb-2"
@@ -170,14 +177,14 @@ export default function ShopPage() {
                       className="w-full h-full object-contain" 
                     />
                   </motion.div>
-                  
+
                   <h3 
                     className="text-lg font-bold mb-1 text-center"
                     style={{ color: chicken.type === 'golden' ? '#B07D00' : '#555' }}
                   >
                     {chicken.name}
                   </h3>
-                  
+
                   <div 
                     className="text-xs px-3 py-1 rounded-full mb-1 font-semibold"
                     style={{ 
@@ -188,42 +195,90 @@ export default function ShopPage() {
                     {chicken.description}
                   </div>
                 </div>
-                
-                {/* Stats section */}
+
+                {/* Stats Section */}
                 <div className="bg-gray-50 p-3 space-y-2">
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="bg-white p-2 rounded border border-gray-100 text-center">
-                      <div className="text-amber-600 text-xs font-semibold mb-1">ROI Period</div>
-                      <div className="text-amber-900 font-bold">{chicken.roi}</div>
-                    </div>
-                    <div className="bg-white p-2 rounded border border-gray-100 text-center">
-                      <div className="text-amber-600 text-xs font-semibold mb-1">Eggs/Day</div>
-                      <div className="text-amber-900 font-bold">{chicken.eggsPerDay}</div>
-                    </div>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="bg-white p-2 rounded border border-gray-100 text-center cursor-help">
+                            <div className="text-amber-600 text-xs font-semibold mb-1">ROI Period</div>
+                            <div className="text-amber-900 font-bold">{chicken.roi}</div>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Time to recover your investment through egg sales</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="bg-white p-2 rounded border border-gray-100 text-center cursor-help">
+                            <div className="text-amber-600 text-xs font-semibold mb-1">Eggs/Day</div>
+                            <div className="text-amber-900 font-bold">{chicken.eggsPerDay}</div>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Average number of eggs produced per day</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
-                  
-                  {/* Resources section */}
+
+                  {/* Resource Requirements */}
                   <div className="bg-white p-2 rounded border border-gray-100">
                     <div className="text-amber-600 text-xs font-semibold mb-1 text-center">
-                      Required Resources
+                      Required Resources per Hatch
                     </div>
                     <div className="flex justify-center gap-3">
-                      <div className="flex items-center">
-                        <Droplets size={16} className="text-blue-500 mr-1" />
-                        <span className="text-sm font-semibold">{chicken.requirements.water}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Wheat size={16} className="text-amber-500 mr-1" />
-                        <span className="text-sm font-semibold">{chicken.requirements.wheat}</span>
-                      </div>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center cursor-help">
+                              <Droplets size={16} className="text-blue-500 mr-1" />
+                              <span className="text-sm font-semibold">{chicken.requirements.water}</span>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Water buckets needed per egg hatch</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center cursor-help">
+                              <Wheat size={16} className="text-amber-500 mr-1" />
+                              <span className="text-sm font-semibold">{chicken.requirements.wheat}</span>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Wheat bags needed per egg hatch</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
                   </div>
-                  
-                  {/* Price & Buy section */}
+
+                  {/* Price & Buy Button */}
                   <div className="flex justify-between items-center pt-1">
-                    <div className="text-lg font-bold" style={{ color: "#43a047" }}>
-                      ${getPrice(chicken.type)}
-                    </div>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="text-lg font-bold cursor-help" style={{ color: "#43a047" }}>
+                            ${getPrice(chicken.type)}
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Current market price for this chicken</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+
                     <motion.button
                       onClick={() => buyChickenMutation.mutate(chicken.type)}
                       disabled={buyChickenMutation.isPending}

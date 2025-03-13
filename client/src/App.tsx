@@ -50,7 +50,7 @@ function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
   }, [onFinishLoading]);
 
   return (
-    <div className={`loading-screen ${showFarm ? 'fade-out' : ''}`}>
+    <div className="loading-screen fixed inset-0 z-[9999] bg-gradient-to-b from-amber-50 to-orange-50">
       <div className="cloud-container">
         <div className="cloud cloud-1"></div>
         <div className="cloud cloud-2"></div>
@@ -62,13 +62,13 @@ function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="loading-logo"
+        className="loading-logo relative z-10"
       >
         <img 
           ref={farmLogo}
           src="/assets/chickworld-logo.svg" 
           alt="ChickWorld" 
-          className="w-full h-full object-contain"
+          className="w-32 h-32 object-contain"
         />
       </motion.div>
 
@@ -76,22 +76,25 @@ function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.7 }}
-        className="loading-text"
+        className="loading-text text-2xl font-bold text-amber-800 mt-4 text-center relative z-10"
       >
         {showFarm ? "Welcome to ChickWorld!" : "Loading your farm..."}
       </motion.h2>
 
-      <div className="loading-progress">
-        <div 
-          className="loading-progress-bar" 
+      <div className="loading-progress mt-8 w-64 h-2 bg-amber-100 rounded-full overflow-hidden relative z-10">
+        <motion.div 
+          className="loading-progress-bar h-full bg-gradient-to-r from-amber-500 to-orange-500"
           style={{ width: `${progress}%` }}
-        ></div>
+          initial={{ x: "-100%" }}
+          animate={{ x: 0 }}
+          transition={{ duration: 0.5 }}
+        />
       </div>
 
       <AnimatePresence>
         {showFarm && (
           <motion.div 
-            className="absolute inset-0 flex items-center justify-center z-10"
+            className="absolute inset-0 flex items-center justify-center z-20"
             initial={{ opacity: 0, scale: 1.5 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
@@ -159,31 +162,32 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <div className="township-app">
+        <div className="township-app min-h-screen bg-background text-foreground">
           {isPortrait && (
-            <div className="rotate-device-message fixed inset-0 bg-amber-900/90 flex flex-col items-center justify-center z-50 text-white p-8">
+            <div className="rotate-device-message fixed inset-0 bg-amber-900/90 flex flex-col items-center justify-center z-[9000] text-white p-8">
               <RotateCcw className="w-12 h-12 mb-4 animate-spin" />
               <h2 className="text-2xl font-bold mb-2">Please Rotate Your Device</h2>
               <p className="text-center">ChickWorld works best in landscape mode. Please rotate your device for the best experience.</p>
             </div>
           )}
 
-          {isLoading && (
+          {isLoading ? (
             <LoadingScreen onFinishLoading={handleFinishLoading} />
+          ) : (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              className="relative"
+            >            
+              <Navigation />
+              <main className="relative pt-14 md:pt-14 pb-16 md:pb-0 min-h-[calc(100vh-3.5rem)] bg-gradient-to-b from-amber-50/50 to-white">
+                <Router />
+              </main>
+
+              <Toaster />
+            </motion.div>
           )}
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: isLoading ? 0 : 1 }}
-            transition={{ duration: 0.5 }}
-          >            
-            <Navigation />
-            <main className="relative pt-14 md:pt-14 pb-16 md:pb-0">
-              <Router />
-            </main>
-
-            <Toaster />
-          </motion.div>
         </div>
       </AuthProvider>
     </QueryClientProvider>

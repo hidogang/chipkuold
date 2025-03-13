@@ -9,6 +9,12 @@ import { useState } from "react";
 import BalanceBar from "@/components/balance-bar";
 import { motion } from "framer-motion";
 import { ShoppingCart, Info, Droplet, Wheat, Egg } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function MarketPage() {
   const { toast } = useToast();
@@ -81,7 +87,7 @@ export default function MarketPage() {
   };
 
   return (
-    <div className="pb-20 md:pb-6 bg-gradient-to-b from-amber-50/50 to-white min-h-screen">
+    <div className="min-h-screen bg-gradient-to-b from-amber-50/50 to-white pb-20 md:pb-6">
       <BalanceBar />
 
       <motion.div
@@ -90,7 +96,7 @@ export default function MarketPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        {/* ChickFarms-style title */}
+        {/* Market Title Section */}
         <div className="relative">
           <motion.div
             className="absolute inset-0 bg-blue-500/10 rounded-lg -z-10"
@@ -103,13 +109,13 @@ export default function MarketPage() {
               <ShoppingCart size={20} />
             </div>
             <div>
-              <h1 className="text-xl sm:text-3xl font-bold text-blue-800">ChickFarms Market</h1>
+              <h1 className="text-xl sm:text-3xl font-bold text-blue-800">ChickWorld Market</h1>
               <p className="text-sm text-blue-700">Buy resources and sell your eggs!</p>
             </div>
           </div>
         </div>
 
-        {/* ChickFarms-style information banner */}
+        {/* Market Information Banner */}
         <motion.div
           className="bg-gradient-to-r from-blue-100 to-blue-50 rounded-lg p-3 sm:p-4 border border-blue-200 shadow-sm"
           initial={{ opacity: 0, x: -20 }}
@@ -159,14 +165,23 @@ export default function MarketPage() {
 
               {/* Buy section */}
               <div className="bg-gray-50 p-3 space-y-2">
-                <div className="bg-white p-2 rounded border border-gray-100">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-gray-600">Price:</span>
-                    <span className="text-base font-bold text-blue-600">
-                      ${getPrice("water_bucket").toFixed(2)} each
-                    </span>
-                  </div>
-                </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="bg-white p-2 rounded border border-gray-100 cursor-help">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium text-gray-600">Price:</span>
+                          <span className="text-base font-bold text-blue-600">
+                            ${getPrice("water_bucket").toFixed(2)} each
+                          </span>
+                        </div>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Current market price for water buckets</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
 
                 <div className="flex items-center gap-2">
                   <Input
@@ -254,14 +269,23 @@ export default function MarketPage() {
 
               {/* Buy section */}
               <div className="bg-gray-50 p-3 space-y-2">
-                <div className="bg-white p-2 rounded border border-gray-100">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-gray-600">Price:</span>
-                    <span className="text-base font-bold text-amber-600">
-                      ${getPrice("wheat_bag").toFixed(2)} each
-                    </span>
-                  </div>
-                </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="bg-white p-2 rounded border border-gray-100 cursor-help">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium text-gray-600">Price:</span>
+                          <span className="text-base font-bold text-amber-600">
+                            ${getPrice("wheat_bag").toFixed(2)} each
+                          </span>
+                        </div>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Current market price for wheat bags</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
 
                 <div className="flex items-center gap-2">
                   <Input
@@ -349,14 +373,23 @@ export default function MarketPage() {
 
               {/* Sell section */}
               <div className="bg-gray-50 p-3 space-y-2">
-                <div className="bg-white p-2 rounded border border-gray-100">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-gray-600">Available:</span>
-                    <span className="text-base font-bold text-green-600">
-                      {resourcesQuery.data?.eggs || 0} eggs
-                    </span>
-                  </div>
-                </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="bg-white p-2 rounded border border-gray-100 cursor-help">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium text-gray-600">Available:</span>
+                          <span className="text-base font-bold text-green-600">
+                            {resourcesQuery.data?.eggs || 0} eggs
+                          </span>
+                        </div>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Number of eggs available to sell</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
 
                 <div className="flex items-center gap-2">
                   <Input
