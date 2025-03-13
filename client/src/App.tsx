@@ -61,8 +61,8 @@ function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
       >
         <img 
           ref={farmLogo}
-          src="/assets/chickworld-logo.svg" 
-          alt="ChickWorld" 
+          src="/assets/chickfarms-logo.png" 
+          alt="ChickFarms" 
           className="w-32 h-32 object-contain"
         />
       </motion.div>
@@ -73,7 +73,7 @@ function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
         transition={{ duration: 0.5, delay: 0.7 }}
         className="loading-text text-2xl font-bold text-amber-800 mt-4 text-center relative z-10"
       >
-        {showFarm ? "Welcome to ChickWorld!" : "Loading your farm..."}
+        {showFarm ? "Welcome to ChickFarms!" : "Loading your farm..."}
       </motion.h2>
 
       <div className="loading-progress mt-8 w-64 h-2 bg-amber-100 rounded-full overflow-hidden relative z-10">
@@ -97,12 +97,12 @@ function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
           >
             <div className="w-64 h-64 relative">
               <img 
-                src="/assets/farm-entrance.svg" 
-                alt="Farm" 
+                src="/assets/chickfarms-logo.png" 
+                alt="ChickFarms" 
                 className="w-full h-full object-contain"
                 onError={() => {
                   if (farmLogo.current) {
-                    farmLogo.current.src = "/assets/chickworld-logo.svg";
+                    farmLogo.current.src = "/assets/chickfarms-logo.png";
                   }
                 }}
               />
@@ -159,7 +159,7 @@ function App() {
             <div className="rotate-device-message fixed inset-0 bg-amber-900/90 flex flex-col items-center justify-center z-[9000] text-white p-8">
               <RotateCcw className="w-12 h-12 mb-4 animate-spin" />
               <h2 className="text-2xl font-bold mb-2">Please Rotate Your Device</h2>
-              <p className="text-center">ChickWorld works best in landscape mode. Please rotate your device for the best experience.</p>
+              <p className="text-center">ChickFarms works best in landscape mode. Please rotate your device for the best experience.</p>
             </div>
           )}
 

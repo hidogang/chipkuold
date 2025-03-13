@@ -14,7 +14,13 @@ import { Settings } from "lucide-react";
 
 // Logo component
 function Logo() {
-  return <img src="/assets/chickworld-logo.svg" className="h-10 w-auto" alt="ChickWorld" />;
+  return (
+    <img 
+      src="/assets/chickfarms-logo.png" 
+      className="h-10 w-auto object-contain" 
+      alt="ChickFarms" 
+    />
+  );
 }
 
 // Game icons

@@ -114,7 +114,7 @@ export default function MarketPage() {
               <ShoppingCart size={20} />
             </div>
             <div>
-              <h1 className="text-xl sm:text-3xl font-bold text-blue-800">ChickWorld Market</h1>
+              <h1 className="text-xl sm:text-3xl font-bold text-blue-800">ChickFarms Market</h1>
               <p className="text-sm text-blue-700">Buy resources and sell your eggs!</p>
             </div>
           </div>
