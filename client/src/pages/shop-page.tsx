@@ -96,7 +96,7 @@ export default function ShopPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        {/* Township-style title */}
+        {/* ChickFarms-style title */}
         <div className="relative">
           <motion.div 
             className="absolute inset-0 bg-amber-500/10 rounded-lg -z-10"

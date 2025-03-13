@@ -200,7 +200,7 @@ export default function MarketPage() {
                     quantity: quantities.water_bucket || 1
                   })}
                   disabled={buyResourceMutation.isPending || quantities.water_bucket === 0}
-                  className="township-buy-button w-full py-2 rounded-lg text-white font-semibold flex items-center justify-center gap-1"
+                  className="chickfarms-buy-button w-full py-2 rounded-lg text-white font-semibold flex items-center justify-center gap-1"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -295,7 +295,7 @@ export default function MarketPage() {
                     quantity: quantities.wheat_bag || 1
                   })}
                   disabled={buyResourceMutation.isPending || quantities.wheat_bag === 0}
-                  className="township-buy-button w-full py-2 rounded-lg text-white font-semibold flex items-center justify-center gap-1"
+                  className="chickfarms-buy-button w-full py-2 rounded-lg text-white font-semibold flex items-center justify-center gap-1"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -318,7 +318,7 @@ export default function MarketPage() {
 
           {/* Egg Selling Card */}
           <motion.div 
-            className="township-shop-item"
+            className="chickfarms-shop-item"
             initial={{ opacity: 0, y: 30, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ delay: 0.3, duration: 0.5 }}
@@ -388,7 +388,7 @@ export default function MarketPage() {
                 <motion.button
                   onClick={() => sellEggsMutation.mutate(quantities.eggs || 1)}
                   disabled={sellEggsMutation.isPending || quantities.eggs === 0 || (resourcesQuery.data?.eggs || 0) === 0}
-                  className="township-buy-button w-full py-2 rounded-lg text-white font-semibold flex items-center justify-center gap-1"
+                  className="chickfarms-buy-button w-full py-2 rounded-lg text-white font-semibold flex items-center justify-center gap-1"
                   style={{
                     background: "linear-gradient(to bottom, #4caf50, #388e3c)",
                     border: "1px solid #66bb6a"
