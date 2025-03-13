@@ -138,8 +138,8 @@ export default function HomePage() {
           className="relative"
         >
           <img
-            src="/assets/chickworld_logo_clean-removebg-preview.png"
-            alt="ChickWorld Logo"
+            src="/assets/chickfarms-logo.png"
+            alt="ChickFarms Logo"
             className="w-32 h-32 object-contain"
           />
           <motion.div
