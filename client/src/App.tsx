@@ -1,6 +1,6 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "./hooks/use-auth";
 import { ProtectedRoute } from "./lib/protected-route";
@@ -145,8 +145,12 @@ function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
 }
 
 function Router() {
+  // Get current location path to force remount of components when route changes
+  const [locationPath] = useLocation();
+  
   return (
-    <Switch>
+    // Key the Switch with location path to force remounting of components when the route changes
+    <Switch key={locationPath}>
       <Route path="/auth" component={AuthPage} />
       <ProtectedRoute path="/" component={HomePage} />
       <ProtectedRoute path="/shop" component={ShopPage} />
@@ -209,7 +213,10 @@ function App() {
               transition={{ duration: 0.5 }}
               className="relative flex flex-col min-h-screen"
             >
-              <main className="flex-grow bg-gradient-to-b from-amber-50/50 to-white pt-20 pb-20 md:pb-16 overflow-x-hidden">
+              <main 
+                id="main-content"
+                className="flex-grow bg-gradient-to-b from-amber-50/50 to-white pt-20 pb-20 md:pb-16 overflow-x-hidden"
+              >
                 <Router />
               </main>
               <Navigation />
