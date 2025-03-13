@@ -51,8 +51,8 @@ export default function AuthPage() {
         <Card className="shadow-md">
           <CardHeader className="pb-2 sm:pb-4">
             <div className="flex flex-col items-center space-y-2 sm:space-y-4 mb-2 sm:mb-4">
-              <img src="/assets/chickworld-logo.svg" className="h-16 sm:h-24 w-auto" alt="ChickWorld" />
-              <CardTitle className="text-center text-lg sm:text-xl">Welcome to ChickWorld</CardTitle>
+              <img src="/assets/chickfarms-logo.png" className="h-16 sm:h-24 w-auto" alt="ChickFarms" />
+              <CardTitle className="text-center text-lg sm:text-xl">Welcome to ChickFarms</CardTitle>
             </div>
           </CardHeader>
           <CardContent>
