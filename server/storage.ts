@@ -1,4 +1,8 @@
+import { drizzle } from 'drizzle-orm/neon-serverless';
+import { eq, and, desc } from 'drizzle-orm';
+import { db } from './db';
 import { User, Chicken, Resource, Transaction, Price, InsertUser, UserProfile, InsertUserProfile } from "@shared/schema";
+import { users, chickens, resources, transactions, prices, userProfiles } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
 import { randomBytes } from "crypto";
@@ -52,54 +56,38 @@ export interface IStorage {
   updateWithdrawalTax(percentage: number): Promise<void>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private chickens: Map<number, Chicken>;
-  private resources: Map<number, Resource>;
-  private transactions: Map<number, Transaction>;
-  private prices: Map<string, Price>;
-  private userProfiles: Map<number, UserProfile>;
+export class DatabaseStorage implements IStorage {
+  public sessionStore: session.Store;
   private paymentAddress: string;
   private withdrawalTax: number;
-  public sessionStore: session.Store;
-  private currentIds: { [key: string]: number };
 
   constructor() {
-    this.users = new Map();
-    this.chickens = new Map();
-    this.resources = new Map();
-    this.transactions = new Map();
-    this.prices = new Map();
-    this.userProfiles = new Map();
     this.sessionStore = new MemoryStore({ checkPeriod: 86400000 });
-    this.currentIds = { users: 1, chickens: 1, transactions: 1, prices: 1, userProfiles: 1 };
     this.paymentAddress = "TRX8nHHo2Jd7H9ZwKhh6h8h";
     this.withdrawalTax = 5; // 5% default tax
+    this.initializeDefaults();
+  }
 
-    // Initialize defaults
-    this.initializePrices();
-    this.initializeAdminUser();
+  private async initializeDefaults() {
+    await this.initializePrices();
+    await this.initializeAdminUser();
   }
 
   private async initializeAdminUser() {
     const adminExists = await this.getUserByUsername("adminraja");
     if (!adminExists) {
-      const adminUser: User = {
-        id: this.currentIds.users++,
+      await db.insert(users).values({
         username: "adminraja",
         password: "admin8751",
         usdtBalance: "0",
         referralCode: "ADMIN",
-        referredBy: null,
-        isAdmin: true,
-        lastLoginAt: null,
-      };
-      this.users.set(adminUser.id, adminUser);
+        isAdmin: true
+      });
 
-      // Initialize resources for admin user
-      this.resources.set(adminUser.id, {
-        id: adminUser.id,
-        userId: adminUser.id,
+      const [admin] = await db.select().from(users).where(eq(users.username, "adminraja"));
+
+      await db.insert(resources).values({
+        userId: admin.id,
         waterBuckets: 0,
         wheatBags: 0,
         eggs: 0
@@ -118,49 +106,39 @@ export class MemStorage implements IStorage {
     ];
 
     for (const price of defaultPrices) {
-      this.prices.set(price.itemType, {
-        id: this.currentIds.prices++,
-        itemType: price.itemType,
-        price: price.price
-      });
+      const [existing] = await db.select().from(prices).where(eq(prices.itemType, price.itemType));
+      if (!existing) {
+        await db.insert(prices).values(price);
+      }
     }
   }
 
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
   }
 
   async getUserByReferralCode(referralCode: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.referralCode === referralCode
-    );
+    const [user] = await db.select().from(users).where(eq(users.referralCode, referralCode));
+    return user;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentIds.users++;
     const referralCode = randomBytes(4).toString('hex');
-    const user: User = {
-      id,
-      username: insertUser.username,
-      password: insertUser.password,
+    const [user] = await db.insert(users).values({
+      ...insertUser,
       usdtBalance: "0",
       referralCode,
-      referredBy: insertUser.referredBy || null,
-      isAdmin: false,
-      lastLoginAt: null,
-    };
-    this.users.set(id, user);
+      isAdmin: false
+    }).returning();
 
-    // Initialize resources for new user
-    this.resources.set(id, {
-      id,
-      userId: id,
+    await db.insert(resources).values({
+      userId: user.id,
       waterBuckets: 0,
       wheatBags: 0,
       eggs: 0
@@ -170,56 +148,45 @@ export class MemStorage implements IStorage {
   }
 
   async updateUserBalance(userId: number, amount: number): Promise<void> {
-    const user = await this.getUser(userId);
+    const [user] = await db.select().from(users).where(eq(users.id, userId));
     if (!user) throw new Error("User not found");
 
     const newBalance = parseFloat(user.usdtBalance) + amount;
     if (newBalance < 0) throw new Error("Insufficient USDT balance");
 
-    this.users.set(userId, {
-      ...user,
-      usdtBalance: newBalance.toFixed(2)
-    });
+    await db.update(users)
+      .set({ usdtBalance: newBalance.toFixed(2) })
+      .where(eq(users.id, userId));
   }
 
   async getChickensByUserId(userId: number): Promise<Chicken[]> {
-    return Array.from(this.chickens.values()).filter(
-      (chicken) => chicken.userId === userId
-    );
+    return db.select().from(chickens).where(eq(chickens.userId, userId));
   }
 
   async createChicken(userId: number, type: string): Promise<Chicken> {
-    const id = this.currentIds.chickens++;
-    const chicken: Chicken = {
-      id,
-      userId,
-      type,
-      lastHatchTime: null
-    };
-    this.chickens.set(id, chicken);
+    const [chicken] = await db.insert(chickens)
+      .values({ userId, type })
+      .returning();
     return chicken;
   }
 
   async updateChickenHatchTime(chickenId: number): Promise<void> {
-    const chicken = this.chickens.get(chickenId);
-    if (!chicken) throw new Error("Chicken not found");
-
-    this.chickens.set(chickenId, {
-      ...chicken,
-      lastHatchTime: new Date()
-    });
+    await db.update(chickens)
+      .set({ lastHatchTime: new Date() })
+      .where(eq(chickens.id, chickenId));
   }
 
   async getResourcesByUserId(userId: number): Promise<Resource> {
-    const resources = this.resources.get(userId);
-    if (!resources) throw new Error("Resources not found");
-    return resources;
+    const [resource] = await db.select().from(resources).where(eq(resources.userId, userId));
+    if (!resource) throw new Error("Resources not found");
+    return resource;
   }
 
   async updateResources(userId: number, updates: Partial<Resource>): Promise<Resource> {
-    const current = await this.getResourcesByUserId(userId);
-    const updated = { ...current, ...updates };
-    this.resources.set(userId, updated);
+    const [updated] = await db.update(resources)
+      .set(updates)
+      .where(eq(resources.userId, userId))
+      .returning();
     return updated;
   }
 
@@ -231,64 +198,54 @@ export class MemStorage implements IStorage {
     referralCommission?: number,
     bankDetails?: string
   ): Promise<Transaction> {
-    const id = this.currentIds.transactions++;
-    const transaction: Transaction = {
-      id,
-      userId,
-      type,
-      amount: amount.toString(),
-      status: "pending",
-      transactionId: transactionId ? transactionId : randomBytes(16).toString('hex'),
-      referralCommission: referralCommission ? referralCommission.toString() : null,
-      createdAt: new Date(),
-      bankDetails: bankDetails || null
-    };
-    this.transactions.set(id, transaction);
+    const [transaction] = await db.insert(transactions)
+      .values({
+        userId,
+        type,
+        amount: amount.toString(),
+        status: "pending",
+        transactionId: transactionId || randomBytes(16).toString('hex'),
+        referralCommission: referralCommission?.toString(),
+        bankDetails
+      })
+      .returning();
     return transaction;
   }
 
   async getTransactionsByUserId(userId: number): Promise<Transaction[]> {
-    return Array.from(this.transactions.values())
-      .filter((tx) => tx.userId === userId)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    return db.select()
+      .from(transactions)
+      .where(eq(transactions.userId, userId))
+      .orderBy(desc(transactions.createdAt));
   }
 
   async updateTransactionStatus(transactionId: string, status: string): Promise<void> {
-    const transaction = Array.from(this.transactions.values())
-      .find(tx => tx.transactionId === transactionId);
-
-    if (!transaction) throw new Error("Transaction not found");
-
-    this.transactions.set(transaction.id, {
-      ...transaction,
-      status
-    });
+    await db.update(transactions)
+      .set({ status })
+      .where(eq(transactions.transactionId, transactionId));
   }
 
   async getPrices(): Promise<Price[]> {
-    return Array.from(this.prices.values());
+    return db.select().from(prices);
   }
 
   async updatePrice(itemType: string, price: number): Promise<void> {
-    const existing = Array.from(this.prices.values())
-      .find(p => p.itemType === itemType);
-
-    if (!existing) throw new Error("Price entry not found");
-
-    this.prices.set(itemType, {
-      ...existing,
-      price: price.toString()
-    });
+    await db.update(prices)
+      .set({ price: price.toString() })
+      .where(eq(prices.itemType, itemType));
   }
 
   async getTransactions(): Promise<Transaction[]> {
-    return Array.from(this.transactions.values())
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    return db.select()
+      .from(transactions)
+      .orderBy(desc(transactions.createdAt));
   }
 
   async getTransactionByTransactionId(transactionId: string): Promise<Transaction | undefined> {
-    return Array.from(this.transactions.values())
-      .find(tx => tx.transactionId === transactionId);
+    const [transaction] = await db.select()
+      .from(transactions)
+      .where(eq(transactions.transactionId, transactionId));
+    return transaction;
   }
 
   async updatePaymentAddress(address: string): Promise<void> {
@@ -299,46 +256,47 @@ export class MemStorage implements IStorage {
     this.withdrawalTax = percentage;
   }
 
-  // User Profile methods
   async getUserProfile(userId: number): Promise<UserProfile | undefined> {
-    return this.userProfiles.get(userId);
+    const [profile] = await db.select()
+      .from(userProfiles)
+      .where(eq(userProfiles.userId, userId));
+    return profile;
   }
 
   async createUserProfile(profile: InsertUserProfile): Promise<UserProfile> {
-    const id = this.currentIds.userProfiles++;
-    const newProfile: UserProfile = {
-      id,
-      userId: profile.userId,
-      farmName: profile.farmName || null,
-      avatarColor: profile.avatarColor || "#6366F1",
-      avatarStyle: profile.avatarStyle || "default",
-      farmBackground: profile.farmBackground || "default",
-      lastUpdated: new Date(),
-    };
-    this.userProfiles.set(profile.userId, newProfile);
+    const [newProfile] = await db.insert(userProfiles)
+      .values({
+        ...profile,
+        avatarColor: profile.avatarColor || "#6366F1",
+        avatarStyle: profile.avatarStyle || "default",
+        farmBackground: profile.farmBackground || "default"
+      })
+      .returning();
     return newProfile;
   }
 
   async updateUserProfile(userId: number, updates: Partial<InsertUserProfile>): Promise<UserProfile> {
-    const currentProfile = await this.getUserProfile(userId);
-    
+    const [currentProfile] = await db.select()
+      .from(userProfiles)
+      .where(eq(userProfiles.userId, userId));
+
     if (!currentProfile) {
-      // If no profile exists, create a new one with the updates
       return this.createUserProfile({
         userId,
         ...updates,
       });
     }
 
-    const updatedProfile: UserProfile = {
-      ...currentProfile,
-      ...updates,
-      lastUpdated: new Date(),
-    };
+    const [updatedProfile] = await db.update(userProfiles)
+      .set({
+        ...updates,
+        lastUpdated: new Date()
+      })
+      .where(eq(userProfiles.userId, userId))
+      .returning();
 
-    this.userProfiles.set(userId, updatedProfile);
     return updatedProfile;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
