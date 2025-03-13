@@ -285,7 +285,7 @@ export default function HomePage() {
         <div className="sticky top-0 w-full bg-gradient-to-r from-amber-800/90 to-amber-700/90 backdrop-blur-sm z-50 px-4 py-2 flex justify-between items-center border-b border-amber-600/50 shadow-lg">
           <div className="flex items-center space-x-2">
             <DollarSign className="h-5 w-5 text-green-300" />
-            <span className="text-white font-semibold">{user?.balance || 0} USDT</span>
+            <span className="text-white font-semibold">${user?.usdtBalance || 0}</span>
           </div>
           
           <div className="flex space-x-4">
@@ -440,7 +440,7 @@ export default function HomePage() {
       <div className="sticky top-0 w-full bg-gradient-to-r from-amber-800/90 to-amber-700/90 backdrop-blur-sm z-40 px-4 py-2 flex justify-between items-center border-b border-amber-600/50 shadow-lg">
         <div className="flex items-center space-x-2">
           <DollarSign className="h-5 w-5 text-green-300" />
-          <span className="text-white font-semibold">{user?.balance || 0} USDT</span>
+          <span className="text-white font-semibold">${user?.usdtBalance || 0}</span>
         </div>
         
         <div className="flex space-x-4">
