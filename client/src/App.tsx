@@ -7,6 +7,7 @@ import { ProtectedRoute } from "./lib/protected-route";
 import { useState, useEffect, useRef } from "react";
 import { RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Navigation from "@/components/navigation";
 
 import HomePage from "@/pages/home-page";
 import AuthPage from "@/pages/auth-page";
@@ -176,6 +177,7 @@ function App() {
             animate={{ opacity: isLoading ? 0 : 1 }}
             transition={{ duration: 0.5 }}
           >            
+            <Navigation />
             <main className="relative">
               <Router />
             </main>

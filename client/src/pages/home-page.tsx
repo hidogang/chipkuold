@@ -8,8 +8,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
-import { 
-  Droplets, Wheat, Egg, DollarSign, 
+import {
+  Droplets, Wheat, Egg, DollarSign,
   ChevronRight, Home, ShoppingCart, BarChart3, Wallet, User
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -56,14 +56,14 @@ export default function HomePage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/resources"] });
       queryClient.invalidateQueries({ queryKey: ["/api/chickens"] });
-      
+
       // Play hatch sound
       const hatchSound = new Audio('/assets/hatch-sound.mp3');
       hatchSound.volume = 0.5;
       hatchSound.play().catch(() => {
         // Silent catch - audio might not play if user hasn't interacted with the page
       });
-      
+
       toast({
         title: "Success!",
         description: "Your chicken has hatched some eggs!",
@@ -82,20 +82,20 @@ export default function HomePage() {
   // Update cooldown timers every second
   useEffect(() => {
     if (!chickensQuery.data) return;
-    
+
     const updateCooldowns = () => {
       const newTimers: {[key: number]: string} = {};
-      
+
       chickensQuery.data.forEach(chicken => {
         const cooldown = getRemainingCooldown(chicken);
         if (cooldown) {
           newTimers[chicken.id] = `${cooldown.hours}h ${cooldown.minutes}m ${cooldown.seconds}s`;
         }
       });
-      
+
       setCooldownTimers(newTimers);
     };
-    
+
     updateCooldowns();
     const interval = setInterval(updateCooldowns, 1000);
     return () => clearInterval(interval);
@@ -110,27 +110,27 @@ export default function HomePage() {
           transition={{ duration: 0.5 }}
           className="relative"
         >
-          <img 
-            src="/assets/chickworld_logo_clean-removebg-preview.png" 
-            alt="ChickFarms Logo" 
+          <img
+            src="/assets/chickworld_logo_clean-removebg-preview.png"
+            alt="ChickFarms Logo"
             className="w-32 h-32 object-contain"
           />
-          <motion.div 
+          <motion.div
             className="absolute inset-0"
-            animate={{ 
+            animate={{
               scale: [1, 1.1, 1],
-              opacity: [1, 0.8, 1] 
+              opacity: [1, 0.8, 1]
             }}
-            transition={{ 
+            transition={{
               repeat: Infinity,
               duration: 2,
-              ease: "easeInOut" 
+              ease: "easeInOut"
             }}
           >
-            <img 
-              src="/assets/cloud.svg" 
-              alt="Cloud" 
-              className="w-full h-full object-contain opacity-30" 
+            <img
+              src="/assets/cloud.svg"
+              alt="Cloud"
+              className="w-full h-full object-contain opacity-30"
             />
           </motion.div>
         </motion.div>
@@ -146,13 +146,13 @@ export default function HomePage() {
               <motion.div
                 key={i}
                 className="w-3 h-3 rounded-full bg-amber-500"
-                animate={{ 
+                animate={{
                   y: [0, -10, 0],
                   opacity: [0.5, 1, 0.5]
                 }}
-                transition={{ 
-                  duration: 0.8, 
-                  repeat: Infinity, 
+                transition={{
+                  duration: 0.8,
+                  repeat: Infinity,
                   delay: i * 0.2,
                   ease: "easeInOut"
                 }}
@@ -165,14 +165,14 @@ export default function HomePage() {
   }
 
   // Create a proper Resource type object with required fields
-  const resources: Resource = resourcesQuery.data 
-    ? resourcesQuery.data 
-    : { 
-        id: 0, 
-        userId: user?.id || 0, 
-        waterBuckets: 0, 
-        wheatBags: 0, 
-        eggs: 0 
+  const resources: Resource = resourcesQuery.data
+    ? resourcesQuery.data
+    : {
+        id: 0,
+        userId: user?.id || 0,
+        waterBuckets: 0,
+        wheatBags: 0,
+        eggs: 0
       };
 
   // Background styles based on time of day
@@ -186,50 +186,50 @@ export default function HomePage() {
         return 'bg-gradient-to-b from-indigo-900 to-indigo-700 via-indigo-800 text-white';
     }
   };
-  
+
   // Calculate remaining cooldown time for a chicken
   const getRemainingCooldown = (chicken: Chicken): { hours: number, minutes: number, seconds: number } | null => {
     if (!chicken.lastHatchTime) return null;
-    
+
     const requirements = {
       baby: { cooldown: 6 * 60 * 60 * 1000 }, // 6 hours
       regular: { cooldown: 5 * 60 * 60 * 1000 }, // 5 hours
       golden: { cooldown: 3 * 60 * 60 * 1000 }, // 3 hours
     };
-    
+
     const cooldownTime = requirements[chicken.type as keyof typeof requirements].cooldown;
     const now = Date.now();
     const hatchTime = new Date(chicken.lastHatchTime).getTime();
     const timePassed = now - hatchTime;
-    
+
     if (timePassed >= cooldownTime) return null;
-    
+
     const remainingTime = cooldownTime - timePassed;
     const hours = Math.floor(remainingTime / (60 * 60 * 1000));
     const minutes = Math.floor((remainingTime % (60 * 60 * 1000)) / (60 * 1000));
     const seconds = Math.floor((remainingTime % (60 * 1000)) / 1000);
-    
+
     return { hours, minutes, seconds };
   };
-  
+
   // Helper function to determine if a chicken can hatch
   const canHatch = (chicken: Chicken) => {
     if (!chicken.lastHatchTime) return true;
-    
+
     const requirements = {
       baby: { cooldown: 6 * 60 * 60 * 1000 }, // 6 hours
       regular: { cooldown: 5 * 60 * 60 * 1000 }, // 5 hours
       golden: { cooldown: 3 * 60 * 60 * 1000 }, // 3 hours
     };
-    
+
     const cooldownTime = requirements[chicken.type as keyof typeof requirements].cooldown;
     const now = Date.now();
     const hatchTime = new Date(chicken.lastHatchTime).getTime();
     const timePassed = now - hatchTime;
-    
+
     return timePassed >= cooldownTime;
   };
-  
+
   // Chicken animation to use based on type
   const getChickenAnimation = (type: string) => {
     switch (type) {
@@ -287,9 +287,9 @@ export default function HomePage() {
             <DollarSign className="h-5 w-5 text-green-300" />
             <span className="text-white font-semibold">${user?.usdtBalance || 0}</span>
           </div>
-          
+
           <div className="flex space-x-4">
-            <motion.button 
+            <motion.button
               className="flex items-center space-x-1 text-white"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -298,7 +298,7 @@ export default function HomePage() {
               <Droplets className="h-5 w-5 text-blue-300" />
               <span>{resources.waterBuckets}</span>
             </motion.button>
-            
+
             <motion.button
               className="flex items-center space-x-1 text-white"
               whileHover={{ scale: 1.05 }}
@@ -308,7 +308,7 @@ export default function HomePage() {
               <Wheat className="h-5 w-5 text-yellow-300" />
               <span>{resources.wheatBags}</span>
             </motion.button>
-            
+
             <motion.button
               className="flex items-center space-x-1 text-white"
               whileHover={{ scale: 1.05 }}
@@ -319,7 +319,7 @@ export default function HomePage() {
             </motion.button>
           </div>
         </div>
-        
+
         {/* Welcome Screen */}
         <div className="flex-1 flex items-center justify-center p-4">
           <motion.div
@@ -328,7 +328,7 @@ export default function HomePage() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.5, type: "spring" }}
           >
-            <div 
+            <div
               className="chickfarms-welcome-card p-6 sm:p-8 text-center rounded-xl relative overflow-hidden"
               style={{
                 background: "linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 249, 235, 0.9))",
@@ -337,23 +337,23 @@ export default function HomePage() {
               }}
             >
               {/* Decorative clouds */}
-              <motion.div 
+              <motion.div
                 className="absolute top-5 left-0 w-20 h-20 opacity-20"
                 animate={{ x: [0, 30, 0] }}
                 transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
               >
                 <img src="/assets/cloud.svg" alt="Cloud" className="w-full h-full" />
               </motion.div>
-              
-              <motion.div 
+
+              <motion.div
                 className="absolute top-10 right-0 w-14 h-14 opacity-10"
                 animate={{ x: [0, -20, 0] }}
                 transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
               >
                 <img src="/assets/cloud.svg" alt="Cloud" className="w-full h-full" />
               </motion.div>
-              
-              <motion.img 
+
+              <motion.img
                 src="/assets/farm-entrance.svg"
                 alt="Farm"
                 className="w-32 h-32 mx-auto mb-4"
@@ -361,13 +361,13 @@ export default function HomePage() {
                 animate={{ y: [0, -10, 0] }}
                 transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
               />
-              
+
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.5 }}
               >
-                <h2 
+                <h2
                   className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4"
                   style={{ color: "#ff7c2e" }}
                 >
@@ -379,7 +379,7 @@ export default function HomePage() {
                 <motion.button
                   onClick={() => window.location.href = '/shop'}
                   className="chickfarms-button px-6 py-3 rounded-lg text-white font-bold text-base relative overflow-hidden"
-                  style={{ 
+                  style={{
                     background: "linear-gradient(to bottom, #ff9800, #ff7c2e)",
                     border: "2px solid #ffbc5b",
                     boxShadow: "0 4px 10px rgba(255, 159, 67, 0.4)"
@@ -403,7 +403,7 @@ export default function HomePage() {
             </div>
           </motion.div>
         </div>
-        
+
         {/* Bottom Navigation */}
         <div className="sticky bottom-0 bg-white border-t border-amber-200 shadow-lg z-40">
           <div className="flex justify-around items-center h-16">
@@ -442,9 +442,9 @@ export default function HomePage() {
           <DollarSign className="h-5 w-5 text-green-300" />
           <span className="text-white font-semibold">${user?.usdtBalance || 0}</span>
         </div>
-        
+
         <div className="flex space-x-4">
-          <motion.button 
+          <motion.button
             className="flex items-center space-x-1 text-white"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -453,7 +453,7 @@ export default function HomePage() {
             <Droplets className="h-5 w-5 text-blue-300" />
             <span>{resources.waterBuckets}</span>
           </motion.button>
-          
+
           <motion.button
             className="flex items-center space-x-1 text-white"
             whileHover={{ scale: 1.05 }}
@@ -463,7 +463,7 @@ export default function HomePage() {
             <Wheat className="h-5 w-5 text-yellow-300" />
             <span>{resources.wheatBags}</span>
           </motion.button>
-          
+
           <motion.button
             className="flex items-center space-x-1 text-white"
             whileHover={{ scale: 1.05 }}
@@ -474,7 +474,7 @@ export default function HomePage() {
           </motion.button>
         </div>
       </div>
-      
+
       {/* Main Chicken Coop Area */}
       <div className="flex-1 overflow-auto p-4">
         <motion.div
@@ -486,7 +486,7 @@ export default function HomePage() {
           <h1 className="text-xl font-bold text-amber-800 mb-1">Your Chicken Coop</h1>
           <p className="text-sm text-amber-700">Tap on a chicken to manage it</p>
         </motion.div>
-        
+
         {/* Chicken Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {sortedChickens.map((chicken, index) => (
@@ -503,20 +503,20 @@ export default function HomePage() {
               <div className="flex justify-center items-center p-4 h-32 bg-gradient-to-b from-amber-50 to-amber-100/50">
                 <motion.div
                   animate={getChickenAnimation(chicken.type)}
-                  transition={{ 
-                    repeat: Infinity, 
-                    repeatType: "reverse" 
+                  transition={{
+                    repeat: Infinity,
+                    repeatType: "reverse"
                   }}
                   className="w-24 h-24"
                 >
-                  <img 
-                    src={`/assets/chicken-${chicken.type}.svg`} 
+                  <img
+                    src={`/assets/chicken-${chicken.type}.svg`}
                     alt={`${chicken.type} Chicken`}
-                    className="w-full h-full object-contain" 
+                    className="w-full h-full object-contain"
                   />
                 </motion.div>
               </div>
-              
+
               {/* Chicken Info */}
               <div className="p-3 bg-white border-t border-amber-100">
                 <div className="flex justify-between items-center mb-1">
@@ -527,7 +527,7 @@ export default function HomePage() {
                     #{chicken.id}
                   </div>
                 </div>
-                
+
                 {/* Egg Production Progress */}
                 <div className="mt-2 mb-3">
                   <div className="flex justify-between items-center mb-1">
@@ -538,27 +538,27 @@ export default function HomePage() {
                       <span className="text-xs text-amber-600 font-medium">In Progress...</span>
                     )}
                   </div>
-                  
+
                   <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                     {canHatch(chicken) ? (
-                      <motion.div 
-                        className="h-full bg-gradient-to-r from-green-400 to-green-500" 
+                      <motion.div
+                        className="h-full bg-gradient-to-r from-green-400 to-green-500"
                         style={{ width: '100%' }}
                         animate={{ opacity: [0.7, 1, 0.7] }}
                         transition={{ duration: 1.5, repeat: Infinity }}
                       />
                     ) : (
-                      <motion.div 
-                        className="h-full bg-gradient-to-r from-amber-400 to-amber-500" 
-                        style={{ 
-                          width: `${((Date.now() - new Date(chicken.lastHatchTime || 0).getTime()) / 
-                            (chicken.type === 'baby' ? 6 : chicken.type === 'regular' ? 5 : 3) / 60 / 60 / 1000) * 100}%` 
+                      <motion.div
+                        className="h-full bg-gradient-to-r from-amber-400 to-amber-500"
+                        style={{
+                          width: `${((Date.now() - new Date(chicken.lastHatchTime || 0).getTime()) /
+                            (chicken.type === 'baby' ? 6 : chicken.type === 'regular' ? 5 : 3) / 60 / 60 / 1000) * 100}%`
                         }}
                       />
                     )}
                   </div>
                 </div>
-                
+
                 {/* Hatch Button or Cooldown Timer */}
                 {canHatch(chicken) ? (
                   <motion.button
@@ -567,13 +567,13 @@ export default function HomePage() {
                       hatchMutation.mutate(chicken.id);
                     }}
                     disabled={
-                      hatchMutation.isPending || 
-                      resources.waterBuckets < (chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1) || 
+                      hatchMutation.isPending ||
+                      resources.waterBuckets < (chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1) ||
                       resources.wheatBags < (chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1)
                     }
                     className={`w-full py-2 px-4 rounded-lg text-white font-medium text-sm relative overflow-hidden
                       ${
-                        resources.waterBuckets < (chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1) || 
+                        resources.waterBuckets < (chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1) ||
                         resources.wheatBags < (chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1)
                           ? 'bg-gray-400 cursor-not-allowed'
                           : 'bg-gradient-to-r from-amber-500 to-orange-500'
@@ -584,14 +584,14 @@ export default function HomePage() {
                   >
                     {hatchMutation.isPending ? (
                       <span>Hatching...</span>
-                    ) : resources.waterBuckets < (chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1) || 
+                    ) : resources.waterBuckets < (chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1) ||
                        resources.wheatBags < (chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1) ? (
                       <span>Not Enough Resources</span>
                     ) : (
                       <span>Hatch Eggs</span>
                     )}
-                    
-                    {!(resources.waterBuckets < (chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1) || 
+
+                    {!(resources.waterBuckets < (chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1) ||
                        resources.wheatBags < (chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1)) && (
                       <motion.div
                         className="absolute inset-0 bg-white/10"
@@ -614,11 +614,11 @@ export default function HomePage() {
                   </div>
                 )}
               </div>
-              
+
               {/* Resource Requirements - Only show when chicken is active */}
               <AnimatePresence>
                 {activeChicken === chicken.id && (
-                  <motion.div 
+                  <motion.div
                     className="p-3 border-t border-amber-100 bg-amber-50"
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
@@ -630,7 +630,7 @@ export default function HomePage() {
                       <div className="flex items-center">
                         <Droplets className="h-4 w-4 text-blue-500 mr-1" />
                         <span className="text-sm">
-                          {chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1} 
+                          {chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1}
                           <span className={resources.waterBuckets < (chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1) ? 'text-red-500 ml-1' : 'text-green-500 ml-1'}>
                             ({resources.waterBuckets})
                           </span>
@@ -658,7 +658,7 @@ export default function HomePage() {
             </motion.div>
           ))}
         </div>
-        
+
         {/* Add More Chickens Button */}
         <motion.div
           className="mt-4"
@@ -677,7 +677,7 @@ export default function HomePage() {
             </motion.button>
           </Link>
         </motion.div>
-        
+
         {/* Quick Market Links */}
         <motion.div
           className="mt-4 grid grid-cols-2 gap-3"
@@ -694,7 +694,7 @@ export default function HomePage() {
             <Droplets size={16} />
             <span>Buy Water</span>
           </motion.button>
-          
+
           <motion.button
             onClick={() => handleResourceClick('wheat')}
             className="py-3 px-4 rounded-lg bg-amber-500/90 text-white font-medium flex items-center justify-center space-x-2"
@@ -706,33 +706,7 @@ export default function HomePage() {
           </motion.button>
         </motion.div>
       </div>
-      
-      {/* Bottom Navigation */}
-      <div className="sticky bottom-0 bg-white border-t border-amber-200 shadow-lg z-40">
-        <div className="flex justify-around items-center h-16">
-          <Link href="/" className="flex flex-col items-center justify-center text-amber-900 font-medium text-xs px-3 py-2 relative">
-            <div className="absolute inset-0 bg-amber-500/10 rounded-full"></div>
-            <Home className="h-6 w-6 mb-1 text-amber-500" />
-            <span>Home</span>
-          </Link>
-          <Link href="/shop" className="flex flex-col items-center justify-center text-gray-500 font-medium text-xs px-3 py-2">
-            <ShoppingCart className="h-6 w-6 mb-1" />
-            <span>Shop</span>
-          </Link>
-          <Link href="/market" className="flex flex-col items-center justify-center text-gray-500 font-medium text-xs px-3 py-2">
-            <BarChart3 className="h-6 w-6 mb-1" />
-            <span>Market</span>
-          </Link>
-          <Link href="/wallet" className="flex flex-col items-center justify-center text-gray-500 font-medium text-xs px-3 py-2">
-            <Wallet className="h-6 w-6 mb-1" />
-            <span>Wallet</span>
-          </Link>
-          <Link href="/account" className="flex flex-col items-center justify-center text-gray-500 font-medium text-xs px-3 py-2">
-            <User className="h-6 w-6 mb-1" />
-            <span>Account</span>
-          </Link>
-        </div>
-      </div>
+
     </div>
   );
 }

@@ -17,7 +17,7 @@ export default function MarketPage() {
     wheat_bag: 1,
     eggs: 1
   });
-  
+
   // Track if input field is currently being edited
   const [inputActive, setInputActive] = useState({
     water_bucket: false,
@@ -83,8 +83,8 @@ export default function MarketPage() {
   return (
     <div className="pb-20 md:pb-6 bg-gradient-to-b from-amber-50/50 to-white min-h-screen">
       <BalanceBar />
-      
-      <motion.div 
+
+      <motion.div
         className="space-y-6 sm:space-y-8 mt-4 sm:mt-6 px-3 sm:px-6 max-w-6xl mx-auto"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -92,7 +92,7 @@ export default function MarketPage() {
       >
         {/* ChickFarms-style title */}
         <div className="relative">
-          <motion.div 
+          <motion.div
             className="absolute inset-0 bg-blue-500/10 rounded-lg -z-10"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -110,7 +110,7 @@ export default function MarketPage() {
         </div>
 
         {/* ChickFarms-style information banner */}
-        <motion.div 
+        <motion.div
           className="bg-gradient-to-r from-blue-100 to-blue-50 rounded-lg p-3 sm:p-4 border border-blue-200 shadow-sm"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -127,7 +127,7 @@ export default function MarketPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
           {/* Water Resource Card */}
-          <motion.div 
+          <motion.div
             className="chickfarms-shop-item"
             initial={{ opacity: 0, y: 30, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -137,26 +137,26 @@ export default function MarketPage() {
             <div className="relative overflow-hidden rounded-lg shadow-md border border-gray-100 bg-white">
               {/* Background decoration */}
               <div className="absolute top-0 left-0 right-0 h-28 z-0 bg-gradient-to-r from-blue-100 to-blue-50" />
-              
+
               {/* Resource title & image */}
               <div className="relative pt-4 pb-2 px-4 flex flex-col items-center z-10">
-                <motion.div 
+                <motion.div
                   className="w-20 h-20 mb-2 bg-blue-100 rounded-full flex items-center justify-center"
                   animate={{ y: [0, -5, 0] }}
                   transition={{ repeat: Infinity, duration: 2, repeatType: "reverse" }}
                 >
                   <Droplet size={40} className="text-blue-500" />
                 </motion.div>
-                
+
                 <h3 className="text-lg font-bold mb-1 text-center text-blue-700">
                   Water Buckets
                 </h3>
-                
+
                 <div className="text-xs px-3 py-1 rounded-full mb-1 font-semibold bg-blue-100 text-blue-800">
                   Essential for your chickens
                 </div>
               </div>
-              
+
               {/* Buy section */}
               <div className="bg-gray-50 p-3 space-y-2">
                 <div className="bg-white p-2 rounded border border-gray-100">
@@ -167,7 +167,7 @@ export default function MarketPage() {
                     </span>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-2">
                   <Input
                     type="number"
@@ -193,16 +193,16 @@ export default function MarketPage() {
                     ${(getPrice("water_bucket") * (quantities.water_bucket || 0)).toFixed(2)}
                   </div>
                 </div>
-                
+
                 <motion.button
                   onClick={() => buyResourceMutation.mutate({
                     itemType: "water_bucket",
-                    quantity: quantities.water_bucket || 1
+                    quantity: quantities.water_bucket
                   })}
-                  disabled={buyResourceMutation.isPending || quantities.water_bucket === 0}
-                  className="chickfarms-buy-button w-full py-2 rounded-lg text-white font-semibold flex items-center justify-center gap-1"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  disabled={buyResourceMutation.isPending}
+                  className="w-full py-2 rounded-lg text-white font-semibold flex items-center justify-center gap-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 disabled:opacity-50"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
                   <ShoppingCart size={16} />
                   <span>Buy Water</span>
@@ -222,7 +222,7 @@ export default function MarketPage() {
           </motion.div>
 
           {/* Wheat Resource Card */}
-          <motion.div 
+          <motion.div
             className="chickfarms-shop-item"
             initial={{ opacity: 0, y: 30, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -232,26 +232,26 @@ export default function MarketPage() {
             <div className="relative overflow-hidden rounded-lg shadow-md border border-gray-100 bg-white">
               {/* Background decoration */}
               <div className="absolute top-0 left-0 right-0 h-28 z-0 bg-gradient-to-r from-amber-100 to-amber-50" />
-              
+
               {/* Resource title & image */}
               <div className="relative pt-4 pb-2 px-4 flex flex-col items-center z-10">
-                <motion.div 
+                <motion.div
                   className="w-20 h-20 mb-2 bg-amber-100 rounded-full flex items-center justify-center"
                   animate={{ y: [0, -5, 0] }}
                   transition={{ repeat: Infinity, duration: 2.3, repeatType: "reverse" }}
                 >
                   <Wheat size={40} className="text-amber-600" />
                 </motion.div>
-                
+
                 <h3 className="text-lg font-bold mb-1 text-center text-amber-700">
                   Wheat Bags
                 </h3>
-                
+
                 <div className="text-xs px-3 py-1 rounded-full mb-1 font-semibold bg-amber-100 text-amber-800">
                   Premium chicken feed
                 </div>
               </div>
-              
+
               {/* Buy section */}
               <div className="bg-gray-50 p-3 space-y-2">
                 <div className="bg-white p-2 rounded border border-gray-100">
@@ -262,7 +262,7 @@ export default function MarketPage() {
                     </span>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-2">
                   <Input
                     type="number"
@@ -288,16 +288,16 @@ export default function MarketPage() {
                     ${(getPrice("wheat_bag") * (quantities.wheat_bag || 0)).toFixed(2)}
                   </div>
                 </div>
-                
+
                 <motion.button
                   onClick={() => buyResourceMutation.mutate({
                     itemType: "wheat_bag",
-                    quantity: quantities.wheat_bag || 1
+                    quantity: quantities.wheat_bag
                   })}
-                  disabled={buyResourceMutation.isPending || quantities.wheat_bag === 0}
-                  className="chickfarms-buy-button w-full py-2 rounded-lg text-white font-semibold flex items-center justify-center gap-1"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  disabled={buyResourceMutation.isPending}
+                  className="w-full py-2 rounded-lg text-white font-semibold flex items-center justify-center gap-1 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 disabled:opacity-50"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
                   <ShoppingCart size={16} />
                   <span>Buy Wheat</span>
@@ -317,7 +317,7 @@ export default function MarketPage() {
           </motion.div>
 
           {/* Egg Selling Card */}
-          <motion.div 
+          <motion.div
             className="chickfarms-shop-item"
             initial={{ opacity: 0, y: 30, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -327,26 +327,26 @@ export default function MarketPage() {
             <div className="relative overflow-hidden rounded-lg shadow-md border border-gray-100 bg-white">
               {/* Background decoration */}
               <div className="absolute top-0 left-0 right-0 h-28 z-0 bg-gradient-to-r from-yellow-100 to-yellow-50" />
-              
+
               {/* Resource title & image */}
               <div className="relative pt-4 pb-2 px-4 flex flex-col items-center z-10">
-                <motion.div 
+                <motion.div
                   className="w-20 h-20 mb-2 bg-yellow-100 rounded-full flex items-center justify-center"
                   animate={{ y: [0, -5, 0] }}
                   transition={{ repeat: Infinity, duration: 1.8, repeatType: "reverse" }}
                 >
                   <Egg size={40} className="text-yellow-600" />
                 </motion.div>
-                
+
                 <h3 className="text-lg font-bold mb-1 text-center text-yellow-700">
                   Sell Eggs
                 </h3>
-                
+
                 <div className="text-xs px-3 py-1 rounded-full mb-1 font-semibold bg-yellow-100 text-yellow-800">
                   Market price: ${getPrice("egg").toFixed(2)} each
                 </div>
               </div>
-              
+
               {/* Sell section */}
               <div className="bg-gray-50 p-3 space-y-2">
                 <div className="bg-white p-2 rounded border border-gray-100">
@@ -357,7 +357,7 @@ export default function MarketPage() {
                     </span>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-2">
                   <Input
                     type="number"
@@ -384,17 +384,13 @@ export default function MarketPage() {
                     ${(getPrice("egg") * (quantities.eggs || 0)).toFixed(2)}
                   </div>
                 </div>
-                
+
                 <motion.button
-                  onClick={() => sellEggsMutation.mutate(quantities.eggs || 1)}
-                  disabled={sellEggsMutation.isPending || quantities.eggs === 0 || (resourcesQuery.data?.eggs || 0) === 0}
-                  className="chickfarms-buy-button w-full py-2 rounded-lg text-white font-semibold flex items-center justify-center gap-1"
-                  style={{
-                    background: "linear-gradient(to bottom, #4caf50, #388e3c)",
-                    border: "1px solid #66bb6a"
-                  }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  onClick={() => sellEggsMutation.mutate(quantities.eggs)}
+                  disabled={sellEggsMutation.isPending || !resourcesQuery.data?.eggs}
+                  className="w-full py-2 rounded-lg text-white font-semibold flex items-center justify-center gap-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:opacity-50"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
                   <ShoppingCart size={16} />
                   <span>Sell Eggs</span>
