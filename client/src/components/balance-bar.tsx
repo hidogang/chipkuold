@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { Resource } from "@shared/schema";
 import { motion } from "framer-motion";
-import { Droplets, Wheat, Egg, DollarSign } from "lucide-react";
 
 export default function BalanceBar() {
   const { user } = useAuth();
@@ -14,7 +13,7 @@ export default function BalanceBar() {
   if (!user || resourcesQuery.isLoading) return null;
 
   const resources = resourcesQuery.data || { waterBuckets: 0, wheatBags: 0, eggs: 0 };
-  
+
   // Item config with colors and icons for Township style
   const items = [
     {
@@ -87,9 +86,9 @@ export default function BalanceBar() {
   ];
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-30 py-2 px-3">
+    <div className="fixed top-0 left-0 right-0 z-30 bg-transparent">
       <motion.div 
-        className="township-resource-bar max-w-4xl mx-auto overflow-hidden"
+        className="township-resource-bar max-w-4xl mx-auto overflow-hidden my-2 px-3"
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, type: "spring" }}

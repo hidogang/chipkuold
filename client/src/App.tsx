@@ -169,7 +169,7 @@ function App() {
               transition={{ duration: 0.5 }}
               className="relative"
             >
-              <main className="relative min-h-screen bg-gradient-to-b from-amber-50/50 to-white pb-20 md:pb-16">
+              <main className="relative min-h-screen bg-gradient-to-b from-amber-50/50 to-white pt-20 pb-20 md:pb-16">
                 <Router />
               </main>
               <Navigation />
