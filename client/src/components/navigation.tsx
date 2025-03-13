@@ -45,7 +45,7 @@ export default function Navigation() {
   return (
     <>
       {/* Desktop navigation */}
-      <nav className="hidden md:block fixed top-0 left-0 right-0 bg-background/90 backdrop-blur-sm border-b shadow-sm z-20">
+      <nav className="hidden md:block fixed top-0 left-0 right-0 bg-background/90 backdrop-blur-sm border-b shadow-sm z-50">
         <div className="container mx-auto">
           <div className="flex items-center justify-between h-14">
             <div className="flex items-center space-x-4">
@@ -95,7 +95,7 @@ export default function Navigation() {
                 </Link>
               </div>
             </div>
-            
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="flex items-center gap-2 h-10">
@@ -140,9 +140,9 @@ export default function Navigation() {
           </div>
         </div>
       </nav>
-      
+
       {/* Mobile navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-card border-t shadow-lg md:hidden z-20">
+      <nav className="fixed bottom-0 left-0 right-0 bg-card border-t shadow-lg md:hidden z-50">
         <div className="container mx-auto px-2">
           <div className="flex items-center justify-between py-1">
             <Link href="/">
@@ -174,7 +174,7 @@ export default function Navigation() {
                 <span className="text-xs font-medium">Market</span>
               </Button>
             </Link>
-            
+
             <Link href="/wallet">
               <Button 
                 variant={location === "/wallet" ? "default" : "ghost"}
