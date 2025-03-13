@@ -13,7 +13,12 @@ import {
   ChevronRight, Home, ShoppingCart, BarChart3, Wallet, User
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from '@nextui-org/react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function HomePage() {
   const { toast } = useToast();
