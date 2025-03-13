@@ -1,0 +1,71 @@
+Create a mobile game UI/UX similar to Township and Farmers World, designed for an investment-based chicken farming game called ChickWorld.
+
+Game Overview:
+Players buy and manage chickens, hatch eggs, and sell them for USDT.
+Uses only USDT for deposits and withdrawals.
+Players can refer others and earn 10% commission from their earnings.
+All crypto transactions (deposits & withdrawals) require manual admin approval.
+The UI should be farm-themed, with animated chickens, smooth transitions, and engaging visuals.
+Game Tabs & Features:
+1. Home Screen:
+Displays owned Baby, Regular, and Golden Chickens with animations.
+Hatch button appears when the player has required resources (Water & Wheat).
+Cooldown timer on each chicken after hatching.
+Progress bars for egg production.
+Rustic farm aesthetic with dynamic day/night cycle.
+2. Shop:
+Players can buy chickens:
+Baby Chicken - $90 USDT (2 eggs per hatch, 6-hour cooldown).
+Regular Chicken - $150 USDT (5 eggs per hatch, 5-hour cooldown).
+Golden Chicken - $400 USDT (20 eggs per hatch, 3-hour cooldown).
+Animated previews and smooth transitions.
+3. Market:
+Players buy and sell:
+Water Bucket ($0.50 each).
+Wheat Bag ($0.70 each).
+Eggs (sold for $0.40 per egg).
+Prices are set dynamically by the admin panel.
+4. Wallet:
+Recharge USDT via wallet address (user inputs transaction ID).
+Admin manually verifies deposits before adding funds to the player's wallet.
+Withdraw USDT to external wallets (user enters withdrawal request).
+Admin manually verifies & approves withdrawals.
+Wallet balance displayed at the top.
+5. Commission Page:
+Users see their referrals and earnings (10% commission on their earnings).
+Displays referral link to invite more users.
+6. Account Page:
+Transaction history: All purchases, sales, deposits, and withdrawals.
+Referral system: Tracks commissions earned.
+USDT wallet address settings.
+7. Admin Panel:
+Approve/Reject USDT deposits based on transaction ID.
+Manually verify & approve withdrawals.
+Set prices for chickens, eggs, water buckets, and wheat bags.
+View all users & economy status.
+Game Economy & ROI Calculation:
+Chicken Type	Price (USDT)	Eggs per Hatch	Hatch Cooldown	Daily Hatches	Eggs per Day	ROI Period	Total Eggs in ROI Period
+Baby Chicken	$90	2 eggs	6 hours	4	8 eggs	40 days	320 eggs
+Regular Chicken	$150	5 eggs	5 hours	4.8	24 eggs	30 days	720 eggs
+Golden Chicken	$400	20 eggs	3 hours	8	160 eggs	20 days	3200 eggs
+Resource Consumption:
+Chicken Type	Water per Hatch	Wheat per Hatch	Daily Water Need	Daily Wheat Need
+Baby Chicken	1 bucket	1 bag	4 buckets	4 bags
+Regular Chicken	2 buckets	2 bags	9.6 buckets	9.6 bags
+Golden Chicken	10 buckets	15 bags	80 buckets	120 bags
+Profit Calculation (After Costs):
+Chicken Type	Eggs per ROI Period	Revenue from Eggs (USDT)	Cost of Water & Wheat (USDT)	Net Profit (USDT)
+Baby Chicken	320 eggs	$128	$48	$80
+Regular Chicken	720 eggs	$288	$115.2	$172.8
+Golden Chicken	3200 eggs	$1280	$720	$560
+Design Style:
+Colorful, farm-inspired UI similar to Township & Farmers World.
+Smooth animations for chickens and UI interactions.
+Touch-friendly, mobile-optimized UI with easy navigation.
+Final Features:
+Manual admin approval for all USDT transactions.
+Admin control over pricing & transactions.
+Engaging referral system for user growth.
+Sustainable in-game economy.
+Build this game UI with React.js and Tailwind CSS, integrating manual USDT payment verification for a secure, play-to-earn investment model.
+

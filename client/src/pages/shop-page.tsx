@@ -5,25 +5,51 @@ import { useToast } from "@/hooks/use-toast";
 import { Price } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import BalanceBar from "@/components/balance-bar";
+import { motion } from "framer-motion";
+import { Info, ShoppingCart, Droplets, Wheat, Egg } from "lucide-react";
 
 const CHICKEN_TYPES = [
   {
     type: "baby",
     name: "Baby Chicken",
     description: "2 eggs per hatch, 6hr cooldown",
-    requirements: "1 water bucket, 1 wheat bag"
+    requirements: {
+      water: 1,
+      wheat: 1
+    },
+    roi: "40 days",
+    hatchesPerDay: 4,
+    eggsPerDay: 8,
+    color: "#FFE082",
+    accentColor: "#FFB74D"
   },
   {
     type: "regular",
     name: "Regular Chicken",
     description: "5 eggs per hatch, 5hr cooldown",
-    requirements: "2 water buckets, 2 wheat bags"
+    requirements: {
+      water: 2,
+      wheat: 2
+    },
+    roi: "30 days",
+    hatchesPerDay: 4.8,
+    eggsPerDay: 24,
+    color: "#F5F5F5",
+    accentColor: "#BDBDBD"
   },
   {
     type: "golden",
     name: "Golden Chicken",
     description: "20 eggs per hatch, 3hr cooldown",
-    requirements: "10 water buckets, 15 wheat bags"
+    requirements: {
+      water: 10,
+      wheat: 15
+    },
+    roi: "20 days",
+    hatchesPerDay: 8,
+    eggsPerDay: 160,
+    color: "#FFD700",
+    accentColor: "#FFC107"
   }
 ];
 
@@ -61,50 +87,175 @@ export default function ShopPage() {
   };
 
   return (
-    <div className="pb-20 md:pb-6">
+    <div className="pb-20 md:pb-6 bg-gradient-to-b from-amber-50/50 to-white min-h-screen">
       <BalanceBar />
       
-      <div className="space-y-4 sm:space-y-6 mt-2 sm:mt-4 px-2 sm:px-4">
-        <h1 className="text-xl sm:text-2xl font-bold">Chicken Shop</h1>
+      <motion.div 
+        className="space-y-6 sm:space-y-8 mt-4 sm:mt-6 px-3 sm:px-6 max-w-6xl mx-auto"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        {/* Township-style title */}
+        <div className="relative">
+          <motion.div 
+            className="absolute inset-0 bg-amber-500/10 rounded-lg -z-10"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.1 }}
+          />
+          <div className="flex items-center space-x-2 p-2 sm:p-3">
+            <div className="bg-amber-500 rounded-full p-2 text-white">
+              <ShoppingCart size={20} />
+            </div>
+            <div>
+              <h1 className="text-xl sm:text-3xl font-bold text-amber-800">Township Chicken Shop</h1>
+              <p className="text-sm text-amber-700">Build your farm with the perfect chickens!</p>
+            </div>
+          </div>
+        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-          {CHICKEN_TYPES.map((chicken) => (
-            <Card key={chicken.type} className="overflow-hidden">
-              <div className="flex items-center p-2 sm:p-3 bg-gradient-to-r from-primary/10 to-transparent">
-                <div className="mr-2 w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0">
-                  <img 
-                    src={`/assets/chicken-${chicken.type}.svg`} 
-                    alt={chicken.name}
-                    className="w-full h-full object-contain" 
-                  />
+        {/* Township-style information banner */}
+        <motion.div 
+          className="bg-gradient-to-r from-amber-100 to-amber-50 rounded-lg p-3 sm:p-4 border border-amber-200 shadow-sm"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <div className="flex items-start">
+            <Info className="text-amber-600 mt-0.5 mr-2 flex-shrink-0" size={18} />
+            <p className="text-sm text-amber-800">
+              Chickens are your primary source of income. Each chicken requires different resources to produce eggs, 
+              which can be sold in the market. The more valuable chickens produce eggs faster, but require more resources.
+            </p>
+          </div>
+        </motion.div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+          {CHICKEN_TYPES.map((chicken, index) => (
+            <motion.div 
+              key={chicken.type}
+              className="township-shop-item"
+              initial={{ opacity: 0, y: 30, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay: 0.1 + (index * 0.1), duration: 0.5 }}
+              whileHover={{ y: -5, transition: { duration: 0.2 } }}
+            >
+              <div 
+                className="relative overflow-hidden rounded-lg shadow-md border border-gray-100"
+                style={{ background: "white" }}
+              >
+                {/* Background decoration */}
+                <div 
+                  className="absolute top-0 left-0 right-0 h-28 z-0"
+                  style={{ 
+                    background: `linear-gradient(135deg, ${chicken.color}30, ${chicken.accentColor}20)`
+                  }}
+                />
+                
+                {/* Chicken image & name section */}
+                <div className="relative pt-4 pb-2 px-4 flex flex-col items-center z-10">
+                  <motion.div 
+                    className="w-24 h-24 mb-2"
+                    animate={{ y: [0, -5, 0] }}
+                    transition={{ 
+                      repeat: Infinity, 
+                      duration: 2 + (index * 0.3), 
+                      repeatType: "reverse"
+                    }}
+                  >
+                    <img 
+                      src={`/assets/chicken-${chicken.type}.svg`} 
+                      alt={chicken.name}
+                      className="w-full h-full object-contain" 
+                    />
+                  </motion.div>
+                  
+                  <h3 
+                    className="text-lg font-bold mb-1 text-center"
+                    style={{ color: chicken.type === 'golden' ? '#B07D00' : '#555' }}
+                  >
+                    {chicken.name}
+                  </h3>
+                  
+                  <div 
+                    className="text-xs px-3 py-1 rounded-full mb-1 font-semibold"
+                    style={{ 
+                      background: `${chicken.accentColor}30`, 
+                      color: chicken.type === 'golden' ? '#B07D00' : '#666' 
+                    }}
+                  >
+                    {chicken.description}
+                  </div>
                 </div>
-                <div>
-                  <CardTitle className="text-base sm:text-lg">{chicken.name}</CardTitle>
-                  <p className="text-xs sm:text-sm text-muted-foreground">{chicken.description}</p>
+                
+                {/* Stats section */}
+                <div className="bg-gray-50 p-3 space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="bg-white p-2 rounded border border-gray-100 text-center">
+                      <div className="text-amber-600 text-xs font-semibold mb-1">ROI Period</div>
+                      <div className="text-amber-900 font-bold">{chicken.roi}</div>
+                    </div>
+                    <div className="bg-white p-2 rounded border border-gray-100 text-center">
+                      <div className="text-amber-600 text-xs font-semibold mb-1">Eggs/Day</div>
+                      <div className="text-amber-900 font-bold">{chicken.eggsPerDay}</div>
+                    </div>
+                  </div>
+                  
+                  {/* Resources section */}
+                  <div className="bg-white p-2 rounded border border-gray-100">
+                    <div className="text-amber-600 text-xs font-semibold mb-1 text-center">
+                      Required Resources
+                    </div>
+                    <div className="flex justify-center gap-3">
+                      <div className="flex items-center">
+                        <Droplets size={16} className="text-blue-500 mr-1" />
+                        <span className="text-sm font-semibold">{chicken.requirements.water}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Wheat size={16} className="text-amber-500 mr-1" />
+                        <span className="text-sm font-semibold">{chicken.requirements.wheat}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Price & Buy section */}
+                  <div className="flex justify-between items-center pt-1">
+                    <div className="text-lg font-bold" style={{ color: "#43a047" }}>
+                      ${getPrice(chicken.type)}
+                    </div>
+                    <motion.button
+                      onClick={() => buyChickenMutation.mutate(chicken.type)}
+                      disabled={buyChickenMutation.isPending}
+                      className="township-buy-button px-4 py-2 rounded-lg text-white font-semibold flex items-center gap-1 relative overflow-hidden"
+                      style={{ 
+                        background: "linear-gradient(to bottom, #ff9800, #ff7c2e)",
+                        border: "1px solid #ffbc5b",
+                        boxShadow: "0 2px 4px rgba(255, 159, 67, 0.4)"
+                      }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <ShoppingCart size={16} />
+                      <span>Buy Now</span>
+                      <motion.div
+                        className="absolute inset-0 bg-white/10"
+                        initial={{ x: "-100%" }}
+                        animate={{ x: "100%" }}
+                        transition={{
+                          repeat: Infinity,
+                          duration: 1.5,
+                          ease: "linear"
+                        }}
+                      />
+                    </motion.button>
+                  </div>
                 </div>
               </div>
-              <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-4 pt-3">
-                <div className="p-2 rounded-md bg-amber-50 dark:bg-amber-950/30">
-                  <p className="text-xs sm:text-sm font-medium">Requires: {chicken.requirements}</p>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-base sm:text-lg font-semibold text-green-600">
-                    ${getPrice(chicken.type)}
-                  </span>
-                  <Button
-                    onClick={() => buyChickenMutation.mutate(chicken.type)}
-                    disabled={buyChickenMutation.isPending}
-                    size="sm"
-                    className="h-8 sm:h-9 text-xs sm:text-sm"
-                  >
-                    Buy Now
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            </motion.div>
           ))}
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
