@@ -2,40 +2,33 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Chicken, Resource } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
 import { Link } from "wouter";
-import BalanceBar from "@/components/balance-bar";
-import ChickenCard from "@/components/chicken-card";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
-import { Droplets, Wheat, Egg, ChevronsRight, ChevronsLeft, X, Building, Building2, TreePine, Tractor } from "lucide-react";
+import { 
+  Droplets, Wheat, Egg, DollarSign, 
+  ChevronRight, Home, ShoppingCart, BarChart3, Wallet, User
+} from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function HomePage() {
   const { toast } = useToast();
   const { user } = useAuth();
   const [timeOfDay, setTimeOfDay] = useState<'day' | 'sunset' | 'night'>('day');
-  const [activeTab, setActiveTab] = useState<'farm' | 'buildings' | 'decorations'>('farm');
-  const [showSidebar, setShowSidebar] = useState(false);
-  const farmAreaRef = useRef<HTMLDivElement>(null);
-  
-  // Farm grid info
-  const gridSize = { rows: 6, cols: 8 };
-  const [activeTool, setActiveTool] = useState<'select' | 'move' | 'place'>('select');
-  const [draggedItem, setDraggedItem] = useState<null | { type: string, id: number }>(null);
-  
-  // Position management for draggable items
-  const [chickenPositions, setChickenPositions] = useState<{[key: number]: {x: number, y: number}}>({});
+  const [activeChicken, setActiveChicken] = useState<number | null>(null);
+  const isMobile = useIsMobile();
+  const [cooldownTimers, setCooldownTimers] = useState<{[key: number]: string}>({});
 
   // Day-night cycle logic
   useEffect(() => {
     const updateTimeOfDay = () => {
       const hour = new Date().getHours();
-      if (hour >= 5 && hour < 17) {
+      if (hour >= 6 && hour < 17) {
         setTimeOfDay('day');
-      } else if (hour >= 17 && hour < 20) {
+      } else if ((hour >= 17 && hour < 20) || (hour >= 5 && hour < 6)) {
         setTimeOfDay('sunset');
       } else {
         setTimeOfDay('night');
@@ -63,78 +56,110 @@ export default function HomePage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/resources"] });
       queryClient.invalidateQueries({ queryKey: ["/api/chickens"] });
+      
+      // Play hatch sound
+      const hatchSound = new Audio('/assets/hatch-sound.mp3');
+      hatchSound.volume = 0.5;
+      hatchSound.play().catch(() => {
+        // Silent catch - audio might not play if user hasn't interacted with the page
+      });
+      
       toast({
-        title: "Success",
-        description: "Successfully hatched eggs!",
+        title: "Success!",
+        description: "Your chicken has hatched some eggs!",
+        variant: "default",
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Error",
+        title: "Cannot Hatch",
         description: error.message,
         variant: "destructive",
       });
     },
   });
 
-  // Initialize chicken positions if they don't exist
+  // Update cooldown timers every second
   useEffect(() => {
-    if (chickensQuery.data?.length) {
-      const initialPositions: {[key: number]: {x: number, y: number}} = {};
+    if (!chickensQuery.data) return;
+    
+    const updateCooldowns = () => {
+      const newTimers: {[key: number]: string} = {};
       
-      chickensQuery.data.forEach((chicken, index) => {
-        if (!chickenPositions[chicken.id]) {
-          // Arrange in grid pattern - each chicken takes a position based on its index
-          const row = Math.floor(index / 3);
-          const col = index % 3;
-          initialPositions[chicken.id] = { 
-            x: 80 + col * 160, 
-            y: 120 + row * 140 
-          };
+      chickensQuery.data.forEach(chicken => {
+        const cooldown = getRemainingCooldown(chicken);
+        if (cooldown) {
+          newTimers[chicken.id] = `${cooldown.hours}h ${cooldown.minutes}m ${cooldown.seconds}s`;
         }
       });
       
-      if (Object.keys(initialPositions).length > 0) {
-        setChickenPositions(prev => ({
-          ...prev,
-          ...initialPositions
-        }));
-      }
-    }
-  }, [chickensQuery.data]);
-
-  const handleDragStart = (chickenId: number) => {
-    setDraggedItem({ type: 'chicken', id: chickenId });
-    setActiveTool('move');
-  };
-
-  const handleDragEnd = (chickenId: number, position: { x: number, y: number }) => {
-    if (farmAreaRef.current) {
-      const farmRect = farmAreaRef.current.getBoundingClientRect();
-      
-      // Keep the chicken within farm bounds
-      let x = Math.max(0, Math.min(position.x, farmRect.width - 100));
-      let y = Math.max(0, Math.min(position.y, farmRect.height - 100));
-      
-      setChickenPositions(prev => ({
-        ...prev,
-        [chickenId]: { x, y }
-      }));
-    }
+      setCooldownTimers(newTimers);
+    };
     
-    setDraggedItem(null);
-    setActiveTool('select');
-  };
+    updateCooldowns();
+    const interval = setInterval(updateCooldowns, 1000);
+    return () => clearInterval(interval);
+  }, [chickensQuery.data]);
 
   if (chickensQuery.isLoading || resourcesQuery.isLoading) {
     return (
-      <div className="landscape-app">
-        <BalanceBar />
-        <div className="grid grid-cols-2 gap-4 mt-4 p-4">
-          {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-48 w-full" />
-          ))}
-        </div>
+      <div className="h-full w-full bg-gradient-to-b from-amber-50 to-orange-50 flex flex-col items-center justify-center">
+        <motion.div
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="relative"
+        >
+          <img 
+            src="/assets/chickworld_logo_clean-removebg-preview.png" 
+            alt="ChickFarms Logo" 
+            className="w-32 h-32 object-contain"
+          />
+          <motion.div 
+            className="absolute inset-0"
+            animate={{ 
+              scale: [1, 1.1, 1],
+              opacity: [1, 0.8, 1] 
+            }}
+            transition={{ 
+              repeat: Infinity,
+              duration: 2,
+              ease: "easeInOut" 
+            }}
+          >
+            <img 
+              src="/assets/cloud.svg" 
+              alt="Cloud" 
+              className="w-full h-full object-contain opacity-30" 
+            />
+          </motion.div>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+          className="mt-5 text-center"
+        >
+          <h2 className="text-xl font-bold text-amber-800">Loading your farm...</h2>
+          <div className="mt-3 flex space-x-1 justify-center">
+            {[0, 1, 2].map(i => (
+              <motion.div
+                key={i}
+                className="w-3 h-3 rounded-full bg-amber-500"
+                animate={{ 
+                  y: [0, -10, 0],
+                  opacity: [0.5, 1, 0.5]
+                }}
+                transition={{ 
+                  duration: 0.8, 
+                  repeat: Infinity, 
+                  delay: i * 0.2,
+                  ease: "easeInOut"
+                }}
+              />
+            ))}
+          </div>
+        </motion.div>
       </div>
     );
   }
@@ -154,198 +179,38 @@ export default function HomePage() {
   const getBgStyle = () => {
     switch (timeOfDay) {
       case 'day':
-        return 'bg-gradient-to-b from-sky-200 to-sky-100';
+        return 'bg-gradient-to-b from-sky-300 to-amber-50 via-sky-100';
       case 'sunset':
-        return 'bg-gradient-to-b from-orange-300 to-amber-100';
+        return 'bg-gradient-to-b from-orange-400 to-amber-100 via-orange-200';
       case 'night':
-        return 'bg-gradient-to-b from-indigo-900 to-blue-900 text-white';
+        return 'bg-gradient-to-b from-indigo-900 to-indigo-700 via-indigo-800 text-white';
     }
   };
   
-  // Township-style grid tiles (grass texture)
-  const renderGridTiles = () => {
-    const tiles = [];
+  // Calculate remaining cooldown time for a chicken
+  const getRemainingCooldown = (chicken: Chicken): { hours: number, minutes: number, seconds: number } | null => {
+    if (!chicken.lastHatchTime) return null;
     
-    for (let row = 0; row < gridSize.rows; row++) {
-      for (let col = 0; col < gridSize.cols; col++) {
-        const isEvenRow = row % 2 === 0;
-        const isEvenCol = col % 2 === 0;
-        const tileClass = ((isEvenRow && isEvenCol) || (!isEvenRow && !isEvenCol)) 
-          ? 'bg-green-300/60' 
-          : 'bg-green-400/40';
-          
-        tiles.push(
-          <div 
-            key={`tile-${row}-${col}`}
-            className={`absolute border border-green-500/20 ${tileClass}`}
-            style={{
-              width: `${100 / gridSize.cols}%`,
-              height: `${100 / gridSize.rows}%`,
-              left: `${(col / gridSize.cols) * 100}%`,
-              top: `${(row / gridSize.rows) * 100}%`
-            }}
-          />
-        );
-      }
-    }
+    const requirements = {
+      baby: { cooldown: 6 * 60 * 60 * 1000 }, // 6 hours
+      regular: { cooldown: 5 * 60 * 60 * 1000 }, // 5 hours
+      golden: { cooldown: 3 * 60 * 60 * 1000 }, // 3 hours
+    };
     
-    return tiles;
+    const cooldownTime = requirements[chicken.type as keyof typeof requirements].cooldown;
+    const now = Date.now();
+    const hatchTime = new Date(chicken.lastHatchTime).getTime();
+    const timePassed = now - hatchTime;
+    
+    if (timePassed >= cooldownTime) return null;
+    
+    const remainingTime = cooldownTime - timePassed;
+    const hours = Math.floor(remainingTime / (60 * 60 * 1000));
+    const minutes = Math.floor((remainingTime % (60 * 60 * 1000)) / (60 * 1000));
+    const seconds = Math.floor((remainingTime % (60 * 1000)) / 1000);
+    
+    return { hours, minutes, seconds };
   };
-
-  const renderResourceBar = () => (
-    <div className="resource-bar absolute top-0 left-0 right-0 bg-gradient-to-r from-amber-800/70 to-amber-700/70 text-white px-4 py-1 flex justify-between items-center backdrop-blur-sm z-30">
-      <div className="flex space-x-4">
-        <motion.div 
-          className="flex items-center"
-          whileHover={{ scale: 1.05 }}
-        >
-          <Droplets className="h-4 w-4 text-blue-300 mr-1" />
-          <span>{resources.waterBuckets}</span>
-        </motion.div>
-        
-        <motion.div 
-          className="flex items-center"
-          whileHover={{ scale: 1.05 }}
-        >
-          <Wheat className="h-4 w-4 text-yellow-300 mr-1" />
-          <span>{resources.wheatBags}</span>
-        </motion.div>
-        
-        <motion.div 
-          className="flex items-center"
-          whileHover={{ scale: 1.05 }}
-        >
-          <Egg className="h-4 w-4 text-amber-100 mr-1" />
-          <span>{resources.eggs}</span>
-        </motion.div>
-      </div>
-      
-      <div className="flex space-x-2">
-        <Button 
-          size="sm" 
-          variant="ghost" 
-          className="h-7 px-2 text-white" 
-          onClick={() => setShowSidebar(!showSidebar)}
-        >
-          {showSidebar ? <ChevronsRight className="h-4 w-4" /> : <ChevronsLeft className="h-4 w-4" />}
-        </Button>
-      </div>
-    </div>
-  );
-  
-  const renderSidebar = () => (
-    <motion.div 
-      className={`township-sidebar absolute right-0 top-0 bottom-0 bg-gradient-to-l from-amber-950/80 to-amber-900/80 backdrop-blur-sm text-white z-20 overflow-y-auto flex flex-col`}
-      initial={{ width: 0, opacity: 0 }}
-      animate={{ 
-        width: showSidebar ? 220 : 0,
-        opacity: showSidebar ? 1 : 0
-      }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-    >
-      <div className="p-3 flex justify-between items-center border-b border-amber-700/60">
-        <h2 className="font-bold">Build Menu</h2>
-        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowSidebar(false)}>
-          <X className="h-4 w-4" />
-        </Button>
-      </div>
-      
-      <div className="tab-navigation flex border-b border-amber-700/60">
-        <button 
-          className={`flex-1 py-2 px-3 ${activeTab === 'farm' ? 'bg-amber-700/60' : ''}`}
-          onClick={() => setActiveTab('farm')}
-        >
-          <Tractor className="h-4 w-4 mx-auto mb-1" />
-          <span className="text-xs">Farm</span>
-        </button>
-        <button 
-          className={`flex-1 py-2 px-3 ${activeTab === 'buildings' ? 'bg-amber-700/60' : ''}`}
-          onClick={() => setActiveTab('buildings')}
-        >
-          <Building2 className="h-4 w-4 mx-auto mb-1" />
-          <span className="text-xs">Buildings</span>
-        </button>
-        <button 
-          className={`flex-1 py-2 px-3 ${activeTab === 'decorations' ? 'bg-amber-700/60' : ''}`}
-          onClick={() => setActiveTab('decorations')}
-        >
-          <TreePine className="h-4 w-4 mx-auto mb-1" />
-          <span className="text-xs">Decor</span>
-        </button>
-      </div>
-      
-      <div className="p-3 flex-1">
-        {activeTab === 'farm' && (
-          <div className="space-y-2">
-            <h3 className="text-sm font-bold mb-2">Your Chickens</h3>
-            {chickensQuery.data && chickensQuery.data.map((chicken) => (
-              <div key={chicken.id} className="bg-amber-800/60 rounded p-2 flex items-center">
-                <div className="w-10 h-10 relative">
-                  <img 
-                    src={`/assets/chicken-${chicken.type}.svg`} 
-                    alt={chicken.type} 
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <div className="ml-2">
-                  <p className="text-xs capitalize">{chicken.type} Chicken</p>
-                  <div className="text-xs text-amber-300 mt-0.5">
-                    {canHatch(chicken) ? (
-                      <span>Ready to hatch! ✓</span>
-                    ) : (
-                      <span>Cooldown in progress...</span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-            <Button asChild size="sm" className="w-full mt-3">
-              <Link href="/shop">Get More Chickens</Link>
-            </Button>
-          </div>
-        )}
-        
-        {activeTab === 'buildings' && (
-          <div className="space-y-2">
-            <h3 className="text-sm font-bold mb-2">Buildings</h3>
-            <p className="text-xs text-amber-200">Coming soon! You'll be able to build barns, coops, and more!</p>
-            <div className="grid grid-cols-2 gap-2 mt-3">
-              <div className="bg-amber-800/60 rounded p-2 flex flex-col items-center">
-                <Building className="h-10 w-10 text-amber-300 mb-1" />
-                <span className="text-xs">Chicken Coop</span>
-                <span className="text-[10px] bg-amber-950/50 px-1 rounded mt-1">10 USDT</span>
-              </div>
-              <div className="bg-amber-800/60 rounded p-2 flex flex-col items-center">
-                <Building2 className="h-10 w-10 text-amber-300 mb-1" />
-                <span className="text-xs">Barn</span>
-                <span className="text-[10px] bg-amber-950/50 px-1 rounded mt-1">15 USDT</span>
-              </div>
-            </div>
-          </div>
-        )}
-        
-        {activeTab === 'decorations' && (
-          <div className="space-y-2">
-            <h3 className="text-sm font-bold mb-2">Decorations</h3>
-            <p className="text-xs text-amber-200">Coming soon! Add trees, fences and more to beautify your farm!</p>
-            <div className="grid grid-cols-2 gap-2 mt-3">
-              <div className="bg-amber-800/60 rounded p-2 flex flex-col items-center">
-                <TreePine className="h-10 w-10 text-green-400 mb-1" />
-                <span className="text-xs">Pine Tree</span>
-                <span className="text-[10px] bg-amber-950/50 px-1 rounded mt-1">5 USDT</span>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-      
-      <div className="p-3 border-t border-amber-700/60">
-        <Button asChild size="sm" className="w-full">
-          <Link href="/market">Visit Market</Link>
-        </Button>
-      </div>
-    </motion.div>
-  );
   
   // Helper function to determine if a chicken can hatch
   const canHatch = (chicken: Chicken) => {
@@ -364,45 +229,130 @@ export default function HomePage() {
     
     return timePassed >= cooldownTime;
   };
+  
+  // Chicken animation to use based on type
+  const getChickenAnimation = (type: string) => {
+    switch (type) {
+      case 'baby':
+        return {
+          y: [0, -8, 0],
+          rotate: [0, 0, 0],
+          scale: [1, 1.05, 1],
+          duration: 1.5,
+          ease: "easeInOut"
+        };
+      case 'regular':
+        return {
+          x: [-3, 3, -3],
+          y: [0, -2, 0],
+          rotate: [-2, 2, -2],
+          duration: 2,
+          ease: "easeInOut"
+        };
+      case 'golden':
+        return {
+          y: [0, -5, 0],
+          rotate: [-3, 3, -3],
+          scale: [1, 1.02, 1],
+          duration: 2.5,
+          ease: "easeInOut"
+        };
+      default:
+        return {
+          y: [0, -5, 0],
+          duration: 2,
+          ease: "easeInOut"
+        };
+    }
+  };
 
-  return (
-    <div className={`fixed inset-0 transition-colors duration-1000 ${getBgStyle()} overflow-hidden`}>
-      {/* Resource display bar */}
-      {renderResourceBar()}
-      
-      {/* Sidebar for buildings/items */}
-      {renderSidebar()}
-      
-      {/* Main Game Area */}
-      <div 
-        ref={farmAreaRef}
-        className={`township-farm-area relative w-full h-full ${showSidebar ? 'mr-[220px]' : ''}`}
-        style={{ transition: 'margin 0.3s ease' }}
-      >
-        {/* Grid tiles */}
-        {renderGridTiles()}
-        
-        {/* Farm decorative elements */}
-        <div className="decorative-elements">
-          {/* Add trees, rocks, etc. here */}
+  // Sort chickens with ready-to-hatch first
+  const sortedChickens = [...(chickensQuery.data || [])].sort((a, b) => {
+    const aCanHatch = canHatch(a) ? 1 : 0;
+    const bCanHatch = canHatch(b) ? 1 : 0;
+    return bCanHatch - aCanHatch;
+  });
+
+  // Handle resource link clicks
+  const handleResourceClick = (resourceType: string) => {
+    window.location.href = `/market?tab=${resourceType}`;
+  };
+
+  if (!chickensQuery.data?.length) {
+    return (
+      <div className={`h-full flex flex-col ${getBgStyle()}`}>
+        {/* Top Resource Bar */}
+        <div className="sticky top-0 w-full bg-gradient-to-r from-amber-800/90 to-amber-700/90 backdrop-blur-sm z-50 px-4 py-2 flex justify-between items-center border-b border-amber-600/50 shadow-lg">
+          <div className="flex items-center space-x-2">
+            <DollarSign className="h-5 w-5 text-green-300" />
+            <span className="text-white font-semibold">{user?.balance || 0} USDT</span>
+          </div>
+          
+          <div className="flex space-x-4">
+            <motion.button 
+              className="flex items-center space-x-1 text-white"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleResourceClick('water')}
+            >
+              <Droplets className="h-5 w-5 text-blue-300" />
+              <span>{resources.waterBuckets}</span>
+            </motion.button>
+            
+            <motion.button
+              className="flex items-center space-x-1 text-white"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleResourceClick('wheat')}
+            >
+              <Wheat className="h-5 w-5 text-yellow-300" />
+              <span>{resources.wheatBags}</span>
+            </motion.button>
+            
+            <motion.button
+              className="flex items-center space-x-1 text-white"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Egg className="h-5 w-5 text-amber-100" />
+              <span>{resources.eggs}</span>
+            </motion.button>
+          </div>
         </div>
         
-        {!chickensQuery.data?.length ? (
+        {/* Welcome Screen */}
+        <div className="flex-1 flex items-center justify-center p-4">
           <motion.div
-            className="absolute top-1/2 left-0 right-0 transform -translate-y-1/2 max-w-md w-full mx-auto z-10"
-            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            className="max-w-md w-full"
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.7, type: "spring", stiffness: 100 }}
+            transition={{ duration: 0.5, type: "spring" }}
           >
             <div 
-              className="township-welcome-card p-6 sm:p-8 text-center rounded-xl"
+              className="chickfarms-welcome-card p-6 sm:p-8 text-center rounded-xl relative overflow-hidden"
               style={{
                 background: "linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 249, 235, 0.9))",
                 border: "3px solid rgba(255, 188, 91, 0.7)",
-                boxShadow: "0 10px 25px rgba(255, 165, 61, 0.3), 0 4px 10px rgba(0, 0, 0, 0.1)",
-                position: "relative"
+                boxShadow: "0 10px 25px rgba(255, 165, 61, 0.3), 0 4px 10px rgba(0, 0, 0, 0.1)"
               }}
             >
+              {/* Decorative clouds */}
+              <motion.div 
+                className="absolute top-5 left-0 w-20 h-20 opacity-20"
+                animate={{ x: [0, 30, 0] }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              >
+                <img src="/assets/cloud.svg" alt="Cloud" className="w-full h-full" />
+              </motion.div>
+              
+              <motion.div 
+                className="absolute top-10 right-0 w-14 h-14 opacity-10"
+                animate={{ x: [0, -20, 0] }}
+                transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+              >
+                <img src="/assets/cloud.svg" alt="Cloud" className="w-full h-full" />
+              </motion.div>
+              
               <motion.img 
                 src="/assets/farm-entrance.svg"
                 alt="Farm"
@@ -411,6 +361,7 @@ export default function HomePage() {
                 animate={{ y: [0, -10, 0] }}
                 transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
               />
+              
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -420,21 +371,23 @@ export default function HomePage() {
                   className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4"
                   style={{ color: "#ff7c2e" }}
                 >
-                  Welcome to Your Township Farm!
+                  Welcome to ChickFarms!
                 </h2>
                 <p className="text-gray-700 text-sm sm:text-base mb-6 max-w-sm mx-auto">
-                  Start your farming journey by getting your first chicken from the shop and grow your farm into a thriving township!
+                  Start your farming journey by getting your first chicken from the shop and grow your farm into a thriving business!
                 </p>
-                <button
+                <motion.button
                   onClick={() => window.location.href = '/shop'}
-                  className="township-button px-6 py-3 rounded-lg text-white font-bold text-base relative overflow-hidden"
+                  className="chickfarms-button px-6 py-3 rounded-lg text-white font-bold text-base relative overflow-hidden"
                   style={{ 
                     background: "linear-gradient(to bottom, #ff9800, #ff7c2e)",
                     border: "2px solid #ffbc5b",
-                    boxShadow: "0 4px 8px rgba(255, 159, 67, 0.4)"
+                    boxShadow: "0 4px 10px rgba(255, 159, 67, 0.4)"
                   }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  <span className="z-10 relative">Visit Shop</span>
+                  <span>Get Your First Chicken</span>
                   <motion.div
                     className="absolute inset-0 bg-white/10"
                     initial={{ x: "-100%" }}
@@ -445,102 +398,340 @@ export default function HomePage() {
                       ease: "linear"
                     }}
                   />
-                </button>
-              </motion.div>
-              
-              {/* Decorative elements */}
-              <motion.div 
-                className="absolute -top-5 -right-5 text-amber-500 text-4xl transform rotate-12"
-                animate={{ rotate: [12, 20, 12], scale: [1, 1.1, 1] }}
-                transition={{ repeat: Infinity, duration: 2 }}
-              >
-                🌱
-              </motion.div>
-              <motion.div 
-                className="absolute -bottom-4 -left-4 text-amber-500 text-3xl transform -rotate-12"
-                animate={{ rotate: [-12, -20, -12], scale: [1, 1.1, 1] }}
-                transition={{ repeat: Infinity, duration: 2, delay: 0.5 }}
-              >
-                🐓
+                </motion.button>
               </motion.div>
             </div>
           </motion.div>
-        ) : (
-          <>
-            {/* Township-style title */}
+        </div>
+        
+        {/* Bottom Navigation */}
+        <div className="sticky bottom-0 bg-white border-t border-amber-200 shadow-lg z-40">
+          <div className="flex justify-around items-center h-16">
+            <Link href="/" className="flex flex-col items-center justify-center text-amber-900 font-medium text-xs px-3 py-2 relative">
+              <div className="absolute inset-0 bg-amber-500/10 rounded-full"></div>
+              <Home className="h-6 w-6 mb-1 text-amber-500" />
+              <span>Home</span>
+            </Link>
+            <Link href="/shop" className="flex flex-col items-center justify-center text-gray-500 font-medium text-xs px-3 py-2">
+              <ShoppingCart className="h-6 w-6 mb-1" />
+              <span>Shop</span>
+            </Link>
+            <Link href="/market" className="flex flex-col items-center justify-center text-gray-500 font-medium text-xs px-3 py-2">
+              <BarChart3 className="h-6 w-6 mb-1" />
+              <span>Market</span>
+            </Link>
+            <Link href="/wallet" className="flex flex-col items-center justify-center text-gray-500 font-medium text-xs px-3 py-2">
+              <Wallet className="h-6 w-6 mb-1" />
+              <span>Wallet</span>
+            </Link>
+            <Link href="/account" className="flex flex-col items-center justify-center text-gray-500 font-medium text-xs px-3 py-2">
+              <User className="h-6 w-6 mb-1" />
+              <span>Account</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`h-full flex flex-col ${getBgStyle()}`}>
+      {/* Top Resource Bar */}
+      <div className="sticky top-0 w-full bg-gradient-to-r from-amber-800/90 to-amber-700/90 backdrop-blur-sm z-40 px-4 py-2 flex justify-between items-center border-b border-amber-600/50 shadow-lg">
+        <div className="flex items-center space-x-2">
+          <DollarSign className="h-5 w-5 text-green-300" />
+          <span className="text-white font-semibold">{user?.balance || 0} USDT</span>
+        </div>
+        
+        <div className="flex space-x-4">
+          <motion.button 
+            className="flex items-center space-x-1 text-white"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => handleResourceClick('water')}
+          >
+            <Droplets className="h-5 w-5 text-blue-300" />
+            <span>{resources.waterBuckets}</span>
+          </motion.button>
+          
+          <motion.button
+            className="flex items-center space-x-1 text-white"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => handleResourceClick('wheat')}
+          >
+            <Wheat className="h-5 w-5 text-yellow-300" />
+            <span>{resources.wheatBags}</span>
+          </motion.button>
+          
+          <motion.button
+            className="flex items-center space-x-1 text-white"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Egg className="h-5 w-5 text-amber-100" />
+            <span>{resources.eggs}</span>
+          </motion.button>
+        </div>
+      </div>
+      
+      {/* Main Chicken Coop Area */}
+      <div className="flex-1 overflow-auto p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="mb-4"
+        >
+          <h1 className="text-xl font-bold text-amber-800 mb-1">Your Chicken Coop</h1>
+          <p className="text-sm text-amber-700">Tap on a chicken to manage it</p>
+        </motion.div>
+        
+        {/* Chicken Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {sortedChickens.map((chicken, index) => (
             <motion.div
-              className="absolute top-10 left-1/2 transform -translate-x-1/2 bg-amber-800/80 px-4 py-1 rounded-full text-white text-sm font-bold backdrop-blur-sm z-10"
-              initial={{ opacity: 0, y: -20 }}
+              key={chicken.id}
+              className={`bg-white/90 rounded-xl overflow-hidden shadow-md border border-amber-200 relative ${activeChicken === chicken.id ? 'ring-2 ring-amber-500' : ''}`}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{ delay: index * 0.1, duration: 0.4 }}
+              whileHover={{ y: -5, transition: { duration: 0.2 } }}
+              onClick={() => setActiveChicken(activeChicken === chicken.id ? null : chicken.id)}
             >
-              {timeOfDay === 'day' 
-                ? '☀️ Good Morning! Time to collect eggs!' 
-                : timeOfDay === 'sunset' 
-                  ? '🌅 Good Afternoon! Your chickens are active!' 
-                  : '🌙 Good Evening! Your chickens are resting.'}
-            </motion.div>
-            
-            {/* Draggable chicken elements */}
-            {chickensQuery.data.map((chicken, index) => {
-              const position = chickenPositions[chicken.id] || { x: 100 + (index * 50), y: 100 + (index * 20) };
-              
-              return (
+              {/* Chicken Image with Animation */}
+              <div className="flex justify-center items-center p-4 h-32 bg-gradient-to-b from-amber-50 to-amber-100/50">
                 <motion.div
-                  key={chicken.id}
-                  className="absolute cursor-move"
-                  style={{ 
-                    x: position.x, 
-                    y: position.y, 
-                    zIndex: draggedItem?.id === chicken.id ? 100 : 10
+                  animate={getChickenAnimation(chicken.type)}
+                  transition={{ 
+                    repeat: Infinity, 
+                    repeatType: "reverse" 
                   }}
-                  drag
-                  dragMomentum={false}
-                  onDragStart={() => handleDragStart(chicken.id)}
-                  onDragEnd={(_, info) => {
-                    const newPos = {
-                      x: position.x + info.offset.x,
-                      y: position.y + info.offset.y
-                    };
-                    handleDragEnd(chicken.id, newPos);
-                  }}
+                  className="w-24 h-24"
                 >
-                  <div className="relative">
-                    <motion.img
-                      src={`/assets/chicken-${chicken.type}.svg`}
-                      alt={`${chicken.type} Chicken`}
-                      className="w-20 h-20 object-contain"
-                      animate={{
-                        y: [0, -5, 0],
-                        rotate: [0, index % 2 === 0 ? 3 : -3, 0]
-                      }}
-                      transition={{ 
-                        repeat: Infinity, 
-                        duration: 2 + (index * 0.2), 
-                        ease: "easeInOut",
-                        delay: index * 0.1
-                      }}
-                    />
-                    
-                    {/* Hatch button for ready chickens */}
-                    {canHatch(chicken) && (
-                      <motion.button
-                        className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-amber-400 to-amber-500 text-white text-xs py-1 px-2 rounded-full shadow-md"
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => hatchMutation.mutate(chicken.id)}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                      >
-                        Hatch Eggs
-                      </motion.button>
+                  <img 
+                    src={`/assets/chicken-${chicken.type}.svg`} 
+                    alt={`${chicken.type} Chicken`}
+                    className="w-full h-full object-contain" 
+                  />
+                </motion.div>
+              </div>
+              
+              {/* Chicken Info */}
+              <div className="p-3 bg-white border-t border-amber-100">
+                <div className="flex justify-between items-center mb-1">
+                  <h3 className="font-bold capitalize text-amber-800">
+                    {chicken.type} Chicken
+                  </h3>
+                  <div className="text-xs px-2 py-0.5 rounded bg-amber-100 text-amber-800">
+                    #{chicken.id}
+                  </div>
+                </div>
+                
+                {/* Egg Production Progress */}
+                <div className="mt-2 mb-3">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-xs text-amber-700">Egg Production</span>
+                    {canHatch(chicken) ? (
+                      <span className="text-xs text-green-600 font-medium">Ready!</span>
+                    ) : (
+                      <span className="text-xs text-amber-600 font-medium">In Progress...</span>
                     )}
                   </div>
-                </motion.div>
-              );
-            })}
-          </>
-        )}
+                  
+                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                    {canHatch(chicken) ? (
+                      <motion.div 
+                        className="h-full bg-gradient-to-r from-green-400 to-green-500" 
+                        style={{ width: '100%' }}
+                        animate={{ opacity: [0.7, 1, 0.7] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                      />
+                    ) : (
+                      <motion.div 
+                        className="h-full bg-gradient-to-r from-amber-400 to-amber-500" 
+                        style={{ 
+                          width: `${((Date.now() - new Date(chicken.lastHatchTime || 0).getTime()) / 
+                            (chicken.type === 'baby' ? 6 : chicken.type === 'regular' ? 5 : 3) / 60 / 60 / 1000) * 100}%` 
+                        }}
+                      />
+                    )}
+                  </div>
+                </div>
+                
+                {/* Hatch Button or Cooldown Timer */}
+                {canHatch(chicken) ? (
+                  <motion.button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      hatchMutation.mutate(chicken.id);
+                    }}
+                    disabled={
+                      hatchMutation.isPending || 
+                      resources.waterBuckets < (chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1) || 
+                      resources.wheatBags < (chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1)
+                    }
+                    className={`w-full py-2 px-4 rounded-lg text-white font-medium text-sm relative overflow-hidden
+                      ${
+                        resources.waterBuckets < (chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1) || 
+                        resources.wheatBags < (chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1)
+                          ? 'bg-gray-400 cursor-not-allowed'
+                          : 'bg-gradient-to-r from-amber-500 to-orange-500'
+                      }
+                    `}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    {hatchMutation.isPending ? (
+                      <span>Hatching...</span>
+                    ) : resources.waterBuckets < (chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1) || 
+                       resources.wheatBags < (chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1) ? (
+                      <span>Not Enough Resources</span>
+                    ) : (
+                      <span>Hatch Eggs</span>
+                    )}
+                    
+                    {!(resources.waterBuckets < (chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1) || 
+                       resources.wheatBags < (chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1)) && (
+                      <motion.div
+                        className="absolute inset-0 bg-white/10"
+                        initial={{ x: "-100%" }}
+                        animate={{ x: "100%" }}
+                        transition={{
+                          repeat: Infinity,
+                          duration: 1.5,
+                          ease: "linear"
+                        }}
+                      />
+                    )}
+                  </motion.button>
+                ) : (
+                  <div className="bg-gray-100 rounded-lg p-2 text-center">
+                    <p className="text-xs text-gray-500 mb-1">Cooldown Remaining</p>
+                    <p className="text-sm font-medium text-gray-700">
+                      {cooldownTimers[chicken.id] || "Calculating..."}
+                    </p>
+                  </div>
+                )}
+              </div>
+              
+              {/* Resource Requirements - Only show when chicken is active */}
+              <AnimatePresence>
+                {activeChicken === chicken.id && (
+                  <motion.div 
+                    className="p-3 border-t border-amber-100 bg-amber-50"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <h4 className="text-xs font-medium text-amber-800 mb-2">Resources Required:</h4>
+                    <div className="flex justify-center space-x-4">
+                      <div className="flex items-center">
+                        <Droplets className="h-4 w-4 text-blue-500 mr-1" />
+                        <span className="text-sm">
+                          {chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1} 
+                          <span className={resources.waterBuckets < (chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1) ? 'text-red-500 ml-1' : 'text-green-500 ml-1'}>
+                            ({resources.waterBuckets})
+                          </span>
+                        </span>
+                      </div>
+                      <div className="flex items-center">
+                        <Wheat className="h-4 w-4 text-amber-500 mr-1" />
+                        <span className="text-sm">
+                          {chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1}
+                          <span className={resources.wheatBags < (chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1) ? 'text-red-500 ml-1' : 'text-green-500 ml-1'}>
+                            ({resources.wheatBags})
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+                    <div className="mt-2 pt-2 border-t border-amber-100 flex justify-between">
+                      <div className="text-xs text-gray-500">Production rate:</div>
+                      <div className="text-xs font-medium">
+                        {chicken.type === 'golden' ? '5' : chicken.type === 'regular' ? '3' : '1'} eggs per cycle
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          ))}
+        </div>
+        
+        {/* Add More Chickens Button */}
+        <motion.div
+          className="mt-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+        >
+          <Link href="/shop">
+            <motion.button
+              className="w-full py-3 px-4 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 text-white font-medium flex items-center justify-center space-x-2"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <span>Get More Chickens</span>
+              <ChevronRight size={16} />
+            </motion.button>
+          </Link>
+        </motion.div>
+        
+        {/* Quick Market Links */}
+        <motion.div
+          className="mt-4 grid grid-cols-2 gap-3"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+        >
+          <motion.button
+            onClick={() => handleResourceClick('water')}
+            className="py-3 px-4 rounded-lg bg-blue-500/90 text-white font-medium flex items-center justify-center space-x-2"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Droplets size={16} />
+            <span>Buy Water</span>
+          </motion.button>
+          
+          <motion.button
+            onClick={() => handleResourceClick('wheat')}
+            className="py-3 px-4 rounded-lg bg-amber-500/90 text-white font-medium flex items-center justify-center space-x-2"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Wheat size={16} />
+            <span>Buy Wheat</span>
+          </motion.button>
+        </motion.div>
+      </div>
+      
+      {/* Bottom Navigation */}
+      <div className="sticky bottom-0 bg-white border-t border-amber-200 shadow-lg z-40">
+        <div className="flex justify-around items-center h-16">
+          <Link href="/" className="flex flex-col items-center justify-center text-amber-900 font-medium text-xs px-3 py-2 relative">
+            <div className="absolute inset-0 bg-amber-500/10 rounded-full"></div>
+            <Home className="h-6 w-6 mb-1 text-amber-500" />
+            <span>Home</span>
+          </Link>
+          <Link href="/shop" className="flex flex-col items-center justify-center text-gray-500 font-medium text-xs px-3 py-2">
+            <ShoppingCart className="h-6 w-6 mb-1" />
+            <span>Shop</span>
+          </Link>
+          <Link href="/market" className="flex flex-col items-center justify-center text-gray-500 font-medium text-xs px-3 py-2">
+            <BarChart3 className="h-6 w-6 mb-1" />
+            <span>Market</span>
+          </Link>
+          <Link href="/wallet" className="flex flex-col items-center justify-center text-gray-500 font-medium text-xs px-3 py-2">
+            <Wallet className="h-6 w-6 mb-1" />
+            <span>Wallet</span>
+          </Link>
+          <Link href="/account" className="flex flex-col items-center justify-center text-gray-500 font-medium text-xs px-3 py-2">
+            <User className="h-6 w-6 mb-1" />
+            <span>Account</span>
+          </Link>
+        </div>
       </div>
     </div>
   );

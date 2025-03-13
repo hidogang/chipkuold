@@ -1,96 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+<svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
   <!-- Sky Background -->
-  <rect x="0" y="0" width="500" height="350" fill="#87CEEB"/>
+  <rect width="300" height="300" fill="#87CEEB" opacity="0.3"/>
   
   <!-- Sun -->
-  <circle cx="400" cy="80" r="40" fill="#FFD700"/>
-  <g opacity="0.6">
-    <line x1="400" y1="15" x2="400" y2="0" stroke="#FFD700" stroke-width="5"/>
-    <line x1="400" y1="165" x2="400" y2="150" stroke="#FFD700" stroke-width="5"/>
-    <line x1="335" y1="80" x2="320" y2="80" stroke="#FFD700" stroke-width="5"/>
-    <line x1="485" y1="80" x2="470" y2="80" stroke="#FFD700" stroke-width="5"/>
-    <line x1="355" y1="35" x2="345" y2="25" stroke="#FFD700" stroke-width="5"/>
-    <line x1="455" y1="135" x2="445" y2="125" stroke="#FFD700" stroke-width="5"/>
-    <line x1="355" y1="135" x2="345" y2="145" stroke="#FFD700" stroke-width="5"/>
-    <line x1="455" y1="35" x2="445" y2="25" stroke="#FFD700" stroke-width="5"/>
-  </g>
-  
-  <!-- Clouds -->
-  <g>
-    <ellipse cx="100" cy="80" rx="40" ry="30" fill="white"/>
-    <ellipse cx="140" cy="85" rx="30" ry="20" fill="white"/>
-    <ellipse cx="60" cy="85" rx="25" ry="18" fill="white"/>
-  </g>
-  <g>
-    <ellipse cx="280" cy="60" rx="45" ry="35" fill="white"/>
-    <ellipse cx="320" cy="65" rx="35" ry="25" fill="white"/>
-    <ellipse cx="240" cy="65" rx="30" ry="20" fill="white"/>
-  </g>
+  <circle cx="250" cy="50" r="30" fill="#FDB813"/>
+  <circle cx="250" cy="50" r="40" fill="#FDB813" opacity="0.3"/>
   
   <!-- Ground -->
-  <rect x="0" y="350" width="500" height="150" fill="#8BC34A"/>
+  <rect x="0" y="220" width="300" height="80" fill="#8B4513" opacity="0.7"/>
+  <rect x="0" y="200" width="300" height="20" fill="#7CFC00" opacity="0.6"/>
   
-  <!-- Path to Farm -->
-  <path d="M200,500 L220,350 L280,350 L300,500" fill="#E0C9A6"/>
+  <!-- Barn/Coop Structure -->
+  <rect x="90" y="100" width="120" height="100" fill="#D22B2B"/>
+  <polygon points="90,100 150,50 210,100" fill="#D22B2B"/>
   
-  <!-- Farm House -->
-  <rect x="175" y="200" width="150" height="150" fill="#F5DEB3"/>
-  <polygon points="175,200 250,130 325,200" fill="#A52A2A"/>
-  <rect x="215" y="280" width="70" height="70" fill="#8B4513"/>
-  <rect x="185" y="220" width="30" height="30" fill="#87CEEB"/>
-  <rect x="285" y="220" width="30" height="30" fill="#87CEEB"/>
+  <!-- Barn Door -->
+  <rect x="130" y="150" width="40" height="50" fill="#8B4513"/>
+  <circle cx="160" cy="175" r="3" fill="#FFD700"/>
   
-  <!-- Barn -->
-  <rect x="40" y="250" width="100" height="100" fill="#D22B2B"/>
-  <polygon points="40,250 90,200 140,250" fill="#8B0000"/>
-  <rect x="75" y="300" width="30" height="50" fill="#8B4513"/>
+  <!-- Windows -->
+  <rect x="110" y="120" width="20" height="20" fill="#87CEEB" opacity="0.8"/>
+  <rect x="170" y="120" width="20" height="20" fill="#87CEEB" opacity="0.8"/>
   
-  <!-- Silo -->
-  <rect x="370" y="220" width="40" height="130" fill="#D3D3D3"/>
-  <path d="M370,220 Q390,190 410,220" fill="#D3D3D3"/>
+  <!-- Wooden Sign -->
+  <rect x="40" y="120" width="30" height="100" fill="#8B4513" opacity="0.8"/>
+  <rect x="20" y="100" width="70" height="30" fill="#8B4513" opacity="0.8"/>
+  <text x="30" y="120" font-family="Arial" font-size="10" fill="white">ChickFarms</text>
   
   <!-- Fence -->
-  <line x1="0" y1="350" x2="200" y2="350" stroke="#8B4513" stroke-width="5"/>
-  <line x1="300" y1="350" x2="500" y2="350" stroke="#8B4513" stroke-width="5"/>
-  <line x1="20" y1="330" x2="20" y2="350" stroke="#8B4513" stroke-width="5"/>
-  <line x1="50" y1="330" x2="50" y2="350" stroke="#8B4513" stroke-width="5"/>
-  <line x1="80" y1="330" x2="80" y2="350" stroke="#8B4513" stroke-width="5"/>
-  <line x1="110" y1="330" x2="110" y2="350" stroke="#8B4513" stroke-width="5"/>
-  <line x1="140" y1="330" x2="140" y2="350" stroke="#8B4513" stroke-width="5"/>
-  <line x1="170" y1="330" x2="170" y2="350" stroke="#8B4513" stroke-width="5"/>
-  <line x1="330" y1="330" x2="330" y2="350" stroke="#8B4513" stroke-width="5"/>
-  <line x1="360" y1="330" x2="360" y2="350" stroke="#8B4513" stroke-width="5"/>
-  <line x1="390" y1="330" x2="390" y2="350" stroke="#8B4513" stroke-width="5"/>
-  <line x1="420" y1="330" x2="420" y2="350" stroke="#8B4513" stroke-width="5"/>
-  <line x1="450" y1="330" x2="450" y2="350" stroke="#8B4513" stroke-width="5"/>
-  <line x1="480" y1="330" x2="480" y2="350" stroke="#8B4513" stroke-width="5"/>
-  <line x1="0" y1="330" x2="200" y2="330" stroke="#8B4513" stroke-width="5"/>
-  <line x1="300" y1="330" x2="500" y2="330" stroke="#8B4513" stroke-width="5"/>
+  <rect x="0" y="190" width="90" height="10" fill="#8B4513" opacity="0.8"/>
+  <rect x="210" y="190" width="90" height="10" fill="#8B4513" opacity="0.8"/>
+  <rect x="0" y="175" width="10" height="25" fill="#8B4513" opacity="0.8"/>
+  <rect x="40" y="175" width="10" height="25" fill="#8B4513" opacity="0.8"/>
+  <rect x="80" y="175" width="10" height="25" fill="#8B4513" opacity="0.8"/>
+  <rect x="210" y="175" width="10" height="25" fill="#8B4513" opacity="0.8"/>
+  <rect x="250" y="175" width="10" height="25" fill="#8B4513" opacity="0.8"/>
+  <rect x="290" y="175" width="10" height="25" fill="#8B4513" opacity="0.8"/>
   
-  <!-- Trees -->
-  <circle cx="30" cy="320" r="20" fill="#228B22"/>
-  <rect x="25" y="320" width="10" height="30" fill="#8B4513"/>
-  <circle cx="470" cy="320" r="20" fill="#228B22"/>
-  <rect x="465" y="320" width="10" height="30" fill="#8B4513"/>
+  <!-- Chicken -->
+  <circle cx="250" cy="210" r="15" fill="#F5F5DC"/>
+  <circle cx="260" cy="203" r="5" fill="#FF0000" opacity="0.8"/>
+  <polygon points="245,225 235,235 255,235" fill="#F5F5DC"/>
   
-  <!-- Chickens -->
-  <circle cx="120" cy="380" r="10" fill="#F5F5DC"/>
-  <circle cx="125" cy="375" r="4" fill="#FF6347"/>
-  <path d="M115,385 L110,395" stroke="#F5F5DC" stroke-width="3"/>
-  <path d="M125,385 L130,395" stroke="#F5F5DC" stroke-width="3"/>
+  <!-- Cloud 1 -->
+  <ellipse cx="60" cy="40" rx="25" ry="15" fill="white" opacity="0.8"/>
+  <ellipse cx="40" cy="40" rx="15" ry="10" fill="white" opacity="0.8"/>
+  <ellipse cx="80" cy="40" rx="15" ry="10" fill="white" opacity="0.8"/>
   
-  <circle cx="400" cy="400" r="10" fill="#FFD700"/>
-  <circle cx="405" cy="395" r="4" fill="#FF6347"/>
-  <path d="M395,405 L390,415" stroke="#FFD700" stroke-width="3"/>
-  <path d="M405,405 L410,415" stroke="#FFD700" stroke-width="3"/>
-  
-  <!-- Farm Gate -->
-  <rect x="220" y="320" width="60" height="30" fill="none" stroke="#8B4513" stroke-width="5"/>
-  <line x1="220" y1="320" x2="280" y2="350" stroke="#8B4513" stroke-width="3"/>
-  <line x1="280" y1="320" x2="220" y2="350" stroke="#8B4513" stroke-width="3"/>
-  
-  <!-- Welcome Sign -->
-  <rect x="150" y="290" width="200" height="40" fill="#8B4513"/>
-  <text x="250" y="318" font-family="Arial" font-size="20" fill="white" text-anchor="middle">Welcome to ChickWorld!</text>
+  <!-- Cloud 2 -->
+  <ellipse cx="160" cy="30" rx="20" ry="10" fill="white" opacity="0.6"/>
+  <ellipse cx="145" cy="30" rx="10" ry="7" fill="white" opacity="0.6"/>
+  <ellipse cx="175" cy="30" rx="10" ry="7" fill="white" opacity="0.6"/>
 </svg>
