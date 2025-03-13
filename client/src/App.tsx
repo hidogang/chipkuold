@@ -27,43 +27,55 @@ function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
   const largeLogoRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
-    // Animation stages timing
+    // Backup safety timer to ensure we always exit the loading screen
+    const safetyTimer = setTimeout(() => {
+      console.log("Safety timer triggered - forcing completion");
+      onFinishLoading();
+    }, 8000);
+
+    // Animation stages timing (shorter timings)
     const timelines = {
       smallLogo: setTimeout(() => setAnimationStage('smallLogo'), 100),
-      transition: setTimeout(() => setAnimationStage('transition'), 1500),
-      largeLogo: setTimeout(() => setAnimationStage('largeLogo'), 2500),
+      transition: setTimeout(() => setAnimationStage('transition'), 900),
+      largeLogo: setTimeout(() => setAnimationStage('largeLogo'), 1700),
       complete: setTimeout(() => {
         setAnimationStage('complete');
-        setTimeout(() => onFinishLoading(), 1200);
-      }, 3800)
+        // Shorter wait before finishing
+        setTimeout(() => onFinishLoading(), 800);
+      }, 2500)
     };
 
-    // Progress bar animation
+    // Progress bar animation - faster increments
     const interval = setInterval(() => {
       setProgress(prev => {
         const increment = 
-          animationStage === 'initial' ? 5 :
-          animationStage === 'smallLogo' ? 10 :
-          animationStage === 'transition' ? 15 :
-          animationStage === 'largeLogo' ? 20 : 25;
+          animationStage === 'initial' ? 10 :
+          animationStage === 'smallLogo' ? 15 :
+          animationStage === 'transition' ? 25 :
+          animationStage === 'largeLogo' ? 30 : 35;
         
         const newProgress = prev + (Math.random() * increment * 0.5) + (increment * 0.5);
         
         if (newProgress >= 100) {
           clearInterval(interval);
+          // Ensure we complete loading when progress bar is full
+          if (animationStage !== 'complete') {
+            setTimeout(() => onFinishLoading(), 500);
+          }
           return 100;
         }
         
         return newProgress;
       });
-    }, 150);
+    }, 100); // Faster interval
 
     return () => {
       // Clear all timers on unmount
+      clearTimeout(safetyTimer);
       Object.values(timelines).forEach(timer => clearTimeout(timer));
       clearInterval(interval);
     };
-  }, [onFinishLoading, animationStage]);
+  }, [onFinishLoading]);
 
   // Get loading message based on animation stage
   const getLoadingMessage = () => {
@@ -314,6 +326,12 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Add an absolute maximum loading time
+    const maxLoadingTime = setTimeout(() => {
+      setIsLoading(false);
+      console.log("Maximum loading time reached - forcing app to start");
+    }, 10000);
+
     const checkOrientation = () => {
       setIsPortrait(window.innerHeight > window.innerWidth);
     };
@@ -322,6 +340,7 @@ function App() {
     window.addEventListener('resize', checkOrientation);
 
     return () => {
+      clearTimeout(maxLoadingTime);
       window.removeEventListener('resize', checkOrientation);
     };
   }, []);
