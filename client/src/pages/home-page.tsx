@@ -226,15 +226,15 @@ export default function HomePage() {
         eggs: 0
       };
 
-  // Background styles based on time of day
+  // Background styles based on time of day - removed blue colors as requested
   const getBgStyle = () => {
     switch (timeOfDay) {
       case 'day':
-        return 'bg-gradient-to-b from-sky-300 to-amber-50 via-sky-100';
+        return 'bg-gradient-to-b from-amber-100 to-amber-50 via-orange-50';
       case 'sunset':
         return 'bg-gradient-to-b from-orange-400 to-amber-100 via-orange-200';
       case 'night':
-        return 'bg-gradient-to-b from-indigo-900 to-indigo-700 via-indigo-800 text-white';
+        return 'bg-gradient-to-b from-amber-900 to-amber-800 via-amber-800 text-white';
     }
   };
 
