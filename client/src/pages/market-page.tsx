@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Price, Resource } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import BalanceBar from "@/components/balance-bar";
 import { motion } from "framer-motion";
 import { ShoppingCart, Info, Droplet, Wheat, Egg } from "lucide-react";
@@ -30,6 +30,11 @@ export default function MarketPage() {
     wheat_bag: false,
     eggs: false
   });
+
+  // Add scroll reset effect
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const pricesQuery = useQuery<Price[]>({
     queryKey: ["/api/prices"],
@@ -87,17 +92,17 @@ export default function MarketPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50/50 to-white pb-20 md:pb-6">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-amber-50/50 to-white">
       <BalanceBar />
 
       <motion.div
-        className="space-y-6 sm:space-y-8 mt-4 sm:mt-6 px-3 sm:px-6 max-w-6xl mx-auto"
+        className="flex-grow space-y-4 sm:space-y-6 px-2 sm:px-4 pb-20 md:pb-16 overflow-x-hidden"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
         {/* Market Title Section */}
-        <div className="relative">
+        <div className="relative pt-4">
           <motion.div
             className="absolute inset-0 bg-blue-500/10 rounded-lg -z-10"
             initial={{ scale: 0.9, opacity: 0 }}

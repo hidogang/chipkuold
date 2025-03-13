@@ -152,12 +152,17 @@ export default function WalletPage() {
     setQrCodeData(qrData);
   }, [rechargeForm.watch("amount"), selectedNetwork]);
 
+  // Add scroll reset effect
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50/50 to-white pb-20 md:pb-6">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-amber-50/50 to-white">
       <BalanceBar />
 
-      <div className="space-y-4 sm:space-y-6 mt-4 sm:mt-6 pt-6 px-2 sm:px-4">
-        <div className="flex justify-between items-center mb-2">
+      <div className="flex-grow space-y-4 sm:space-y-6 px-2 sm:px-4 pb-20 md:pb-16 overflow-x-hidden">
+        <div className="flex justify-between items-center pt-4">
           <h1 className="text-xl sm:text-2xl font-bold">Wallet</h1>
           <div className="text-right">
             <p className="text-xs sm:text-sm text-muted-foreground">USDT Balance</p>

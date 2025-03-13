@@ -8,7 +8,9 @@ import { useState, useEffect, useRef } from "react";
 import { RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/components/navigation";
+import ScrollToTop from "@/components/scroll-to-top";
 
+// Import pages
 import HomePage from "@/pages/home-page";
 import AuthPage from "@/pages/auth-page";
 import ShopPage from "@/pages/shop-page";
@@ -151,7 +153,8 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <div className="township-app min-h-screen bg-background text-foreground">
+        <div className="township-app min-h-screen bg-background text-foreground overflow-x-hidden">
+          <ScrollToTop />
           {isPortrait && (
             <div className="rotate-device-message fixed inset-0 bg-amber-900/90 flex flex-col items-center justify-center z-[9000] text-white p-8">
               <RotateCcw className="w-12 h-12 mb-4 animate-spin" />
@@ -167,9 +170,9 @@ function App() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
-              className="relative"
+              className="relative flex flex-col min-h-screen"
             >
-              <main className="relative min-h-screen bg-gradient-to-b from-amber-50/50 to-white pt-20 pb-20 md:pb-16">
+              <main className="flex-grow bg-gradient-to-b from-amber-50/50 to-white pt-20 pb-20 md:pb-16 overflow-x-hidden">
                 <Router />
               </main>
               <Navigation />
