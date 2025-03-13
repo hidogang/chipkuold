@@ -16,14 +16,13 @@ import WalletPage from "@/pages/wallet-page";
 import AccountPage from "@/pages/account-page";
 import AdminPage from "@/pages/admin-page";
 import NotFound from "@/pages/not-found";
-import Navigation from "@/components/navigation";
 
 // Loading Screen Component
 function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
   const [progress, setProgress] = useState(0);
   const [showFarm, setShowFarm] = useState(false);
   const farmLogo = useRef<HTMLImageElement>(null);
-  
+
   useEffect(() => {
     // Simulate loading progress
     const interval = setInterval(() => {
@@ -31,24 +30,24 @@ function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
         const newProgress = prev + Math.random() * 10;
         if (newProgress >= 100) {
           clearInterval(interval);
-          
+
           // Show farm entrance animation
           setShowFarm(true);
-          
+
           // After farm animation, fade out the loading screen
           setTimeout(() => {
             onFinishLoading();
           }, 1500);
-          
+
           return 100;
         }
         return newProgress;
       });
     }, 200);
-    
+
     return () => clearInterval(interval);
   }, [onFinishLoading]);
-  
+
   return (
     <div className={`loading-screen ${showFarm ? 'fade-out' : ''}`}>
       <div className="cloud-container">
@@ -57,7 +56,7 @@ function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
         <div className="cloud cloud-3"></div>
         <div className="cloud cloud-4"></div>
       </div>
-      
+
       <motion.div 
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
@@ -71,7 +70,7 @@ function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
           className="w-full h-full object-contain"
         />
       </motion.div>
-      
+
       <motion.h2 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -80,14 +79,14 @@ function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
       >
         {showFarm ? "Welcome to ChickWorld!" : "Loading your farm..."}
       </motion.h2>
-      
+
       <div className="loading-progress">
         <div 
           className="loading-progress-bar" 
           style={{ width: `${progress}%` }}
         ></div>
       </div>
-      
+
       <AnimatePresence>
         {showFarm && (
           <motion.div 
@@ -134,28 +133,28 @@ function Router() {
 function App() {
   const [isPortrait, setIsPortrait] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // Detect orientation
   useEffect(() => {
     const checkOrientation = () => {
       setIsPortrait(window.innerHeight > window.innerWidth);
     };
-    
+
     // Check on initial load
     checkOrientation();
-    
+
     // Add listener for orientation changes
     window.addEventListener('resize', checkOrientation);
-    
+
     return () => {
       window.removeEventListener('resize', checkOrientation);
     };
   }, []);
-  
+
   const handleFinishLoading = () => {
     setIsLoading(false);
   };
-  
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
@@ -167,22 +166,20 @@ function App() {
               <p className="text-center">ChickWorld works best in landscape mode. Please rotate your device for the best experience.</p>
             </div>
           )}
-          
+
           {isLoading && (
             <LoadingScreen onFinishLoading={handleFinishLoading} />
           )}
-          
+
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: isLoading ? 0 : 1 }}
             transition={{ duration: 0.5 }}
-          >
-            <Navigation />
-            
+          >            
             <main className="relative">
               <Router />
             </main>
-            
+
             <Toaster />
           </motion.div>
         </div>
