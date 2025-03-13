@@ -40,6 +40,13 @@ export const transactions = pgTable("transactions", {
   bankDetails: text("bank_details"), // JSON string containing bank account details
 });
 
+export const gameSettings = pgTable("game_settings", {
+  id: serial("id").primaryKey(),
+  settingKey: text("setting_key").notNull().unique(),
+  settingValue: decimal("setting_value", { precision: 10, scale: 2 }).notNull(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 export const prices = pgTable("prices", {
   id: serial("id").primaryKey(),
   itemType: text("item_type").notNull().unique(), // chicken types, resources, eggs
@@ -73,6 +80,11 @@ export const insertUserProfileSchema = createInsertSchema(userProfiles).omit({
   lastUpdated: true,
 });
 
+export const insertGameSettingSchema = createInsertSchema(gameSettings).omit({
+  id: true,
+  updatedAt: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type Chicken = typeof chickens.$inferSelect;
@@ -81,6 +93,8 @@ export type Transaction = typeof transactions.$inferSelect;
 export type Price = typeof prices.$inferSelect;
 export type UserProfile = typeof userProfiles.$inferSelect;
 export type InsertUserProfile = z.infer<typeof insertUserProfileSchema>;
+export type GameSetting = typeof gameSettings.$inferSelect;
+
 
 // Admin types
 export interface AdminStats {
@@ -101,4 +115,14 @@ export interface BankDetails {
 export interface USDTWithdrawal {
   amount: number;
   usdtAddress: string;
+}
+
+export interface GamePrices {
+  waterBucketPrice: number;
+  wheatBagPrice: number;
+  eggPrice: number;
+  babyChickenPrice: number;
+  regularChickenPrice: number;
+  goldenChickenPrice: number;
+  withdrawalTaxPercentage: number;
 }
