@@ -15,81 +15,105 @@ export default function BalanceBar() {
 
   const resources = resourcesQuery.data || { waterBuckets: 0, wheatBags: 0, eggs: 0 };
   
-  // Item config with colors and icons
+  // Item config with colors and icons for Township style
   const items = [
     {
       name: "Water",
       value: resources.waterBuckets,
-      icon: <Droplets className="h-5 w-5" />,
-      color: "bg-blue-500",
-      textColor: "text-blue-500",
-      borderColor: "border-blue-300",
-      hoverColor: "group-hover:bg-blue-100"
+      icon: <Droplets className="h-4 w-4 sm:h-5 sm:w-5" />,
+      color: "#3498db",
+      bgColor: "rgba(52, 152, 219, 0.2)",
+      borderColor: "rgba(52, 152, 219, 0.6)",
+      iconBg: "rgba(52, 152, 219, 0.3)",
     },
     {
       name: "Wheat",
       value: resources.wheatBags,
-      icon: <Wheat className="h-5 w-5" />,
-      color: "bg-amber-500",
-      textColor: "text-amber-500",
-      borderColor: "border-amber-300",
-      hoverColor: "group-hover:bg-amber-100"
+      icon: <Wheat className="h-4 w-4 sm:h-5 sm:w-5" />,
+      color: "#f39c12",
+      bgColor: "rgba(243, 156, 18, 0.2)",
+      borderColor: "rgba(243, 156, 18, 0.6)",
+      iconBg: "rgba(243, 156, 18, 0.3)",
     },
     {
       name: "Eggs",
       value: resources.eggs,
-      icon: <Egg className="h-5 w-5" />,
-      color: "bg-orange-500",
-      textColor: "text-orange-500",
-      borderColor: "border-orange-300",
-      hoverColor: "group-hover:bg-orange-100"
+      icon: <Egg className="h-4 w-4 sm:h-5 sm:w-5" />,
+      color: "#e67e22",
+      bgColor: "rgba(230, 126, 34, 0.2)",
+      borderColor: "rgba(230, 126, 34, 0.6)",
+      iconBg: "rgba(230, 126, 34, 0.3)",
     },
     {
       name: "USDT",
       value: user.usdtBalance,
       prefix: "$",
-      icon: <DollarSign className="h-5 w-5" />,
-      color: "bg-green-500",
-      textColor: "text-green-500",
-      borderColor: "border-green-300",
-      hoverColor: "group-hover:bg-green-100"
+      icon: <DollarSign className="h-4 w-4 sm:h-5 sm:w-5" />,
+      color: "#2ecc71",
+      bgColor: "rgba(46, 204, 113, 0.2)",
+      borderColor: "rgba(46, 204, 113, 0.6)",
+      iconBg: "rgba(46, 204, 113, 0.3)",
     },
   ];
 
   return (
-    <div className="sticky top-0 z-20 backdrop-blur-md py-2 px-2">
+    <div className="fixed top-0 left-0 right-0 z-30 py-2 px-3">
       <motion.div 
-        className="flex flex-nowrap gap-1 py-1 bg-white/90 dark:bg-slate-900/90 rounded-lg shadow-md mx-auto"
-        initial={{ y: -20, opacity: 0 }}
+        className="township-resource-bar mx-auto overflow-hidden"
+        initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: 0.5, type: "spring" }}
+        style={{
+          background: "linear-gradient(to bottom, rgba(255, 165, 61, 0.95), rgba(255, 124, 46, 0.9))",
+          borderRadius: "12px",
+          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)",
+          display: "flex",
+          padding: "8px 12px",
+          border: "2px solid rgba(255, 188, 91, 0.7)",
+        }}
       >
         {items.map((item, index) => (
           <motion.div
             key={item.name}
-            className={`relative flex items-center justify-between flex-1 h-10 sm:h-12 p-1 rounded-lg border ${item.borderColor} group cursor-pointer transition-all duration-200 hover:shadow-md`}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: index * 0.08 }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: index * 0.1, duration: 0.3 }}
+            className="township-resource-item flex-1 mx-1 relative"
+            style={{
+              background: item.bgColor,
+              borderRadius: "8px",
+              padding: "6px 8px",
+              border: `1px solid ${item.borderColor}`,
+              boxShadow: "inset 0 1px 2px rgba(255, 255, 255, 0.3)",
+              minWidth: 0,
+            }}
           >
-            <div className={`absolute inset-0 rounded-lg opacity-0 ${item.hoverColor} transition-opacity duration-200 group-hover:opacity-100`}></div>
-            
-            <div className="flex items-center z-10 pl-1">
-              <div className={`p-1 sm:p-1.5 rounded-full ${item.color} bg-opacity-20 ${item.textColor} mr-1`}>
-                {item.icon}
+            <div className="flex items-center">
+              <div 
+                className="flex-shrink-0 mr-2 p-1 rounded-full"
+                style={{ background: item.iconBg }}
+              >
+                <div style={{ color: item.color }}>{item.icon}</div>
               </div>
-              <div className="flex flex-col justify-center">
-                <p className="text-[9px] sm:text-[10px] leading-none text-muted-foreground font-medium">{item.name}</p>
-                <p className="text-sm sm:text-base font-bold leading-tight">
+              <div className="min-w-0 flex-grow">
+                <div className="text-[10px] whitespace-nowrap font-semibold opacity-80" style={{ color: "#fff" }}>
+                  {item.name}
+                </div>
+                <div className="text-sm font-bold truncate" style={{ color: "#fff" }}>
                   {item.prefix}{item.value}
-                </p>
+                </div>
               </div>
-            </div>
-            
-            <div className={`flex h-4 w-4 sm:h-5 sm:w-5 rounded-full ${item.color} items-center justify-center text-white text-xs font-bold mr-1`}>
-              +
+              <motion.div
+                whileHover={{ scale: 1.2, rotate: 10 }}
+                whileTap={{ scale: 0.9 }}
+                className="ml-1 w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center cursor-pointer"
+                style={{ 
+                  background: `linear-gradient(to bottom, ${item.color}, ${item.color}cc)`,
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
+                }}
+              >
+                <span className="text-white font-bold text-xs">+</span>
+              </motion.div>
             </div>
           </motion.div>
         ))}

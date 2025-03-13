@@ -4,8 +4,9 @@ import { Switch, Route } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "./hooks/use-auth";
 import { ProtectedRoute } from "./lib/protected-route";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { RotateCcw } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 import HomePage from "@/pages/home-page";
 import AuthPage from "@/pages/auth-page";
@@ -16,6 +17,104 @@ import AccountPage from "@/pages/account-page";
 import AdminPage from "@/pages/admin-page";
 import NotFound from "@/pages/not-found";
 import Navigation from "@/components/navigation";
+
+// Loading Screen Component
+function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
+  const [progress, setProgress] = useState(0);
+  const [showFarm, setShowFarm] = useState(false);
+  const farmLogo = useRef<HTMLImageElement>(null);
+  
+  useEffect(() => {
+    // Simulate loading progress
+    const interval = setInterval(() => {
+      setProgress(prev => {
+        const newProgress = prev + Math.random() * 10;
+        if (newProgress >= 100) {
+          clearInterval(interval);
+          
+          // Show farm entrance animation
+          setShowFarm(true);
+          
+          // After farm animation, fade out the loading screen
+          setTimeout(() => {
+            onFinishLoading();
+          }, 1500);
+          
+          return 100;
+        }
+        return newProgress;
+      });
+    }, 200);
+    
+    return () => clearInterval(interval);
+  }, [onFinishLoading]);
+  
+  return (
+    <div className={`loading-screen ${showFarm ? 'fade-out' : ''}`}>
+      <div className="cloud-container">
+        <div className="cloud cloud-1"></div>
+        <div className="cloud cloud-2"></div>
+        <div className="cloud cloud-3"></div>
+        <div className="cloud cloud-4"></div>
+      </div>
+      
+      <motion.div 
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="loading-logo"
+      >
+        <img 
+          ref={farmLogo}
+          src="/assets/chickworld-logo.svg" 
+          alt="ChickWorld" 
+          className="w-full h-full object-contain"
+        />
+      </motion.div>
+      
+      <motion.h2 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.7 }}
+        className="loading-text"
+      >
+        {showFarm ? "Welcome to ChickWorld!" : "Loading your farm..."}
+      </motion.h2>
+      
+      <div className="loading-progress">
+        <div 
+          className="loading-progress-bar" 
+          style={{ width: `${progress}%` }}
+        ></div>
+      </div>
+      
+      <AnimatePresence>
+        {showFarm && (
+          <motion.div 
+            className="absolute inset-0 flex items-center justify-center z-10"
+            initial={{ opacity: 0, scale: 1.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <div className="w-64 h-64 relative">
+              <img 
+                src="/assets/farm-entrance.svg" 
+                alt="Farm" 
+                className="w-full h-full object-contain"
+                onError={() => {
+                  if (farmLogo.current) {
+                    farmLogo.current.src = "/assets/chickworld-logo.svg";
+                  }
+                }}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 function Router() {
   return (
@@ -34,6 +133,7 @@ function Router() {
 
 function App() {
   const [isPortrait, setIsPortrait] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Detect orientation
   useEffect(() => {
@@ -52,6 +152,10 @@ function App() {
     };
   }, []);
   
+  const handleFinishLoading = () => {
+    setIsLoading(false);
+  };
+  
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
@@ -64,13 +168,23 @@ function App() {
             </div>
           )}
           
-          <Navigation />
+          {isLoading && (
+            <LoadingScreen onFinishLoading={handleFinishLoading} />
+          )}
           
-          <main className="relative">
-            <Router />
-          </main>
-          
-          <Toaster />
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: isLoading ? 0 : 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Navigation />
+            
+            <main className="relative">
+              <Router />
+            </main>
+            
+            <Toaster />
+          </motion.div>
         </div>
       </AuthProvider>
     </QueryClientProvider>
