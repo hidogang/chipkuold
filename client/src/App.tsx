@@ -18,28 +18,21 @@ import AccountPage from "@/pages/account-page";
 import AdminPage from "@/pages/admin-page";
 import NotFound from "@/pages/not-found";
 
-// LoadingScreen component remains unchanged
 function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
   const [progress, setProgress] = useState(0);
   const [showFarm, setShowFarm] = useState(false);
   const farmLogo = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
-    // Simulate loading progress
     const interval = setInterval(() => {
       setProgress(prev => {
         const newProgress = prev + Math.random() * 10;
         if (newProgress >= 100) {
           clearInterval(interval);
-
-          // Show farm entrance animation
           setShowFarm(true);
-
-          // After farm animation, fade out the loading screen
           setTimeout(() => {
             onFinishLoading();
           }, 1500);
-
           return 100;
         }
         return newProgress;
@@ -138,16 +131,12 @@ function App() {
   const [isPortrait, setIsPortrait] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Detect orientation
   useEffect(() => {
     const checkOrientation = () => {
       setIsPortrait(window.innerHeight > window.innerWidth);
     };
 
-    // Check on initial load
     checkOrientation();
-
-    // Add listener for orientation changes
     window.addEventListener('resize', checkOrientation);
 
     return () => {
@@ -179,17 +168,11 @@ function App() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
               className="relative"
-            >            
-              <div className="hidden md:block">
-                <Navigation />
-              </div>
-              <div className="block md:hidden fixed bottom-0 left-0 right-0 z-50">
-                <Navigation />
-              </div>
-              <main className="relative pb-16 md:pb-0 md:pt-14 min-h-[calc(100vh-3.5rem)] bg-gradient-to-b from-amber-50/50 to-white">
+            >
+              <main className="relative min-h-screen bg-gradient-to-b from-amber-50/50 to-white pb-20 md:pb-16">
                 <Router />
               </main>
-
+              <Navigation />
               <Toaster />
             </motion.div>
           )}

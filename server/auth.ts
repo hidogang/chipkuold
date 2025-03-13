@@ -42,7 +42,8 @@ export function setupAuth(app: Express) {
       secure: process.env.NODE_ENV === "production",
       sameSite: 'lax',
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-      path: '/'
+      path: '/',
+      httpOnly: true
     },
   };
 
@@ -54,40 +55,61 @@ export function setupAuth(app: Express) {
   passport.use(
     new LocalStrategy(async (username, password, done) => {
       try {
+        console.log("[Auth] Attempting login for user:", username);
         const user = await storage.getUserByUsername(username);
-        if (!user) return done(null, false);
+        if (!user) {
+          console.log("[Auth] User not found:", username);
+          return done(null, false);
+        }
 
         // Special case for admin user
         if (user.isAdmin && username === "adminraja" && password === "admin8751") {
+          console.log("[Auth] Admin login successful");
           return done(null, user);
         }
 
-        if (!(await comparePasswords(password, user.password))) {
+        const passwordMatch = await comparePasswords(password, user.password);
+        console.log("[Auth] Password match result:", passwordMatch);
+
+        if (!passwordMatch) {
           return done(null, false);
         }
 
         return done(null, user);
       } catch (err) {
+        console.error("[Auth] Login error:", err);
         return done(err);
       }
     }),
   );
 
-  passport.serializeUser((user, done) => done(null, user.id));
+  passport.serializeUser((user, done) => {
+    console.log("[Auth] Serializing user:", user.id);
+    done(null, user.id);
+  });
+
   passport.deserializeUser(async (id: number, done) => {
     try {
+      console.log("[Auth] Deserializing user:", id);
       const user = await storage.getUser(id);
-      if (!user) return done(new Error("User not found"));
+      if (!user) {
+        console.log("[Auth] User not found during deserialization:", id);
+        return done(new Error("User not found"));
+      }
+      console.log("[Auth] User deserialized successfully:", id);
       done(null, user);
     } catch (err) {
+      console.error("[Auth] Deserialization error:", err);
       done(err);
     }
   });
 
   app.post("/api/register", async (req, res, next) => {
     try {
+      console.log("[Auth] Registration attempt for:", req.body.username);
       const existingUser = await storage.getUserByUsername(req.body.username);
       if (existingUser) {
+        console.log("[Auth] Registration failed - username exists:", req.body.username);
         return res.status(400).json({ message: "Username already exists" });
       }
 
@@ -95,6 +117,7 @@ export function setupAuth(app: Express) {
       if (req.body.referredBy) {
         const referrer = await storage.getUserByReferralCode(req.body.referredBy);
         if (!referrer) {
+          console.log("[Auth] Registration failed - invalid referral code:", req.body.referredBy);
           return res.status(400).json({ message: "Invalid referral code" });
         }
       }
@@ -105,36 +128,62 @@ export function setupAuth(app: Express) {
         password: hashedPassword,
       });
 
+      console.log("[Auth] Registration successful for:", user.username);
       req.login(user, (err) => {
         if (err) return next(err);
         res.status(201).json(user);
       });
     } catch (err) {
+      console.error("[Auth] Registration error:", err);
       next(err);
     }
   });
 
   app.post("/api/login", (req, res, next) => {
+    console.log("[Auth] Login attempt for:", req.body.username);
     passport.authenticate("local", (err: Error | null, user: SelectUser | false, info: any) => {
-      if (err) return next(err);
-      if (!user) return res.status(401).json({ message: "Invalid credentials" });
+      if (err) {
+        console.error("[Auth] Login error:", err);
+        return next(err);
+      }
+      if (!user) {
+        console.log("[Auth] Login failed for:", req.body.username);
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
 
       req.login(user, (err) => {
-        if (err) return next(err);
+        if (err) {
+          console.error("[Auth] Session creation error:", err);
+          return next(err);
+        }
+        console.log("[Auth] Login successful for:", user.username);
         res.json(user);
       });
     })(req, res, next);
   });
 
   app.post("/api/logout", (req, res, next) => {
+    const username = req.user?.username;
+    console.log("[Auth] Logout attempt for:", username);
     req.logout((err) => {
-      if (err) return next(err);
+      if (err) {
+        console.error("[Auth] Logout error:", err);
+        return next(err);
+      }
+      console.log("[Auth] Logout successful for:", username);
       res.sendStatus(200);
     });
   });
 
   app.get("/api/user", (req, res) => {
-    if (!req.isAuthenticated()) return res.sendStatus(401);
+    console.log("[Auth] User check - Is authenticated:", req.isAuthenticated());
+    console.log("[Auth] User check - Session:", req.session);
+    console.log("[Auth] User check - User:", req.user);
+
+    if (!req.isAuthenticated()) {
+      console.log("[Auth] User check failed - not authenticated");
+      return res.sendStatus(401);
+    }
     res.json(req.user);
   });
 }

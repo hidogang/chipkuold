@@ -44,8 +44,8 @@ export default function Navigation() {
 
   return (
     <>
-      {/* Desktop navigation */}
-      <nav className="hidden md:block fixed top-0 left-0 right-0 bg-background/90 backdrop-blur-sm border-b shadow-sm z-50">
+      {/* Desktop navigation - Now at the bottom */}
+      <nav className="hidden md:block fixed bottom-0 left-0 right-0 bg-background/90 backdrop-blur-sm border-t shadow-sm z-50">
         <div className="container mx-auto">
           <div className="flex items-center justify-between h-14">
             <div className="flex items-center space-x-4">
@@ -141,8 +141,8 @@ export default function Navigation() {
         </div>
       </nav>
 
-      {/* Mobile navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-card border-t shadow-lg md:hidden z-50">
+      {/* Mobile navigation - Stays at bottom */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t shadow-lg z-50">
         <div className="container mx-auto px-2">
           <div className="flex items-center justify-between py-1">
             <Link href="/">
