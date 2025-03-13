@@ -1,10 +1,19 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Transaction } from "@shared/schema";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import {
   Table,
   TableBody,
@@ -16,6 +25,9 @@ import {
 import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface AdminStats {
   todayLogins: number;
@@ -25,6 +37,17 @@ interface AdminStats {
   totalDeposits: number;
   pendingWithdrawals: number;
 }
+
+interface WalletAddress {
+  network: string;
+  address: string;
+}
+
+const walletAddressSchema = z.object({
+  ethereumAddress: z.string().min(1, "Ethereum address is required"),
+  tronAddress: z.string().min(1, "Tron address is required"),
+  bnbAddress: z.string().min(1, "BNB address is required"),
+});
 
 export default function AdminPage() {
   const { toast } = useToast();
@@ -45,6 +68,40 @@ export default function AdminPage() {
 
   const withdrawalRequestsQuery = useQuery<Transaction[]>({
     queryKey: ["/api/admin/withdrawals"],
+  });
+
+  const walletAddressesQuery = useQuery<WalletAddress[]>({
+    queryKey: ["/api/admin/wallet-addresses"],
+  });
+
+  const walletForm = useForm({
+    resolver: zodResolver(walletAddressSchema),
+    defaultValues: {
+      ethereumAddress: "0x2468BD1f5B493683b6550Fe331DC39CC854513D2",
+      tronAddress: "TS59qaK6YfN7fvWwffLuvKzzpXDGTBh4dq",
+      bnbAddress: "bnb1uljaarnxpaug9uvxhln6dyg6w0zeasctn4puvp",
+    },
+  });
+
+  const updateWalletAddressesMutation = useMutation({
+    mutationFn: async (data: z.infer<typeof walletAddressSchema>) => {
+      const res = await apiRequest("POST", "/api/admin/wallet-addresses", data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/wallet-addresses"] });
+      toast({
+        title: "Success",
+        description: "Wallet addresses updated successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
   });
 
   const updateTransactionMutation = useMutation({
@@ -162,6 +219,7 @@ export default function AdminPage() {
         <TabsList>
           <TabsTrigger value="transactions">All Transactions</TabsTrigger>
           <TabsTrigger value="withdrawals">Withdrawal Requests</TabsTrigger>
+          <TabsTrigger value="wallet">Wallet Addresses</TabsTrigger>
         </TabsList>
 
         <TabsContent value="transactions">
@@ -322,6 +380,73 @@ export default function AdminPage() {
                   ))}
                 </TableBody>
               </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="wallet">
+          <Card>
+            <CardHeader>
+              <CardTitle>Wallet Addresses Management</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Form {...walletForm}>
+                <form
+                  onSubmit={walletForm.handleSubmit((data) =>
+                    updateWalletAddressesMutation.mutate(data)
+                  )}
+                  className="space-y-4"
+                >
+                  <FormField
+                    control={walletForm.control}
+                    name="ethereumAddress"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>USDT Ethereum Address</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={walletForm.control}
+                    name="tronAddress"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>USDT Tron Address</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={walletForm.control}
+                    name="bnbAddress"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>USDT BNB Beacon Chain Address</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <Button
+                    type="submit"
+                    disabled={updateWalletAddressesMutation.isPending}
+                  >
+                    Save Wallet Addresses
+                  </Button>
+                </form>
+              </Form>
             </CardContent>
           </Card>
         </TabsContent>

@@ -21,10 +21,17 @@ import { QrCode, Copy } from "lucide-react";
 import { QRCodeSVG } from 'qrcode.react';
 import { useState, useEffect } from 'react';
 import BalanceBar from "@/components/balance-bar";
-
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const rechargeSchema = z.object({
   amount: z.number().positive("Amount must be positive"),
+  network: z.string().min(1, "Network is required"),
   transactionId: z.string().min(1, "Transaction ID is required").regex(/^[A-Za-z0-9]+$/, "Transaction ID must contain only letters and numbers"),
 });
 
@@ -33,18 +40,33 @@ const withdrawalSchema = z.object({
   usdtAddress: z.string().min(5, "USDT address is required").max(100, "USDT address too long"),
 });
 
+interface WalletAddress {
+  network: string;
+  address: string;
+}
+
 export default function WalletPage() {
   const { toast } = useToast();
   const { user } = useAuth();
+  const [selectedNetwork, setSelectedNetwork] = useState("ethereum");
 
   // Get tab from URL if present
   const params = new URLSearchParams(window.location.search);
   const defaultTab = params.get('tab') || 'recharge';
 
+  const walletAddressesQuery = useQuery<{
+    ethereumAddress: string;
+    tronAddress: string;
+    bnbAddress: string;
+  }>({
+    queryKey: ["/api/admin/wallet-addresses"],
+  });
+
   const rechargeForm = useForm({
     resolver: zodResolver(rechargeSchema),
     defaultValues: {
       amount: 0,
+      network: "ethereum",
       transactionId: "",
     },
   });
@@ -56,6 +78,18 @@ export default function WalletPage() {
       usdtAddress: "",
     },
   });
+
+  const networkAddresses = {
+    ethereum: walletAddressesQuery.data?.ethereumAddress || "0x2468BD1f5B493683b6550Fe331DC39CC854513D2",
+    tron: walletAddressesQuery.data?.tronAddress || "TS59qaK6YfN7fvWwffLuvKzzpXDGTBh4dq",
+    bnb: walletAddressesQuery.data?.bnbAddress || "bnb1uljaarnxpaug9uvxhln6dyg6w0zeasctn4puvp",
+  };
+
+  const networkLabels = {
+    ethereum: "USDT (ERC20) - Ethereum",
+    tron: "USDT (TRC20) - Tron",
+    bnb: "USDT (BEP2) - BNB Beacon Chain",
+  };
 
   const rechargeMutation = useMutation({
     mutationFn: async (data: z.infer<typeof rechargeSchema>) => {
@@ -101,11 +135,11 @@ export default function WalletPage() {
     },
   });
 
-  const handleCopyUSDT = () => {
-    navigator.clipboard.writeText("TRX8nHHo2Jd7H9ZwKhh6h8h");
+  const handleCopyAddress = () => {
+    navigator.clipboard.writeText(networkAddresses[selectedNetwork as keyof typeof networkAddresses]);
     toast({
-      title: "USDT Address Copied",
-      description: "The USDT TRC20 address has been copied to your clipboard.",
+      title: "Address Copied",
+      description: "The USDT address has been copied to your clipboard.",
     });
   };
 
@@ -113,9 +147,10 @@ export default function WalletPage() {
 
   useEffect(() => {
     const amount = rechargeForm.watch("amount");
-    const qrData = `trc20:TRX8nHHo2Jd7H9ZwKhh6h8h?amount=${amount}`;
+    const address = networkAddresses[selectedNetwork as keyof typeof networkAddresses];
+    const qrData = `${selectedNetwork}:${address}?amount=${amount}`;
     setQrCodeData(qrData);
-  }, [rechargeForm.watch("amount")]);
+  }, [rechargeForm.watch("amount"), selectedNetwork]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50/50 to-white pb-20 md:pb-6">
@@ -150,17 +185,40 @@ export default function WalletPage() {
                         size={140}
                         className="mx-auto"
                       />
-                      <p className="text-sm font-medium">Scan QR to pay with USDT (TRC20)</p>
+                      <p className="text-sm font-medium">Scan QR to pay with USDT</p>
                       <p className="text-xs text-muted-foreground">Enter your transaction ID after payment</p>
                     </div>
-                    <Button
-                      variant="outline"
-                      className="w-full text-xs sm:text-sm h-8 sm:h-10"
-                      onClick={handleCopyUSDT}
-                    >
-                      <Copy className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                      Copy USDT Address (TRC20)
-                    </Button>
+
+                    <div className="space-y-2">
+                      <Select
+                        value={selectedNetwork}
+                        onValueChange={(value) => {
+                          setSelectedNetwork(value);
+                          rechargeForm.setValue('network', value);
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select network" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="ethereum">{networkLabels.ethereum}</SelectItem>
+                          <SelectItem value="tron">{networkLabels.tron}</SelectItem>
+                          <SelectItem value="bnb">{networkLabels.bnb}</SelectItem>
+                        </SelectContent>
+                      </Select>
+
+                      <div className="flex items-center space-x-2 bg-gray-50 p-2 rounded-lg border border-gray-200">
+                        <code className="flex-1 p-2 rounded text-xs sm:text-sm overflow-x-auto font-mono">
+                          {networkAddresses[selectedNetwork as keyof typeof networkAddresses]}
+                        </code>
+                        <Button
+                          className="h-8 w-8 bg-amber-500 hover:bg-amber-600 text-white"
+                          onClick={handleCopyAddress}
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
                   </div>
 
                   <Form {...rechargeForm}>
@@ -190,6 +248,7 @@ export default function WalletPage() {
                           </FormItem>
                         )}
                       />
+
                       <FormField
                         control={rechargeForm.control}
                         name="transactionId"
@@ -204,12 +263,10 @@ export default function WalletPage() {
                               />
                             </FormControl>
                             <FormMessage className="text-xs" />
-                            <p className="text-xs text-muted-foreground mt-1">
-                              Enter the transaction ID from your USDT transfer
-                            </p>
                           </FormItem>
                         )}
                       />
+
                       <Button
                         type="submit"
                         className="w-full h-8 sm:h-10 text-xs sm:text-sm mt-2"
@@ -257,6 +314,7 @@ export default function WalletPage() {
                         </FormItem>
                       )}
                     />
+
                     <FormField
                       control={withdrawalForm.control}
                       name="usdtAddress"
@@ -271,12 +329,10 @@ export default function WalletPage() {
                             />
                           </FormControl>
                           <FormMessage className="text-xs" />
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Enter a valid USDT TRC20 address to receive your withdrawal
-                          </p>
                         </FormItem>
                       )}
                     />
+
                     <Button
                       type="submit"
                       className="w-full h-8 sm:h-10 text-xs sm:text-sm mt-2"
