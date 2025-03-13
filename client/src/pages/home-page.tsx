@@ -226,16 +226,10 @@ export default function HomePage() {
         eggs: 0
       };
 
-  // Background styles based on time of day - removed blue colors as requested
+  // Simplified background to be light and consistent with other pages
   const getBgStyle = () => {
-    switch (timeOfDay) {
-      case 'day':
-        return 'bg-gradient-to-b from-amber-100 to-amber-50 via-orange-50';
-      case 'sunset':
-        return 'bg-gradient-to-b from-orange-400 to-amber-100 via-orange-200';
-      case 'night':
-        return 'bg-gradient-to-b from-amber-900 to-amber-800 via-amber-800 text-white';
-    }
+    // Always return light background regardless of time of day
+    return 'bg-gradient-to-b from-amber-50/50 to-white';
   };
 
   // Calculate remaining cooldown time for a chicken
