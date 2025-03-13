@@ -19,6 +19,26 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import BalanceBar from "@/components/balance-bar";
+import { Droplets, Wheat } from "lucide-react";
+
+// Update the image paths and visibility in the chicken cards section
+const getChickenImage = (type: string) => {
+  const imagePath = `/assets/chickens/${type}.svg`;
+  const fallbackPath = '/assets/chickens/baby.svg';
+
+  return (
+    <img
+      src={imagePath}
+      alt={`${type} Chicken`}
+      className="w-full h-full object-contain"
+      onError={(e) => {
+        const target = e.target as HTMLImageElement;
+        target.onerror = null; // Prevent infinite loop
+        target.src = fallbackPath;
+      }}
+    />
+  );
+};
 
 export default function HomePage() {
   const { toast } = useToast();
@@ -390,7 +410,9 @@ export default function HomePage() {
           {sortedChickens.map((chicken, index) => (
             <motion.div
               key={chicken.id}
-              className={`bg-white/90 rounded-xl overflow-hidden shadow-md border border-amber-200 relative ${activeChicken === chicken.id ? 'ring-2 ring-amber-500' : ''}`}
+              className={`bg-white/90 rounded-xl overflow-hidden shadow-md border border-amber-200 relative ${
+                activeChicken === chicken.id ? 'ring-2 ring-amber-500' : ''
+              }`}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1, duration: 0.4 }}
@@ -405,13 +427,9 @@ export default function HomePage() {
                     repeat: Infinity,
                     repeatType: "reverse"
                   }}
-                  className="w-24 h-24"
+                  className="relative w-24 h-24"
                 >
-                  <img
-                    src={`/assets/chicken-${chicken.type}.svg`}
-                    alt={`${chicken.type} Chicken`}
-                    className="w-full h-full object-contain"
-                  />
+                  {getChickenImage(chicken.type)}
                 </motion.div>
               </div>
 
