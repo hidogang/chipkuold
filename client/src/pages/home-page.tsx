@@ -338,8 +338,8 @@ export default function HomePage() {
               </motion.div>
 
               <motion.img
-                src="/assets/farm-entrance.svg"
-                alt="Farm"
+                src="/assets/chickfarms-logo.png"
+                alt="ChickFarms"
                 className="w-32 h-32 mx-auto mb-4"
                 initial={{ y: -20 }}
                 animate={{ y: [0, -10, 0] }}
