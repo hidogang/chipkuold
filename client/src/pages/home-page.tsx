@@ -127,40 +127,68 @@ export default function HomePage() {
     return () => clearInterval(interval);
   }, [chickensQuery.data]);
 
-  // Improve loading screen
+  // Improved loading screen with smoother animations
   if (chickensQuery.isLoading || resourcesQuery.isLoading) {
     return (
-      <div className="h-full w-full bg-gradient-to-b from-amber-50 to-orange-50 flex flex-col items-center justify-center">
-        <motion.div
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="relative"
-        >
-          <img
-            src="/assets/chickfarms-logo.png"
-            alt="ChickFarms Logo"
-            className="w-32 h-32 object-contain"
-          />
+      <div className="h-full w-full bg-gradient-to-b from-amber-50 to-orange-50 flex flex-col items-center justify-center overflow-hidden">
+        <div className="relative">
+          {/* Background logo (larger and faded) */}
           <motion.div
-            className="absolute inset-0"
-            animate={{
-              scale: [1, 1.1, 1],
-              opacity: [1, 0.8, 1]
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1.5, opacity: 0.15 }}
+            transition={{ 
+              duration: 1.5,
+              ease: "easeOut"
             }}
-            transition={{
-              repeat: Infinity,
-              duration: 2,
-              ease: "easeInOut"
-            }}
+            className="absolute inset-0 flex items-center justify-center"
+            style={{ zIndex: 0 }}
           >
             <img
-              src="/assets/cloud.svg"
-              alt="Cloud"
-              className="w-full h-full object-contain opacity-30"
+              src="/assets/chickfarms-logo.png"
+              alt="ChickFarms Logo Background"
+              className="w-40 h-40 object-contain"
             />
           </motion.div>
-        </motion.div>
+          
+          {/* Foreground logo (smaller and focused) */}
+          <motion.div
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ 
+              duration: 0.7,
+              delay: 0.3,
+              ease: "easeOut" 
+            }}
+            className="relative"
+            style={{ zIndex: 1 }}
+          >
+            <img
+              src="/assets/chickfarms-logo.png"
+              alt="ChickFarms Logo"
+              className="w-32 h-32 object-contain"
+            />
+            
+            {/* Animated cloud overlay */}
+            <motion.div
+              className="absolute inset-0"
+              animate={{
+                scale: [1, 1.1, 1],
+                opacity: [0.7, 0.5, 0.7]
+              }}
+              transition={{
+                repeat: Infinity,
+                duration: 3,
+                ease: "easeInOut"
+              }}
+            >
+              <img
+                src="/assets/cloud.svg"
+                alt="Cloud"
+                className="w-full h-full object-contain opacity-20"
+              />
+            </motion.div>
+          </motion.div>
+        </div>
 
         <motion.div
           initial={{ opacity: 0 }}
