@@ -403,33 +403,6 @@ export default function HomePage() {
             </div>
           </motion.div>
         </div>
-
-        {/* Bottom Navigation */}
-        <div className="sticky bottom-0 bg-white border-t border-amber-200 shadow-lg z-40">
-          <div className="flex justify-around items-center h-16">
-            <Link href="/" className="flex flex-col items-center justify-center text-amber-900 font-medium text-xs px-3 py-2 relative">
-              <div className="absolute inset-0 bg-amber-500/10 rounded-full"></div>
-              <Home className="h-6 w-6 mb-1 text-amber-500" />
-              <span>Home</span>
-            </Link>
-            <Link href="/shop" className="flex flex-col items-center justify-center text-gray-500 font-medium text-xs px-3 py-2">
-              <ShoppingCart className="h-6 w-6 mb-1" />
-              <span>Shop</span>
-            </Link>
-            <Link href="/market" className="flex flex-col items-center justify-center text-gray-500 font-medium text-xs px-3 py-2">
-              <BarChart3 className="h-6 w-6 mb-1" />
-              <span>Market</span>
-            </Link>
-            <Link href="/wallet" className="flex flex-col items-center justify-center text-gray-500 font-medium text-xs px-3 py-2">
-              <Wallet className="h-6 w-6 mb-1" />
-              <span>Wallet</span>
-            </Link>
-            <Link href="/account" className="flex flex-col items-center justify-center text-gray-500 font-medium text-xs px-3 py-2">
-              <User className="h-6 w-6 mb-1" />
-              <span>Account</span>
-            </Link>
-          </div>
-        </div>
       </div>
     );
   }
