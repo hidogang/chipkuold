@@ -374,12 +374,12 @@ export default function HomePage() {
   return (
     <div className={`h-full flex flex-col ${getBgStyle()}`}>
       <BalanceBar />
-      <div className="flex-1 overflow-auto p-4">
+      <div className="flex-1 overflow-auto p-4 pt-6">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="mb-4"
+          className="mb-6"
         >
           <h1 className="text-xl font-bold text-amber-800 mb-1">Your Chicken Coop</h1>
           <p className="text-sm text-amber-700">Tap on a chicken to manage it</p>

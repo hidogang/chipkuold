@@ -118,11 +118,11 @@ export default function WalletPage() {
   }, [rechargeForm.watch("amount")]);
 
   return (
-    <div className="pb-20 md:pb-6">
+    <div className="min-h-screen bg-gradient-to-b from-amber-50/50 to-white pb-20 md:pb-6">
       <BalanceBar />
-      
-      <div className="space-y-4 sm:space-y-6 mt-2 sm:mt-4 px-2 sm:px-4">
-        <div className="flex justify-between items-center">
+
+      <div className="space-y-4 sm:space-y-6 mt-4 sm:mt-6 pt-6 px-2 sm:px-4">
+        <div className="flex justify-between items-center mb-2">
           <h1 className="text-xl sm:text-2xl font-bold">Wallet</h1>
           <div className="text-right">
             <p className="text-xs sm:text-sm text-muted-foreground">USDT Balance</p>
@@ -145,7 +145,7 @@ export default function WalletPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   <div className="space-y-3 sm:space-y-4">
                     <div className="bg-primary/10 p-3 sm:p-4 rounded-lg text-center space-y-2">
-                      <QRCodeSVG 
+                      <QRCodeSVG
                         value={qrCodeData}
                         size={140}
                         className="mx-auto"
@@ -197,8 +197,8 @@ export default function WalletPage() {
                           <FormItem>
                             <FormLabel className="text-xs sm:text-sm">Transaction ID</FormLabel>
                             <FormControl>
-                              <Input 
-                                {...field} 
+                              <Input
+                                {...field}
                                 className="h-8 sm:h-10 text-sm"
                                 placeholder="Enter your USDT transaction ID"
                               />
@@ -264,10 +264,10 @@ export default function WalletPage() {
                         <FormItem>
                           <FormLabel className="text-xs sm:text-sm">USDT Address (TRC20)</FormLabel>
                           <FormControl>
-                            <Input 
-                              {...field} 
+                            <Input
+                              {...field}
                               className="h-8 sm:h-10 text-sm"
-                              placeholder="Enter your USDT TRC20 address" 
+                              placeholder="Enter your USDT TRC20 address"
                             />
                           </FormControl>
                           <FormMessage className="text-xs" />
