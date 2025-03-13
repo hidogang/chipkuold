@@ -88,19 +88,82 @@ export default function AccountPage() {
 
           <Card>
             <CardHeader className="pb-1 sm:pb-2 p-3 sm:p-4">
-              <CardTitle className="text-base sm:text-lg">Referral Program</CardTitle>
+              <CardTitle className="text-base sm:text-lg">
+                <span className="flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                  </svg>
+                  Township Referral Program
+                </span>
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-4">
+              <div className="bg-gradient-to-r from-amber-50 to-amber-100 p-3 rounded-lg border border-amber-200">
+                <div className="flex justify-between mb-3">
+                  <div>
+                    <p className="text-sm font-medium text-amber-800">Referral Earnings</p>
+                    <p className="text-xl font-bold text-amber-600">
+                      ${(transactionsQuery.data?.filter(t => {
+                        // Check if t.referralCommission exists and is valid
+                        return t.referralCommission != null;
+                      })
+                        .reduce((sum, t) => {
+                          // Safely handle the conversion by using Number()
+                          const commValue = t.referralCommission != null 
+                            ? Number(t.referralCommission) 
+                            : 0;
+                          return sum + commValue;
+                        }, 0) || 0).toFixed(2)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-amber-800">Referral Count</p>
+                    <p className="text-xl font-bold text-amber-600">
+                      {transactionsQuery.data?.filter(t => {
+                        // Check if t.referralCommission exists and is not null
+                        return t.referralCommission != null && Number(t.referralCommission) > 0;
+                      }).length || 0}
+                    </p>
+                  </div>
+                </div>
+                <p className="text-xs text-amber-700 rounded-md py-1 px-2 bg-amber-200/50 inline-block">
+                  <span className="font-semibold">10% Commission</span> on all deposits from referred players
+                </p>
+              </div>
+              
               <p className="text-xs sm:text-sm text-muted-foreground">
-                Share your referral link with friends and earn commission when they join!
+                Share your unique Township referral link with friends and earn 10% commission when they make deposits!
               </p>
-              <div className="flex items-center space-x-2">
-                <code className="flex-1 bg-primary/10 p-1.5 sm:p-2 rounded text-xs sm:text-sm overflow-x-auto">
+              
+              <div className="flex items-center space-x-2 bg-gray-50 p-1 rounded-lg border border-gray-200">
+                <code className="flex-1 p-2 rounded text-xs sm:text-sm overflow-x-auto font-mono">
                   {window.location.origin}?ref={user?.referralCode}
                 </code>
-                <Button variant="outline" size="icon" className="h-7 w-7 sm:h-8 sm:w-8" onClick={handleCopyReferral}>
-                  <Copy className="h-3 w-3 sm:h-4 sm:w-4" />
+                <Button 
+                  className="h-8 w-8 bg-amber-500 hover:bg-amber-600 text-white" 
+                  onClick={handleCopyReferral}
+                >
+                  <Copy className="h-4 w-4" />
                 </Button>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-2 mt-2">
+                {[1, 2, 3].map((i) => (
+                  <div 
+                    key={i} 
+                    className="flex flex-col items-center justify-center p-2 bg-amber-50 rounded-lg border border-amber-100"
+                  >
+                    <div className="text-amber-500 text-2xl mb-1">
+                      {i === 1 ? '👥' : i === 2 ? '💰' : '🎮'}
+                    </div>
+                    <p className="text-xs text-center text-amber-800 font-medium">
+                      {i === 1 ? 'Invite Friends' : i === 2 ? 'They Deposit' : 'You Earn 10%'}
+                    </p>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>

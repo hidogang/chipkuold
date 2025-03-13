@@ -389,20 +389,81 @@ export default function HomePage() {
         
         {!chickensQuery.data?.length ? (
           <motion.div
-            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-md w-full z-10"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            className="absolute top-1/2 left-0 right-0 transform -translate-y-1/2 max-w-md w-full mx-auto z-10"
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.7, type: "spring", stiffness: 100 }}
           >
-            <Card className="p-4 sm:p-6 text-center">
-              <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">Welcome to your farm!</h2>
-              <p className="text-muted-foreground text-sm sm:text-base mb-4">
-                Start your farming journey by getting your first chicken from the shop.
-              </p>
-              <Button asChild className="bg-primary/90 hover:bg-primary">
-                <Link href="/shop">Visit Shop</Link>
-              </Button>
-            </Card>
+            <div 
+              className="township-welcome-card p-6 sm:p-8 text-center rounded-xl"
+              style={{
+                background: "linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 249, 235, 0.9))",
+                border: "3px solid rgba(255, 188, 91, 0.7)",
+                boxShadow: "0 10px 25px rgba(255, 165, 61, 0.3), 0 4px 10px rgba(0, 0, 0, 0.1)",
+                position: "relative"
+              }}
+            >
+              <motion.img 
+                src="/assets/farm-entrance.svg"
+                alt="Farm"
+                className="w-32 h-32 mx-auto mb-4"
+                initial={{ y: -20 }}
+                animate={{ y: [0, -10, 0] }}
+                transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+              />
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+              >
+                <h2 
+                  className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4"
+                  style={{ color: "#ff7c2e" }}
+                >
+                  Welcome to Your Township Farm!
+                </h2>
+                <p className="text-gray-700 text-sm sm:text-base mb-6 max-w-sm mx-auto">
+                  Start your farming journey by getting your first chicken from the shop and grow your farm into a thriving township!
+                </p>
+                <button
+                  onClick={() => window.location.href = '/shop'}
+                  className="township-button px-6 py-3 rounded-lg text-white font-bold text-base relative overflow-hidden"
+                  style={{ 
+                    background: "linear-gradient(to bottom, #ff9800, #ff7c2e)",
+                    border: "2px solid #ffbc5b",
+                    boxShadow: "0 4px 8px rgba(255, 159, 67, 0.4)"
+                  }}
+                >
+                  <span className="z-10 relative">Visit Shop</span>
+                  <motion.div
+                    className="absolute inset-0 bg-white/10"
+                    initial={{ x: "-100%" }}
+                    animate={{ x: "100%" }}
+                    transition={{
+                      repeat: Infinity,
+                      duration: 1.5,
+                      ease: "linear"
+                    }}
+                  />
+                </button>
+              </motion.div>
+              
+              {/* Decorative elements */}
+              <motion.div 
+                className="absolute -top-5 -right-5 text-amber-500 text-4xl transform rotate-12"
+                animate={{ rotate: [12, 20, 12], scale: [1, 1.1, 1] }}
+                transition={{ repeat: Infinity, duration: 2 }}
+              >
+                🌱
+              </motion.div>
+              <motion.div 
+                className="absolute -bottom-4 -left-4 text-amber-500 text-3xl transform -rotate-12"
+                animate={{ rotate: [-12, -20, -12], scale: [1, 1.1, 1] }}
+                transition={{ repeat: Infinity, duration: 2, delay: 0.5 }}
+              >
+                🐓
+              </motion.div>
+            </div>
           </motion.div>
         ) : (
           <>
