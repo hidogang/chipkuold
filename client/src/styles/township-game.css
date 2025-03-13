@@ -1,5 +1,152 @@
 /* Township Game Styles */
 
+/* Loading Animation with Clouds */
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, #87ceeb, #e0f7fa);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  transition: opacity 0.8s ease-out;
+}
+
+.loading-screen.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cloud-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.cloud {
+  position: absolute;
+  width: 200px;
+  height: 60px;
+  background: white;
+  border-radius: 200px;
+  animation: float-cloud 15s linear infinite;
+  opacity: 0.9;
+}
+
+.cloud:before,
+.cloud:after {
+  content: '';
+  position: absolute;
+  background: white;
+  border-radius: 100px;
+}
+
+.cloud:before {
+  width: 100px;
+  height: 100px;
+  top: -50px;
+  left: 50px;
+}
+
+.cloud:after {
+  width: 80px;
+  height: 80px;
+  top: -30px;
+  right: 50px;
+}
+
+.cloud-1 {
+  top: 10%;
+  left: -20%;
+  transform: scale(0.8);
+  animation-duration: 20s;
+  animation-delay: 0s;
+}
+
+.cloud-2 {
+  top: 30%;
+  left: -10%;
+  transform: scale(1.2);
+  animation-duration: 15s;
+  animation-delay: 2s;
+}
+
+.cloud-3 {
+  top: 50%;
+  left: -15%;
+  transform: scale(0.7);
+  animation-duration: 18s;
+  animation-delay: 5s;
+}
+
+.cloud-4 {
+  top: 70%;
+  left: -5%;
+  transform: scale(1);
+  animation-duration: 22s;
+  animation-delay: 8s;
+}
+
+.loading-logo {
+  position: relative;
+  z-index: 2;
+  animation: bounce 2s ease infinite;
+  margin-bottom: 20px;
+  width: 120px;
+  height: 120px;
+}
+
+.loading-text {
+  color: #663c00;
+  font-size: 24px;
+  font-weight: bold;
+  text-shadow: 0 2px 4px rgba(255, 255, 255, 0.5);
+  position: relative;
+  z-index: 2;
+}
+
+.loading-progress {
+  width: 200px;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 10px;
+  margin-top: 20px;
+  overflow: hidden;
+  position: relative;
+  z-index: 2;
+}
+
+.loading-progress-bar {
+  height: 100%;
+  background: linear-gradient(to right, #ff9800, #ff5722);
+  width: 0%;
+  border-radius: 10px;
+  transition: width 0.5s ease;
+}
+
+@keyframes float-cloud {
+  0% {
+    left: -20%;
+  }
+  100% {
+    left: 120%;
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
 /* Force landscape orientation and handle device rotation */
 @media (orientation: portrait) {
   .township-app {
