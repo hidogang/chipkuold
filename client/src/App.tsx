@@ -22,94 +22,274 @@ import NotFound from "@/pages/not-found";
 
 function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
   const [progress, setProgress] = useState(0);
-  const [showFarm, setShowFarm] = useState(false);
-  const farmLogo = useRef<HTMLImageElement>(null);
+  const [animationStage, setAnimationStage] = useState<'initial' | 'smallLogo' | 'transition' | 'largeLogo' | 'complete'>('initial');
+  const smallLogoRef = useRef<HTMLImageElement>(null);
+  const largeLogoRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
+    // Animation stages timing
+    const timelines = {
+      smallLogo: setTimeout(() => setAnimationStage('smallLogo'), 100),
+      transition: setTimeout(() => setAnimationStage('transition'), 1500),
+      largeLogo: setTimeout(() => setAnimationStage('largeLogo'), 2500),
+      complete: setTimeout(() => {
+        setAnimationStage('complete');
+        setTimeout(() => onFinishLoading(), 1200);
+      }, 3800)
+    };
+
+    // Progress bar animation
     const interval = setInterval(() => {
       setProgress(prev => {
-        const newProgress = prev + Math.random() * 10;
+        const increment = 
+          animationStage === 'initial' ? 5 :
+          animationStage === 'smallLogo' ? 10 :
+          animationStage === 'transition' ? 15 :
+          animationStage === 'largeLogo' ? 20 : 25;
+        
+        const newProgress = prev + (Math.random() * increment * 0.5) + (increment * 0.5);
+        
         if (newProgress >= 100) {
           clearInterval(interval);
-          setShowFarm(true);
-          setTimeout(() => {
-            onFinishLoading();
-          }, 1500);
           return 100;
         }
+        
         return newProgress;
       });
-    }, 200);
+    }, 150);
 
-    return () => clearInterval(interval);
-  }, [onFinishLoading]);
+    return () => {
+      // Clear all timers on unmount
+      Object.values(timelines).forEach(timer => clearTimeout(timer));
+      clearInterval(interval);
+    };
+  }, [onFinishLoading, animationStage]);
+
+  // Get loading message based on animation stage
+  const getLoadingMessage = () => {
+    switch (animationStage) {
+      case 'initial':
+        return 'Initializing...';
+      case 'smallLogo':
+        return 'Preparing your chicken farm...';
+      case 'transition':
+        return 'Getting your chickens ready...';
+      case 'largeLogo':
+        return 'Almost there...';
+      case 'complete':
+        return 'Welcome to ChickFarms!';
+      default:
+        return 'Loading...';
+    }
+  };
 
   return (
-    <div className="loading-screen fixed inset-0 z-[9999] bg-gradient-to-b from-amber-50 to-orange-50">
-      <div className="cloud-container">
-        <div className="cloud cloud-1"></div>
-        <div className="cloud cloud-2"></div>
-        <div className="cloud cloud-3"></div>
-        <div className="cloud cloud-4"></div>
+    <div className="fixed inset-0 z-[9999] overflow-hidden bg-gradient-to-b from-amber-50 to-orange-50 flex flex-col items-center justify-center">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="cloud-container">
+          <div className="cloud cloud-1"></div>
+          <div className="cloud cloud-2"></div>
+          <div className="cloud cloud-3"></div>
+          <div className="cloud cloud-4"></div>
+        </div>
+        
+        {/* Extra decorative elements */}
+        <motion.div
+          className="absolute right-8 top-20 w-24 h-24 opacity-20"
+          initial={{ rotate: 0, scale: 0.8 }}
+          animate={{ 
+            rotate: 360,
+            scale: [0.8, 1.1, 0.8]
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        >
+          <img src="/assets/cloud.svg" alt="" />
+        </motion.div>
+        
+        <motion.div
+          className="absolute left-12 bottom-32 w-20 h-20 opacity-15"
+          initial={{ rotate: 0, scale: 0.7 }}
+          animate={{ 
+            rotate: -360,
+            scale: [0.7, 1, 0.7]
+          }}
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+        >
+          <img src="/assets/cloud.svg" alt="" />
+        </motion.div>
       </div>
-
-      <motion.div 
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="loading-logo relative z-10"
-      >
-        <img 
-          ref={farmLogo}
-          src="/assets/chickfarms-logo.png" 
-          alt="ChickFarms" 
-          className="w-32 h-32 object-contain"
-        />
-      </motion.div>
-
-      <motion.h2 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.7 }}
-        className="loading-text text-2xl font-bold text-amber-800 mt-4 text-center relative z-10"
-      >
-        {showFarm ? "Welcome to ChickFarms!" : "Loading your farm..."}
-      </motion.h2>
-
-      <div className="loading-progress mt-8 w-64 h-2 bg-amber-100 rounded-full overflow-hidden relative z-10">
-        <motion.div 
-          className="loading-progress-bar h-full bg-gradient-to-r from-amber-500 to-orange-500"
-          style={{ width: `${progress}%` }}
-          initial={{ x: "-100%" }}
-          animate={{ x: 0 }}
-          transition={{ duration: 0.5 }}
-        />
-      </div>
-
-      <AnimatePresence>
-        {showFarm && (
-          <motion.div 
-            className="absolute inset-0 flex items-center justify-center z-20"
-            initial={{ opacity: 0, scale: 1.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
+      
+      {/* Main animation container */}
+      <div className="relative w-64 h-64 mb-6">
+        {/* Small logo fades in first */}
+        <motion.div
+          className="absolute inset-0 flex items-center justify-center"
+          initial={{ scale: 0.6, opacity: 0 }}
+          animate={{ 
+            scale: animationStage === 'initial' ? 0.8 : 
+                  animationStage === 'smallLogo' ? 1 : 
+                  animationStage === 'transition' ? 0.9 : 0.8,
+            opacity: animationStage === 'initial' ? 0 : 
+                    animationStage === 'smallLogo' ? 1 : 
+                    animationStage === 'transition' ? 0.5 : 0,
+            y: animationStage === 'transition' ? -20 : 0
+          }}
+          transition={{ duration: 0.8, ease: "easeInOut" }}
+        >
+          <img
+            ref={smallLogoRef}
+            src="/assets/chickfarms-logo.png"
+            alt="ChickFarms Small"
+            className="w-32 h-32 object-contain"
+          />
+          
+          {/* Glow effect around small logo during transition */}
+          {animationStage === 'transition' && (
+            <motion.div
+              className="absolute inset-0 rounded-full"
+              initial={{ opacity: 0 }}
+              animate={{ 
+                opacity: [0, 0.4, 0],
+                scale: [1, 1.4, 1.8]
+              }}
+              transition={{ duration: 1.5, repeat: 1, ease: "easeOut" }}
+              style={{ 
+                background: 'radial-gradient(circle, rgba(251, 191, 36, 0.6) 0%, rgba(251, 191, 36, 0) 70%)',
+                filter: 'blur(10px)'
+              }}
+            />
+          )}
+        </motion.div>
+        
+        {/* Large logo appears during transition */}
+        <motion.div
+          className="absolute inset-0 flex items-center justify-center"
+          initial={{ scale: 1.5, opacity: 0 }}
+          animate={{ 
+            scale: animationStage === 'transition' ? 1.2 : 
+                  animationStage === 'largeLogo' || animationStage === 'complete' ? 1 : 1.5,
+            opacity: animationStage === 'transition' ? 0.3 : 
+                    animationStage === 'largeLogo' ? 1 :
+                    animationStage === 'complete' ? 1 : 0
+          }}
+          transition={{ 
+            duration: animationStage === 'transition' ? 1 : 0.8, 
+            ease: "easeInOut"
+          }}
+        >
+          <img
+            ref={largeLogoRef}
+            src="/assets/chickfarms-logo.png"
+            alt="ChickFarms Large"
+            className="w-48 h-48 object-contain"
+          />
+          
+          {/* Subtle pulsing animation when large logo is active */}
+          {(animationStage === 'largeLogo' || animationStage === 'complete') && (
+            <motion.div
+              className="absolute inset-0"
+              animate={{ 
+                scale: [1, 1.05, 1],
+                opacity: [1, 0.9, 1]
+              }}
+              transition={{ 
+                duration: 2, 
+                repeat: Infinity, 
+                ease: "easeInOut"
+              }}
+            >
+              <img
+                src="/assets/chickfarms-logo.png"
+                alt=""
+                className="w-48 h-48 object-contain"
+                style={{ opacity: 0.2 }}
+              />
+            </motion.div>
+          )}
+        </motion.div>
+        
+        {/* Celebration particles when complete */}
+        {animationStage === 'complete' && (
+          <motion.div
+            className="absolute inset-0"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
           >
-            <div className="w-64 h-64 relative">
-              <img 
-                src="/assets/chickfarms-logo.png" 
-                alt="ChickFarms" 
-                className="w-full h-full object-contain"
-                onError={() => {
-                  if (farmLogo.current) {
-                    farmLogo.current.src = "/assets/chickfarms-logo.png";
-                  }
+            {Array.from({ length: 20 }).map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute w-2 h-2 rounded-full bg-amber-400"
+                initial={{ 
+                  x: 0, 
+                  y: 0, 
+                  scale: 0,
+                  opacity: 1
+                }}
+                animate={{ 
+                  x: (Math.random() - 0.5) * 200, 
+                  y: (Math.random() - 0.5) * 200,
+                  scale: Math.random() * 2 + 0.5,
+                  opacity: 0
+                }}
+                transition={{ 
+                  duration: Math.random() * 1 + 0.5, 
+                  ease: "easeOut"
+                }}
+                style={{
+                  top: '50%',
+                  left: '50%',
+                  backgroundColor: `hsl(${Math.random() * 40 + 30}, ${Math.random() * 30 + 70}%, ${Math.random() * 30 + 50}%)`
                 }}
               />
-            </div>
+            ))}
           </motion.div>
         )}
-      </AnimatePresence>
+      </div>
+      
+      {/* Loading text with animation */}
+      <motion.div
+        className="text-center mb-6"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <motion.h2
+          className="text-2xl font-bold text-amber-800"
+          animate={{ 
+            opacity: [0.9, 1, 0.9],
+            y: [0, -2, 0]
+          }}
+          transition={{ 
+            duration: 2, 
+            repeat: Infinity, 
+            ease: "easeInOut" 
+          }}
+        >
+          {getLoadingMessage()}
+        </motion.h2>
+      </motion.div>
+      
+      {/* Progress bar with animated gradient */}
+      <div className="w-64 h-2.5 bg-amber-100 rounded-full overflow-hidden shadow-inner relative z-10">
+        <motion.div
+          className="h-full"
+          style={{
+            width: `${progress}%`,
+            background: 'linear-gradient(90deg, #f59e0b, #ea580c, #f59e0b)',
+            backgroundSize: '200% 100%'
+          }}
+          animate={{
+            backgroundPosition: ['0% 0%', '100% 0%', '0% 0%']
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+        />
+      </div>
     </div>
   );
 }
