@@ -51,6 +51,54 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <section className="relative overflow-hidden py-20 md:py-32">
+        {/* Animated Chickens */}
+        <motion.div 
+          className="absolute top-20 left-10 w-12 h-12 text-4xl z-10 hidden md:block"
+          animate={{ 
+            y: [0, -15, 0],
+            rotate: [0, 10, 0, -10, 0]
+          }}
+          transition={{ 
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          🐔
+        </motion.div>
+        
+        <motion.div 
+          className="absolute top-40 right-20 w-12 h-12 text-4xl z-10 hidden md:block"
+          animate={{ 
+            y: [0, -10, 0],
+            rotate: [0, -5, 0, 5, 0]
+          }}
+          transition={{ 
+            duration: 1.5,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 0.5
+          }}
+        >
+          🐥
+        </motion.div>
+        
+        <motion.div 
+          className="absolute bottom-20 left-[30%] w-12 h-12 text-4xl z-10 hidden md:block"
+          animate={{ 
+            x: [0, 100, 0],
+            y: [0, -20, 0],
+            rotate: [0, 20, 0]
+          }}
+          transition={{ 
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          ✨🐔
+        </motion.div>
+        
         <div className="container mx-auto px-4 grid md:grid-cols-2 gap-8 items-center">
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -236,7 +284,20 @@ export default function LandingPage() {
                       viewport={{ once: true }}
                       className="flex items-start gap-4 p-4 rounded-lg border border-amber-100 hover:bg-amber-50 transition-colors"
                     >
-                      <div className="mt-1 text-2xl">{index === 0 ? "🐥" : index === 1 ? "🐔" : "✨🐔"}</div>
+                      <motion.div 
+                        className="mt-1 text-2xl"
+                        animate={{ 
+                          y: [0, -5, 0],
+                          rotate: index === 0 ? [0, 10, 0] : index === 1 ? [0, -5, 0] : [0, 15, 0]
+                        }}
+                        transition={{ 
+                          duration: 1.5 + index * 0.5, 
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      >
+                        {index === 0 ? "🐥" : index === 1 ? "🐔" : "✨🐔"}
+                      </motion.div>
                       <div>
                         <div className="flex justify-between">
                           <h4 className="font-semibold text-amber-900">{chicken.title}</h4>
@@ -434,9 +495,20 @@ export default function LandingPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 bg-white rounded-lg border border-amber-100 hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-xl">
+                    <motion.div 
+                      className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-xl"
+                      animate={{ 
+                        scale: [1, 1.1, 1],
+                        rotate: [0, 5, 0, -5, 0]
+                      }}
+                      transition={{ 
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                    >
                       💧
-                    </div>
+                    </motion.div>
                     <h4 className="font-semibold text-amber-900">Water</h4>
                   </div>
                   <p className="text-sm text-amber-700">
@@ -445,9 +517,21 @@ export default function LandingPage() {
                 </div>
                 <div className="p-4 bg-white rounded-lg border border-amber-100 hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center text-xl">
+                    <motion.div 
+                      className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center text-xl"
+                      animate={{ 
+                        scale: [1, 1.1, 1],
+                        rotate: [0, -4, 0, 4, 0]
+                      }}
+                      transition={{ 
+                        duration: 2.5,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        delay: 0.3
+                      }}
+                    >
                       🌾
-                    </div>
+                    </motion.div>
                     <h4 className="font-semibold text-amber-900">Wheat</h4>
                   </div>
                   <p className="text-sm text-amber-700">
@@ -456,9 +540,21 @@ export default function LandingPage() {
                 </div>
                 <div className="p-4 bg-white rounded-lg border border-amber-100 hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-xl">
+                    <motion.div 
+                      className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-xl"
+                      animate={{ 
+                        scale: [1, 1.05, 1],
+                        y: [0, -3, 0]
+                      }}
+                      transition={{ 
+                        duration: 1.8,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        delay: 0.6
+                      }}
+                    >
                       🥚
-                    </div>
+                    </motion.div>
                     <h4 className="font-semibold text-amber-900">Eggs</h4>
                   </div>
                   <p className="text-sm text-amber-700">
@@ -467,9 +563,21 @@ export default function LandingPage() {
                 </div>
                 <div className="p-4 bg-white rounded-lg border border-amber-100 hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-xl">
+                    <motion.div 
+                      className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-xl"
+                      animate={{ 
+                        scale: [1, 1.15, 1],
+                        rotate: [0, 10, 0, -10, 0]
+                      }}
+                      transition={{ 
+                        duration: 3,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        delay: 0.9
+                      }}
+                    >
                       🐣
-                    </div>
+                    </motion.div>
                     <h4 className="font-semibold text-amber-900">Chicks</h4>
                   </div>
                   <p className="text-sm text-amber-700">
