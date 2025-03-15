@@ -29,6 +29,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from 'react';
+import { motion } from 'framer-motion';
 
 interface AdminStats {
   todayLogins: number;
@@ -244,74 +245,146 @@ export default function AdminPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+      <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-orange-600">
+        Admin Dashboard
+      </h1>
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">User Activity</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div>
-                <span className="text-2xl font-bold">{stats.todayLogins}</span>
-                <span className="text-xs text-muted-foreground ml-2">Today's Logins</span>
-              </div>
-              <div>
-                <span className="text-xl font-bold">{stats.yesterdayLogins}</span>
-                <span className="text-xs text-muted-foreground ml-2">Yesterday's Logins</span>
-              </div>
-              <div>
-                <span className="text-xl font-bold">{stats.totalUsers}</span>
-                <span className="text-xs text-muted-foreground ml-2">Total Users</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Card className="overflow-hidden relative">
+            {/* Glowing background effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-blue-600/5 animate-pulse" />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Deposits</CardTitle>
-            <ArrowDownToLine className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div>
-                <span className="text-2xl font-bold">${stats.todayDeposits.toFixed(2)}</span>
-                <span className="text-xs text-muted-foreground ml-2">Today's Deposits</span>
-              </div>
-              <div>
-                <span className="text-xl font-bold">${stats.totalDeposits.toFixed(2)}</span>
-                <span className="text-xs text-muted-foreground ml-2">Total Deposits</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">User Activity</CardTitle>
+              <Users className="h-4 w-4 text-blue-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <motion.div
+                  className="group"
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-blue-700">
+                    {stats.todayLogins}
+                  </span>
+                  <span className="text-xs text-muted-foreground ml-2 group-hover:text-blue-500 transition-colors">
+                    Today's Logins
+                  </span>
+                  {/* Shimmer effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent group-hover:translate-x-full duration-1000 transition-transform" />
+                </motion.div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Withdrawals</CardTitle>
-            <ArrowUpFromLine className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div>
-                <span className="text-2xl font-bold">${stats.todayWithdrawals.toFixed(2)}</span>
-                <span className="text-xs text-muted-foreground ml-2">Today's Withdrawals</span>
+                <motion.div whileHover={{ scale: 1.02 }} className="group">
+                  <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-blue-600">
+                    {stats.yesterdayLogins}
+                  </span>
+                  <span className="text-xs text-muted-foreground ml-2 group-hover:text-blue-400 transition-colors">
+                    Yesterday's Logins
+                  </span>
+                </motion.div>
+
+                <motion.div whileHover={{ scale: 1.02 }} className="group">
+                  <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-blue-500">
+                    {stats.totalUsers}
+                  </span>
+                  <span className="text-xs text-muted-foreground ml-2 group-hover:text-blue-300 transition-colors">
+                    Total Users
+                  </span>
+                </motion.div>
               </div>
-              <div>
-                <span className="text-xl font-bold">${stats.totalWithdrawals.toFixed(2)}</span>
-                <span className="text-xs text-muted-foreground ml-2">Total Withdrawals</span>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <Card className="overflow-hidden relative">
+            {/* Glowing background effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-green-600/5 animate-pulse" />
+
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Deposits</CardTitle>
+              <ArrowDownToLine className="h-4 w-4 text-green-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <motion.div whileHover={{ scale: 1.02 }} className="group">
+                  <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-500 to-green-700">
+                    ${stats.todayDeposits.toFixed(2)}
+                  </span>
+                  <span className="text-xs text-muted-foreground ml-2 group-hover:text-green-500 transition-colors">
+                    Today's Deposits
+                  </span>
+                </motion.div>
+
+                <motion.div whileHover={{ scale: 1.02 }} className="group">
+                  <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-green-600">
+                    ${stats.totalDeposits.toFixed(2)}
+                  </span>
+                  <span className="text-xs text-muted-foreground ml-2 group-hover:text-green-400 transition-colors">
+                    Total Deposits
+                  </span>
+                </motion.div>
               </div>
-              <div>
-                <span className="text-xl font-bold">{stats.pendingWithdrawals}</span>
-                <span className="text-xs text-muted-foreground ml-2">Pending Requests</span>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          <Card className="overflow-hidden relative">
+            {/* Glowing background effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-amber-600/5 animate-pulse" />
+
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Withdrawals</CardTitle>
+              <ArrowUpFromLine className="h-4 w-4 text-amber-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <motion.div whileHover={{ scale: 1.02 }} className="group">
+                  <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-500 to-amber-700">
+                    ${stats.todayWithdrawals.toFixed(2)}
+                  </span>
+                  <span className="text-xs text-muted-foreground ml-2 group-hover:text-amber-500 transition-colors">
+                    Today's Withdrawals
+                  </span>
+                </motion.div>
+
+                <motion.div whileHover={{ scale: 1.02 }} className="group">
+                  <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-600">
+                    ${stats.totalWithdrawals.toFixed(2)}
+                  </span>
+                  <span className="text-xs text-muted-foreground ml-2 group-hover:text-amber-400 transition-colors">
+                    Total Withdrawals
+                  </span>
+                </motion.div>
+
+                <motion.div whileHover={{ scale: 1.02 }} className="group">
+                  <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-300 to-amber-500">
+                    {stats.pendingWithdrawals}
+                  </span>
+                  <span className="text-xs text-muted-foreground ml-2 group-hover:text-amber-300 transition-colors">
+                    Pending Requests
+                  </span>
+                </motion.div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
 
       <Tabs defaultValue="transactions">
