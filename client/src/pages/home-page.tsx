@@ -21,7 +21,7 @@ import {
 import BalanceBar from "@/components/balance-bar";
 import { Droplets, Wheat } from "lucide-react";
 
-// Update the image paths and visibility in the chicken cards section
+// Utility functions at the top level
 const getChickenImage = (type: string) => {
   const imagePath = `/assets/chickens/${type}.svg`;
   const fallbackPath = '/assets/chickens/baby.svg';
@@ -33,7 +33,7 @@ const getChickenImage = (type: string) => {
       className="w-full h-full object-contain"
       onError={(e) => {
         const target = e.target as HTMLImageElement;
-        target.onerror = null; // Prevent infinite loop
+        target.onerror = null;
         target.src = fallbackPath;
       }}
     />
@@ -63,6 +63,12 @@ const getRemainingCooldown = (chicken: Chicken): { hours: number, minutes: numbe
   const seconds = Math.floor((remainingTime % (60 * 1000)) / 1000);
 
   return { hours, minutes, seconds };
+};
+
+// Background style utility
+const getBgStyle = () => {
+  // Always return light background regardless of time of day
+  return 'bg-gradient-to-b from-amber-50/50 to-white';
 };
 
 export default function HomePage() {
@@ -318,13 +324,6 @@ export default function HomePage() {
         wheatBags: 0,
         eggs: 0
       };
-
-  // Simplified background to be light and consistent with other pages
-  const getBgStyle = () => {
-    // Always return light background regardless of time of day
-    return 'bg-gradient-to-b from-amber-50/50 to-white';
-  };
-
 
   return (
     <div className={`h-full flex flex-col ${getBgStyle()}`}>
