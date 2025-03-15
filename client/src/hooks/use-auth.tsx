@@ -20,6 +20,7 @@ type AuthContextType = {
 type LoginData = Pick<InsertUser, "username" | "password">;
 
 export const AuthContext = createContext<AuthContextType | null>(null);
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   const {
@@ -29,12 +30,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   } = useQuery<SelectUser | undefined, Error>({
     queryKey: ["/api/user"],
     queryFn: getQueryFn({ on401: "returnNull" }),
-    staleTime: 0, // Always consider data stale to get fresh updates
-    refetchInterval: 3000, // Refetch every 3 seconds
+    staleTime: 0,
+    refetchInterval: 3000,
     retry: 2,
   });
 
-  // Debug log for user data updates
   console.log('[AuthProvider] Current user data:', user);
 
   const loginMutation = useMutation({
