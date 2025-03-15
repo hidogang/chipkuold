@@ -351,6 +351,138 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Mystery Boxes & Daily Rewards Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-amber-100 text-amber-800 hover:bg-amber-200">
+              New Features
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-amber-900 mb-4">
+              Mystery Boxes & Daily Rewards
+            </h2>
+            <p className="text-lg text-amber-700 max-w-2xl mx-auto">
+              Unlock amazing rewards and earn daily bonuses
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-12">
+            {/* Mystery Boxes */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+            >
+              <div className="bg-white p-6 rounded-lg shadow-lg border border-amber-100">
+                <h3 className="text-2xl font-bold text-amber-900 mb-6 flex items-center gap-2">
+                  <span className="text-3xl">🎁</span> Mystery Boxes
+                </h3>
+                <div className="space-y-4">
+                  {[
+                    {
+                      name: "Basic Box",
+                      price: "$10 USDT",
+                      rewards: "10-50 Wheat, 5-20 Water, 1-5 Eggs",
+                      rarity: "Common (70%), Rare (30%)",
+                      color: "bg-gradient-to-r from-slate-50 to-slate-100"
+                    },
+                    {
+                      name: "Silver Box",
+                      price: "$25 USDT",
+                      rewards: "50-150 Wheat, 20-50 Water, 5-15 Eggs, Baby Chicken",
+                      rarity: "Common (50%), Rare (40%), Epic (10%)",
+                      color: "bg-gradient-to-r from-gray-50 to-gray-100"
+                    },
+                    {
+                      name: "Golden Box",
+                      price: "$50 USDT",
+                      rewards: "150-300 Wheat, 50-100 Water, 15-30 Eggs, Regular Chicken, +5% USDT Bonus",
+                      rarity: "Common (30%), Rare (40%), Epic (20%), Legendary (10%)",
+                      color: "bg-gradient-to-r from-amber-50 to-amber-100"
+                    },
+                    {
+                      name: "Diamond Box",
+                      price: "$100 USDT",
+                      rewards: "300-500 Wheat, 100-200 Water, 30-50 Eggs, Golden Chicken, +10% USDT Bonus",
+                      rarity: "Rare (30%), Epic (50%), Legendary (20%)",
+                      color: "bg-gradient-to-r from-cyan-50 to-cyan-100"
+                    }
+                  ].map((box, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 10 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: index * 0.1 }}
+                      viewport={{ once: true }}
+                      className={`p-6 rounded-lg border border-amber-100 ${box.color} hover:shadow-md transition-all`}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h4 className="font-bold text-lg text-amber-900">{box.name}</h4>
+                          <p className="text-amber-700 text-sm mt-1">{box.rewards}</p>
+                          <p className="text-amber-600 text-xs mt-1">{box.rarity}</p>
+                        </div>
+                        <span className="text-lg font-semibold text-amber-600">{box.price}</span>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Daily Rewards */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              viewport={{ once: true }}
+            >
+              <div className="bg-white p-6 rounded-lg shadow-lg border border-amber-100">
+                <h3 className="text-2xl font-bold text-amber-900 mb-6 flex items-center gap-2">
+                  <span className="text-3xl">🎯</span> Daily Rewards
+                </h3>
+                <div className="space-y-4">
+                  {[
+                    { day: 1, reward: "10 Wheat + 5 Water", color: "bg-gradient-to-r from-green-50 to-green-100" },
+                    { day: 2, reward: "15 Wheat + 10 Water", color: "bg-gradient-to-r from-emerald-50 to-emerald-100" },
+                    { day: 3, reward: "1 Free Basic Mystery Box", color: "bg-gradient-to-r from-teal-50 to-teal-100" },
+                    { day: 4, reward: "30 Wheat + 20 Water", color: "bg-gradient-to-r from-cyan-50 to-cyan-100" },
+                    { day: 5, reward: "5 Bonus Eggs + 50 Wheat", color: "bg-gradient-to-r from-sky-50 to-sky-100" },
+                    { day: 6, reward: "1 Free Silver Mystery Box", color: "bg-gradient-to-r from-blue-50 to-blue-100" },
+                    { day: 7, reward: "0.5 USDT Bonus + 1 Free Golden Box", color: "bg-gradient-to-r from-amber-50 to-amber-100" }
+                  ].map((day, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 10 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: index * 0.1 }}
+                      viewport={{ once: true }}
+                      className={`p-4 rounded-lg border border-amber-100 ${day.color} hover:shadow-md transition-all`}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center font-bold text-amber-900">
+                          {day.day}
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-amber-900">Day {day.day}</h4>
+                          <p className="text-amber-700">{day.reward}</p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+                <div className="mt-6 p-4 bg-amber-50 rounded-lg border border-amber-100">
+                  <p className="text-amber-700 text-sm">
+                    <span className="font-semibold">💡 Pro Tip:</span> Log in daily to maintain your streak! Missing a day resets your progress.
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       {/* Deposits & Withdrawals */}
       <section className="py-20 bg-amber-50 relative overflow-hidden">
         <div className="absolute -top-20 -right-20 w-64 h-64 bg-amber-300 rounded-full opacity-20 blur-3xl"></div>

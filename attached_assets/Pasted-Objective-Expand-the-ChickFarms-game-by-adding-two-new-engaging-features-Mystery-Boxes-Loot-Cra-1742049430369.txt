@@ -1,0 +1,44 @@
+Objective:
+Expand the ChickFarms game by adding two new engaging features:
+
+Mystery Boxes & Loot Crates – Players can buy mystery boxes that contain random rewards like chickens, wheat, water, or bonus eggs.
+Daily Rewards & Streak System – Players earn increasing daily rewards for logging in consistently.
+🔮 Mystery Boxes & Loot Crates System
+📦 How It Works:
+
+Players can purchase mystery boxes with USDT to receive random in-game rewards.
+Each mystery box contains a random item with different probabilities.
+Higher-tier boxes provide better rewards but cost more.
+📊 Mystery Box Pricing & Reward Probability:
+
+Box Type	Price (USDT)	Possible Rewards	Probability Distribution
+Basic Box	$10	10-50 Wheat, 5-20 Water, 1-5 Eggs	Common (70%), Rare (30%)
+Silver Box	$25	50-150 Wheat, 20-50 Water, 5-15 Eggs, Baby Chicken	Common (50%), Rare (40%), Epic (10%)
+Golden Box	$50	150-300 Wheat, 50-100 Water, 15-30 Eggs, Regular Chicken, +5% USDT Bonus	Common (30%), Rare (40%), Epic (20%), Legendary (10%)
+Diamond Box	$100	300-500 Wheat, 100-200 Water, 30-50 Eggs, Golden Chicken, +10% USDT Bonus	Rare (30%), Epic (50%), Legendary (20%)
+🛠 Logic for Mystery Boxes:
+
+The system uses randomized probability generation to determine the reward.
+Higher-tier boxes offer better rewards, increasing potential ROI.
+This encourages investment and engagement while maintaining game balance.
+🎁 Daily Rewards & Streak System
+📅 How It Works:
+
+Players receive daily login rewards that increase with consecutive logins.
+A streak resets if a player misses a day.
+Rewards range from free wheat and water to bonus USDT and mystery boxes.
+📊 Daily Rewards Breakdown:
+
+Day	Reward
+Day 1	10 Wheat + 5 Water
+Day 2	15 Wheat + 10 Water
+Day 3	1 Free Basic Mystery Box
+Day 4	30 Wheat + 20 Water
+Day 5	5 Bonus Eggs + 50 Wheat
+Day 6	1 Free Silver Mystery Box
+Day 7	0.5 USDT Bonus + 1 Free Golden Box
+💡 Streak Logic:
+
+If a player misses a day, their streak resets to Day 1.
+Higher streaks = better rewards, motivating daily engagement.
+Players who maintain streaks for months can receive special bonuses.
