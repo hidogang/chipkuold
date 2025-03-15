@@ -1,6 +1,6 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
-import { Switch, Route, useLocation } from "wouter";
+import { Switch, Route, useLocation, Redirect } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "./hooks/use-auth";
 import { ProtectedRoute } from "./lib/protected-route";
@@ -48,13 +48,13 @@ function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
       setProgress(prev => {
         const increment = Math.random() * 8 + 12; // Between 12-20 per tick
         const newProgress = prev + increment;
-        
+
         if (newProgress >= 100) {
           clearInterval(interval);
           handleComplete();
           return 100;
         }
-        
+
         return newProgress;
       });
     }, 200);
@@ -85,7 +85,7 @@ function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
           <div className="cloud cloud-4"></div>
         </div>
       </div>
-      
+
       {/* Simple logo animation */}
       <motion.div
         className="relative mb-8"
@@ -99,27 +99,27 @@ function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
           alt="ChickFarms"
           className="w-32 h-32 object-contain"
         />
-        
+
         {/* Subtle glow effect */}
         <motion.div
           className="absolute inset-0 rounded-full"
-          animate={{ 
+          animate={{
             opacity: [0.1, 0.3, 0.1],
             scale: [0.9, 1.1, 0.9],
           }}
-          transition={{ 
+          transition={{
             duration: 2,
             repeat: Infinity,
             ease: "easeInOut"
           }}
-          style={{ 
+          style={{
             background: 'radial-gradient(circle, rgba(251, 191, 36, 0.4) 0%, rgba(251, 191, 36, 0) 70%)',
             filter: 'blur(8px)',
             zIndex: -1
           }}
         />
       </motion.div>
-      
+
       {/* Loading text with animation */}
       <motion.h2
         className="text-xl font-bold text-amber-800 mb-6"
@@ -129,7 +129,7 @@ function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
       >
         Loading your chicken farm...
       </motion.h2>
-      
+
       {/* Simple progress bar */}
       <div className="w-64 h-2.5 bg-amber-100 rounded-full overflow-hidden shadow-inner relative z-10">
         <motion.div
@@ -146,13 +146,14 @@ function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
 }
 
 function Router() {
-  // Get current location path to force remount of components when route changes
   const [locationPath] = useLocation();
-  
+
   return (
-    // Key the Switch with location path to force remounting of components when the route changes
     <Switch key={locationPath}>
-      <Route path="/" component={LandingPage} />
+      <Route path="/landing" component={LandingPage} />
+      <Route path="/">
+        {() => <Redirect to="/home" />}
+      </Route>
       <Route path="/auth" component={AuthPage} />
       <ProtectedRoute path="/home" component={HomePage} />
       <ProtectedRoute path="/shop" component={ShopPage} />
@@ -217,7 +218,7 @@ function App() {
               transition={{ duration: 0.5 }}
               className="relative flex flex-col min-h-screen"
             >
-              <main 
+              <main
                 id="main-content"
                 className={`flex-grow bg-gradient-to-b from-amber-50/50 to-white overflow-x-hidden ${!isLandingPage ? "pt-20 pb-20 md:pb-16" : ""}`}
               >

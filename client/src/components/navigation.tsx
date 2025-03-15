@@ -55,13 +55,13 @@ export default function Navigation() {
         <div className="container mx-auto">
           <div className="flex items-center justify-between h-14">
             <div className="flex items-center space-x-4">
-              <Link href="/">
+              <Link href="/home">
                 <Logo />
               </Link>
               <div className="flex items-center space-x-1">
-                <Link href="/">
+                <Link href="/home">
                   <Button 
-                    variant={location === "/" ? "default" : "ghost"} 
+                    variant={location === "/home" ? "default" : "ghost"} 
                     className="flex items-center h-10 gap-2 font-medium" 
                     size="sm"
                   >
@@ -151,9 +151,9 @@ export default function Navigation() {
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t shadow-lg z-50">
         <div className="container mx-auto px-2">
           <div className="flex items-center justify-between py-1">
-            <Link href="/">
+            <Link href="/home">
               <Button 
-                variant={location === "/" ? "default" : "ghost"} 
+                variant={location === "/home" ? "default" : "ghost"} 
                 className="flex flex-col items-center space-y-1 h-auto py-1 px-2"
               >
                 <HomeIcon />
