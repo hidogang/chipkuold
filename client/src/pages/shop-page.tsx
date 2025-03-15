@@ -72,7 +72,9 @@ export default function ShopPage() {
       return res.json();
     },
     onSuccess: () => {
+      // Invalidate both chickens and user queries to refresh the data
       queryClient.invalidateQueries({ queryKey: ["/api/chickens"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] }); // Add this line to update balance
       toast({
         title: "Success",
         description: "Chicken purchased successfully!",

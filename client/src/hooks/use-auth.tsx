@@ -29,7 +29,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   } = useQuery<SelectUser | undefined, Error>({
     queryKey: ["/api/user"],
     queryFn: getQueryFn({ on401: "returnNull" }),
+    staleTime: 0, // Always consider data stale to get fresh updates
+    refetchInterval: 3000, // Refetch every 3 seconds
+    retry: 2,
   });
+
+  // Debug log for user data updates
+  console.log('[AuthProvider] Current user data:', user);
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
@@ -37,9 +43,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return await res.json();
     },
     onSuccess: (user: SelectUser) => {
+      console.log('[AuthProvider] Login successful:', user);
       queryClient.setQueryData(["/api/user"], user);
     },
     onError: (error: Error) => {
+      console.error('[AuthProvider] Login error:', error);
       toast({
         title: "Login failed",
         description: error.message,
@@ -54,9 +62,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return await res.json();
     },
     onSuccess: (user: SelectUser) => {
+      console.log('[AuthProvider] Registration successful:', user);
       queryClient.setQueryData(["/api/user"], user);
     },
     onError: (error: Error) => {
+      console.error('[AuthProvider] Registration error:', error);
       toast({
         title: "Registration failed",
         description: error.message,
@@ -70,9 +80,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await apiRequest("POST", "/api/logout");
     },
     onSuccess: () => {
+      console.log('[AuthProvider] Logout successful');
       queryClient.setQueryData(["/api/user"], null);
     },
     onError: (error: Error) => {
+      console.error('[AuthProvider] Logout error:', error);
       toast({
         title: "Logout failed",
         description: error.message,

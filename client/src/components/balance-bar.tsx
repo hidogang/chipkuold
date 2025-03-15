@@ -8,13 +8,26 @@ export default function BalanceBar() {
 
   const resourcesQuery = useQuery<Resource>({
     queryKey: ["/api/resources"],
+    staleTime: 0, // Always fetch fresh data
+    retry: 2, // Retry failed requests twice
   });
 
-  if (!user || resourcesQuery.isLoading) return null;
+  // Debug log for balance updates
+  console.log('[BalanceBar] Current user balance:', user?.usdtBalance);
+  console.log('[BalanceBar] Resources query data:', resourcesQuery.data);
+
+  if (!user || resourcesQuery.isLoading) {
+    console.log('[BalanceBar] Loading state or no user');
+    return null;
+  }
+
+  if (resourcesQuery.error) {
+    console.error('[BalanceBar] Resources query error:', resourcesQuery.error);
+    return null;
+  }
 
   const resources = resourcesQuery.data || { waterBuckets: 0, wheatBags: 0, eggs: 0 };
 
-  // Item config with colors and icons for Township style
   const items = [
     {
       name: "Water",
@@ -28,7 +41,7 @@ export default function BalanceBar() {
       ),
       color: "#29B6F6",
       bgColor: "rgba(3, 169, 244, 0.1)",
-      borderColor: "rgba(3, 169, 244, 0.3)", 
+      borderColor: "rgba(3, 169, 244, 0.3)",
       iconBg: "rgba(41, 182, 246, 0.15)",
       textColor: "#01579B"
     },
@@ -87,7 +100,7 @@ export default function BalanceBar() {
 
   return (
     <div className="fixed top-0 left-0 right-0 z-30 bg-transparent">
-      <motion.div 
+      <motion.div
         className="township-resource-bar max-w-4xl mx-auto overflow-hidden my-2 px-3"
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -103,14 +116,13 @@ export default function BalanceBar() {
           overflow: "hidden"
         }}
       >
-        {/* Background decorative elements */}
         <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
           <div className="absolute -right-2 -top-2 w-12 h-12 bg-white/10 rounded-full blur-md" />
           <div className="absolute -left-2 -bottom-2 w-10 h-10 bg-white/10 rounded-full blur-md" />
           <div className="absolute top-1/2 -translate-y-1/2 right-6 w-2 h-2 bg-white/30 rounded-full" />
           <div className="absolute top-1/3 -translate-y-1/2 left-10 w-2 h-2 bg-white/20 rounded-full" />
         </div>
-        
+
         {items.map((item, index) => (
           <motion.div
             key={item.name}
@@ -129,9 +141,9 @@ export default function BalanceBar() {
             }}
           >
             <div className="flex items-center">
-              <div 
+              <div
                 className="flex-shrink-0 mr-2 p-1.5 rounded-full"
-                style={{ 
+                style={{
                   background: `linear-gradient(135deg, ${item.iconBg}, rgba(255,255,255,0.7))`,
                   boxShadow: "inset 0 1px 2px rgba(0,0,0,0.05)"
                 }}
@@ -139,12 +151,12 @@ export default function BalanceBar() {
                 <div>{item.icon}</div>
               </div>
               <div className="min-w-0 flex-grow">
-                <div className="text-[10px] whitespace-nowrap font-semibold" 
+                <div className="text-[10px] whitespace-nowrap font-semibold"
                   style={{ color: item.textColor || "#555" }}
                 >
                   {item.name}
                 </div>
-                <div className="text-sm font-bold truncate" 
+                <div className="text-sm font-bold truncate"
                   style={{ color: item.textColor || "#333" }}
                 >
                   {item.prefix}{item.value}
@@ -154,7 +166,7 @@ export default function BalanceBar() {
                 whileHover={{ scale: 1.1, rotate: 5 }}
                 whileTap={{ scale: 0.9 }}
                 className="ml-1 w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center cursor-pointer"
-                style={{ 
+                style={{
                   background: `linear-gradient(to bottom, ${item.color}, ${item.color}dd)`,
                   boxShadow: "0 2px 4px rgba(0,0,0,0.15)"
                 }}
@@ -162,17 +174,16 @@ export default function BalanceBar() {
                 <span className="text-white font-bold text-xs">+</span>
               </motion.div>
             </div>
-            
-            {/* Subtle glowing effect */}
-            <motion.div 
+
+            <motion.div
               className="absolute inset-0 rounded-lg opacity-50"
-              animate={{ 
-                boxShadow: ['0 0 0px rgba(255,255,255,0)', '0 0 5px rgba(255,255,255,0.5)', '0 0 0px rgba(255,255,255,0)'] 
+              animate={{
+                boxShadow: ['0 0 0px rgba(255,255,255,0)', '0 0 5px rgba(255,255,255,0.5)', '0 0 0px rgba(255,255,255,0)']
               }}
-              transition={{ 
+              transition={{
                 duration: 2,
                 repeat: Infinity,
-                delay: index * 0.7 
+                delay: index * 0.7
               }}
             />
           </motion.div>
