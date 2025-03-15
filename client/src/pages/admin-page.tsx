@@ -166,30 +166,15 @@ export default function AdminPage() {
 
   React.useEffect(() => {
     if (pricesQuery.data) {
-      const priceMap: { [key: string]: number } = {};
-      pricesQuery.data.forEach(price => {
-        switch (price.itemType) {
-          case 'water_bucket':
-            priceMap.waterBucketPrice = parseFloat(price.price);
-            break;
-          case 'wheat_bag':
-            priceMap.wheatBagPrice = parseFloat(price.price);
-            break;
-          case 'egg':
-            priceMap.eggPrice = parseFloat(price.price);
-            break;
-          case 'baby_chicken':
-            priceMap.babyChickenPrice = parseFloat(price.price);
-            break;
-          case 'regular_chicken':
-            priceMap.regularChickenPrice = parseFloat(price.price);
-            break;
-          case 'golden_chicken':
-            priceMap.goldenChickenPrice = parseFloat(price.price);
-            break;
-        }
+      priceForm.reset({
+        waterBucketPrice: pricesQuery.data.waterBucketPrice,
+        wheatBagPrice: pricesQuery.data.wheatBagPrice,
+        eggPrice: pricesQuery.data.eggPrice,
+        babyChickenPrice: pricesQuery.data.babyChickenPrice,
+        regularChickenPrice: pricesQuery.data.regularChickenPrice,
+        goldenChickenPrice: pricesQuery.data.goldenChickenPrice,
+        withdrawalTaxPercentage: pricesQuery.data.withdrawalTaxPercentage
       });
-      priceForm.reset(priceMap);
     }
   }, [pricesQuery.data]);
 

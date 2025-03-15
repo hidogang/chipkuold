@@ -68,6 +68,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(stats);
   });
 
+  app.get("/api/admin/prices", isAdmin, async (req, res) => {
+    try {
+      const prices = await storage.getPrices();
+      // Transform prices array into GamePrices object
+      const gamePrices = {
+        waterBucketPrice: parseFloat(prices.find(p => p.itemType === 'water_bucket')?.price || '0.5'),
+        wheatBagPrice: parseFloat(prices.find(p => p.itemType === 'wheat_bag')?.price || '0.5'),
+        eggPrice: parseFloat(prices.find(p => p.itemType === 'egg')?.price || '0.1'),
+        babyChickenPrice: parseFloat(prices.find(p => p.itemType === 'baby_chicken')?.price || '90'),
+        regularChickenPrice: parseFloat(prices.find(p => p.itemType === 'regular_chicken')?.price || '150'),
+        goldenChickenPrice: parseFloat(prices.find(p => p.itemType === 'golden_chicken')?.price || '400'),
+        withdrawalTaxPercentage: 5 // Default value, you might want to get this from settings table
+      };
+      res.json(gamePrices);
+    } catch (err) {
+      console.error('Error fetching game prices:', err);
+      res.status(500).json({ error: 'Failed to fetch game prices' });
+    }
+  });
+
   app.post("/api/admin/transactions/update", isAdmin, async (req, res) => {
     const schema = z.object({
       transactionId: z.string(),
