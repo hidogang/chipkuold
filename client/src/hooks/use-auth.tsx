@@ -27,15 +27,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     data: user,
     error,
     isLoading,
-  } = useQuery<SelectUser | undefined, Error>({
+  } = useQuery<SelectUser | null>({
     queryKey: ["/api/user"],
     queryFn: getQueryFn({ on401: "returnNull" }),
     staleTime: 0,
-    refetchInterval: 3000,
-    retry: 2,
+    retry: false, // Don't retry on 401s
   });
-
-  console.log('[AuthProvider] Current user data:', user);
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
@@ -43,16 +40,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return await res.json();
     },
     onSuccess: (user: SelectUser) => {
-      console.log('[AuthProvider] Login successful:', user);
       queryClient.setQueryData(["/api/user"], user);
+      toast({
+        title: "Welcome back!",
+        description: `Successfully logged in as ${user.username}`,
+      });
     },
     onError: (error: Error) => {
-      console.error('[AuthProvider] Login error:', error);
       toast({
         title: "Login failed",
         description: error.message,
         variant: "destructive",
       });
+      throw error; // Re-throw to be caught by the form handler
     },
   });
 
@@ -62,16 +62,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return await res.json();
     },
     onSuccess: (user: SelectUser) => {
-      console.log('[AuthProvider] Registration successful:', user);
       queryClient.setQueryData(["/api/user"], user);
+      toast({
+        title: "Welcome to ChickFarms!",
+        description: `Account created successfully as ${user.username}`,
+      });
     },
     onError: (error: Error) => {
-      console.error('[AuthProvider] Registration error:', error);
       toast({
         title: "Registration failed",
         description: error.message,
         variant: "destructive",
       });
+      throw error; // Re-throw to be caught by the form handler
     },
   });
 
@@ -80,11 +83,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await apiRequest("POST", "/api/logout");
     },
     onSuccess: () => {
-      console.log('[AuthProvider] Logout successful');
       queryClient.setQueryData(["/api/user"], null);
+      toast({
+        title: "Logged out",
+        description: "Successfully logged out of your account",
+      });
     },
     onError: (error: Error) => {
-      console.error('[AuthProvider] Logout error:', error);
       toast({
         title: "Logout failed",
         description: error.message,

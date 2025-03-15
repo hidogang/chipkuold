@@ -681,7 +681,7 @@ export default function LandingPage() {
                     </motion.div>
                     <h4 className="font-semibold text-amber-900">Water</h4>
                   </div>
-                  <p className="text-sm text-amber-700">
+                <p className="text-sm text-amber-700">
                     Essential                    for chicken health and egg production.
                   </p>
                 </div>

@@ -62,7 +62,13 @@ export class DatabaseStorage implements IStorage {
   private defaultWithdrawalTax: number = 5;
 
   constructor() {
-    this.sessionStore = new MemoryStore({ checkPeriod: 86400000 });
+    // Configure memory store with appropriate settings for development
+    this.sessionStore = new MemoryStore({
+      checkPeriod: 86400000, // Prune expired entries every 24h
+      ttl: 86400000, // Session TTL (24 hours)
+      stale: false,  // Don't allow stale session data
+      noDisposeOnSet: true, // Prevent disposing sessions on set
+    });
     this.initializeDefaults();
   }
 
