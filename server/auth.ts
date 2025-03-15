@@ -22,10 +22,19 @@ async function hashPassword(password: string) {
 }
 
 async function comparePasswords(supplied: string, stored: string) {
-  const [hashed, salt] = stored.split(".");
-  const hashedBuf = Buffer.from(hashed, "hex");
-  const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
-  return timingSafeEqual(hashedBuf, suppliedBuf);
+  try {
+    const [hashed, salt] = stored.split(".");
+    if (!hashed || !salt) {
+      console.log("[Auth] Invalid stored password format");
+      return false;
+    }
+    const hashedBuf = Buffer.from(hashed, "hex");
+    const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
+    return timingSafeEqual(hashedBuf, suppliedBuf);
+  } catch (error) {
+    console.error("[Auth] Password comparison error:", error);
+    return false;
+  }
 }
 
 export function setupAuth(app: Express) {
@@ -45,7 +54,7 @@ export function setupAuth(app: Express) {
       path: '/',
       httpOnly: true
     },
-    name: 'chickfarms.sid' // Custom session cookie name
+    name: 'chickfarms.sid'
   };
 
   app.set("trust proxy", 1);
@@ -91,7 +100,6 @@ export function setupAuth(app: Express) {
         console.log("[Auth] User not found during deserialization:", id);
         return done(null, false);
       }
-      console.log("[Auth] User deserialized successfully:", id);
       done(null, user);
     } catch (err) {
       console.error("[Auth] Deserialization error:", err);
@@ -119,8 +127,7 @@ export function setupAuth(app: Express) {
         if (err) return next(err);
         res.status(201).json({
           id: user.id,
-          username: user.username,
-          createdAt: user.createdAt
+          username: user.username
         });
       });
     } catch (err) {
@@ -131,7 +138,7 @@ export function setupAuth(app: Express) {
 
   app.post("/api/login", (req, res, next) => {
     console.log("[Auth] Login attempt for:", req.body.username);
-    passport.authenticate("local", (err: Error | null, user: SelectUser | false, info: any) => {
+    passport.authenticate("local", (err: Error | null, user: Express.User | false, info: any) => {
       if (err) {
         console.error("[Auth] Login error:", err);
         return next(err);
@@ -149,8 +156,7 @@ export function setupAuth(app: Express) {
         console.log("[Auth] Login successful for:", user.username);
         res.json({
           id: user.id,
-          username: user.username,
-          createdAt: user.createdAt
+          username: user.username
         });
       });
     })(req, res, next);
@@ -178,18 +184,13 @@ export function setupAuth(app: Express) {
 
   app.get("/api/user", (req, res) => {
     console.log("[Auth] User check - Is authenticated:", req.isAuthenticated());
-    console.log("[Auth] User check - Session:", req.session);
-
     if (!req.isAuthenticated()) {
-      console.log("[Auth] User check failed - not authenticated");
       return res.status(401).json({ message: "Not authenticated" });
     }
-
     const user = req.user;
     res.json({
       id: user.id,
-      username: user.username,
-      createdAt: user.createdAt
+      username: user.username
     });
   });
 }
