@@ -69,24 +69,50 @@ export default function LandingPage() {
               collect eggs, and earn real cryptocurrency through strategic gameplay.
             </p>
             <div className="flex flex-wrap gap-4">
-              <Button
-                onClick={handleGetStarted}
-                size="lg"
-                className="bg-amber-500 hover:bg-amber-600 text-white px-8"
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="relative"
               >
-                Start Playing
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => {
-                  const howItWorksSection = document.getElementById("how-it-works");
-                  howItWorksSection?.scrollIntoView({ behavior: "smooth" });
-                }}
-                className="border-amber-500 text-amber-500 hover:bg-amber-50"
+                <motion.div
+                  animate={{ 
+                    boxShadow: ["0px 0px 0px rgba(245, 158, 11, 0)", "0px 0px 20px rgba(245, 158, 11, 0.5)", "0px 0px 0px rgba(245, 158, 11, 0)"]
+                  }}
+                  transition={{ 
+                    repeat: Infinity, 
+                    duration: 2
+                  }}
+                  className="absolute inset-0 rounded-full"
+                />
+                <Button
+                  onClick={handleGetStarted}
+                  size="lg"
+                  className="bg-amber-500 hover:bg-amber-600 text-white px-8 rounded-full relative z-10 shadow-lg border-2 border-amber-400"
+                >
+                  <span className="flex items-center">
+                    <span className="mr-2 text-xl">🐔</span> Start Playing
+                  </span>
+                </Button>
+              </motion.div>
+              
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                Learn More
-              </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => {
+                    const howItWorksSection = document.getElementById("how-it-works");
+                    howItWorksSection?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  className="border-amber-500 text-amber-500 hover:bg-amber-50 rounded-full shadow-md"
+                >
+                  <span className="flex items-center">
+                    <span className="mr-2 text-xl">📘</span> Learn More
+                  </span>
+                </Button>
+              </motion.div>
             </div>
           </motion.div>
           <motion.div
@@ -549,13 +575,31 @@ export default function LandingPage() {
               <p className="text-xl mb-8 text-amber-50">
                 Join thousands of players already earning from their virtual farms.
               </p>
-              <Button
-                onClick={handleGetStarted}
-                size="lg"
-                className="bg-white text-amber-600 hover:bg-amber-50 px-8 text-lg"
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="relative inline-block"
               >
-                Start Playing Now
-              </Button>
+                <motion.div
+                  animate={{ 
+                    boxShadow: ["0px 0px 0px rgba(255, 255, 255, 0)", "0px 0px 25px rgba(255, 255, 255, 0.6)", "0px 0px 0px rgba(255, 255, 255, 0)"]
+                  }}
+                  transition={{ 
+                    repeat: Infinity, 
+                    duration: 2
+                  }}
+                  className="absolute inset-0 rounded-full"
+                />
+                <Button
+                  onClick={handleGetStarted}
+                  size="lg"
+                  className="bg-white text-amber-600 hover:bg-amber-50 px-8 text-lg rounded-full relative z-10 shadow-lg border-2 border-amber-100"
+                >
+                  <span className="flex items-center">
+                    <span className="mr-2 text-2xl">🚀</span> Start Playing Now
+                  </span>
+                </Button>
+              </motion.div>
             </motion.div>
           </div>
         </div>
