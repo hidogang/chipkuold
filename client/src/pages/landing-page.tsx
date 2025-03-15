@@ -77,53 +77,6 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <section className="relative overflow-hidden py-20 md:py-32">
-        {/* Animated Chickens */}
-        <motion.div
-          className="absolute top-20 left-10 w-12 h-12 text-4xl z-10 hidden md:block"
-          animate={{
-            y: [0, -15, 0],
-            rotate: [0, 10, 0, -10, 0]
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        >
-          🐔
-        </motion.div>
-
-        <motion.div
-          className="absolute top-40 right-20 w-12 h-12 text-4xl z-10 hidden md:block"
-          animate={{
-            y: [0, -10, 0],
-            rotate: [0, -5, 0, 5, 0]
-          }}
-          transition={{
-            duration: 1.5,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 0.5
-          }}
-        >
-          🐥
-        </motion.div>
-
-        <motion.div
-          className="absolute bottom-20 left-[30%] w-12 h-12 text-4xl z-10 hidden md:block"
-          animate={{
-            x: [0, 100, 0],
-            y: [0, -20, 0],
-            rotate: [0, 20, 0]
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        >
-          ✨🐔
-        </motion.div>
 
         <div className="container mx-auto px-4 grid md:grid-cols-2 gap-8 items-center">
           <motion.div
@@ -210,38 +163,7 @@ export default function LandingPage() {
 
       {/* How It Works */}
       <section id="how-it-works" className="py-20 bg-white relative overflow-hidden">
-        {/* More animated chickens */}
-        <motion.div
-          className="absolute top-20 right-[10%] w-12 h-12 text-4xl z-10 hidden md:block"
-          animate={{
-            y: [0, -10, 0],
-            x: [0, 10, 0, -10, 0],
-            rotate: [0, 5, 0, -5, 0]
-          }}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        >
-          🐓
-        </motion.div>
 
-        <motion.div
-          className="absolute bottom-40 left-[5%] w-12 h-12 text-3xl z-10 hidden md:block"
-          animate={{
-            scale: [1, 1.1, 1],
-            rotate: [0, -10, 0, 10, 0]
-          }}
-          transition={{
-            duration: 4,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 0.5
-          }}
-        >
-          🥚
-        </motion.div>
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-amber-100 text-amber-800 hover:bg-amber-200">
@@ -298,6 +220,7 @@ export default function LandingPage() {
             ))}
           </div>
 
+          {/* Meet Your Chickens */}
           <div className="mt-20">
             <div className="grid md:grid-cols-2 gap-8 items-center">
               <motion.div
@@ -306,69 +229,125 @@ export default function LandingPage() {
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
               >
-                <img
-                  src="/assets/chickens-screen.svg"
-                  alt="Chicken Farm Interface"
-                  className="w-full h-auto rounded-lg shadow-lg"
-                />
-              </motion.div>
-              <div>
-                <h3 className="text-2xl font-bold text-amber-900 mb-4">
-                  Meet Your Chickens
-                </h3>
-                <ul className="space-y-4">
-                  {[
-                    {
-                      title: "Baby Chicken",
-                      desc: "Produces 2 eggs every 4 hours. Perfect for beginners!",
-                      price: "$10"
-                    },
-                    {
-                      title: "Regular Chicken",
-                      desc: "Produces 5 eggs every 8 hours. Balanced investment.",
-                      price: "$30"
-                    },
-                    {
-                      title: "Golden Chicken",
-                      desc: "Produces 20 eggs every 24 hours. For serious farmers!",
-                      price: "$100"
-                    }
-                  ].map((chicken, index) => (
-                    <motion.li
-                      key={index}
-                      initial={{ opacity: 0, y: 10 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: index * 0.1 }}
-                      viewport={{ once: true }}
-                      className="flex items-start gap-4 p-4 rounded-lg border border-amber-100 hover:bg-amber-50 transition-colors"
-                    >
+                <div className="bg-white p-6 rounded-lg shadow-lg border border-amber-100">
+                  <h3 className="text-2xl font-bold text-amber-900 mb-6">
+                    Meet Your Chickens
+                  </h3>
+                  <div className="space-y-4">
+                    {[
+                      {
+                        title: "Baby Chicken",
+                        desc: "Produces 2 eggs every 6 hours. Perfect for beginners!",
+                        price: "$90 USDT",
+                        emoji: "🐥",
+                        production: "8 eggs per day"
+                      },
+                      {
+                        title: "Regular Chicken",
+                        desc: "Produces 5 eggs every 5 hours. Balanced investment.",
+                        price: "$150 USDT",
+                        emoji: "🐔",
+                        production: "24 eggs per day"
+                      },
+                      {
+                        title: "Golden Chicken",
+                        desc: "Produces 20 eggs every 3 hours. For serious farmers!",
+                        price: "$400 USDT",
+                        emoji: "✨🐔",
+                        production: "160 eggs per day"
+                      }
+                    ].map((chicken, index) => (
                       <motion.div
-                        className="mt-1 text-2xl"
-                        animate={{
-                          y: [0, -5, 0],
-                          rotate: index === 0 ? [0, 10, 0] : index === 1 ? [0, -5, 0] : [0, 15, 0]
-                        }}
-                        transition={{
-                          duration: 1.5 + index * 0.5,
-                          repeat: Infinity,
-                          ease: "easeInOut"
-                        }}
+                        key={index}
+                        initial={{ opacity: 0, y: 10 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: index * 0.1 }}
+                        viewport={{ once: true }}
+                        className="p-6 rounded-lg border border-amber-100 bg-gradient-to-r from-amber-50 to-amber-100 hover:shadow-md transition-all"
                       >
-                        {index === 0 ? "🐥" : index === 1 ? "🐔" : "✨🐔"}
-                      </motion.div>
-                      <div>
-                        <div className="flex justify-between">
-                          <h4 className="font-semibold text-amber-900">{chicken.title}</h4>
-                          <span className="font-semibold text-amber-600">{chicken.price}</span>
+                        <div className="flex justify-between items-start">
+                          <div className="flex items-center gap-3">
+                            <motion.div
+                              className="text-3xl"
+                              animate={{
+                                y: [0, -5, 0],
+                                rotate: index === 0 ? [0, 10, 0] : index === 1 ? [0, -5, 0] : [0, 15, 0]
+                              }}
+                              transition={{
+                                duration: 1.5 + index * 0.5,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                              }}
+                            >
+                              {chicken.emoji}
+                            </motion.div>
+                            <div>
+                              <h4 className="font-bold text-lg text-amber-900">{chicken.title}</h4>
+                              <p className="text-amber-700 text-sm">{chicken.production}</p>
+                            </div>
+                          </div>
+                          <span className="text-lg font-semibold text-amber-600">{chicken.price}</span>
                         </div>
-                        <p className="text-sm text-amber-700">{chicken.desc}</p>
+                        <p className="mt-3 text-amber-700 text-sm">{chicken.desc}</p>
+                        <div className="mt-4">
+                          <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-200">
+                            ROI: {index === 0 ? "40" : index === 1 ? "30" : "20"} days
+                          </Badge>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+                className="space-y-6"
+              >
+                <div className="bg-white p-6 rounded-lg shadow-lg border border-amber-100">
+                  <h3 className="text-xl font-bold text-amber-900 mb-4">
+                    Resource Management
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">💧</span>
+                      <div>
+                        <h4 className="font-semibold text-amber-900">Water Needs</h4>
+                        <p className="text-sm text-amber-700">Essential for egg production</p>
                       </div>
-                    </motion.li>
-                  ))}
-                </ul>
-              </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">🌾</span>
+                      <div>
+                        <h4 className="font-semibold text-amber-900">Wheat Feed</h4>
+                        <p className="text-sm text-amber-700">Required for healthy chickens</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white p-6 rounded-lg shadow-lg border border-amber-100">
+                  <h3 className="text-xl font-bold text-amber-900 mb-4">
+                    Earning Potential
+                  </h3>
+                  <div className="space-y-2">
+                    <p className="text-amber-700">
+                      • Baby Chickens earn up to <span className="font-semibold">$80 USDT</span> in ROI period
+                    </p>
+                    <p className="text-amber-700">
+                      • Regular Chickens earn up to <span className="font-semibold">$172.8 USDT</span> in ROI period
+                    </p>
+                    <p className="text-amber-700">
+                      • Golden Chickens earn up to <span className="font-semibold">$560 USDT</span> in ROI period
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
             </div>
           </div>
+
+          <div className="mt-20"> </div>
         </div>
       </section>
 
@@ -522,39 +501,7 @@ export default function LandingPage() {
 
       {/* Marketplace */}
       <section className="py-20 bg-amber-50 relative overflow-hidden">
-        {/* More animated chickens */}
-        <motion.div
-          className="absolute top-40 right-[15%] w-12 h-12 text-3xl z-10 hidden md:block"
-          animate={{
-            y: [0, -15, 0],
-            x: [0, -20, 0],
-            rotate: [0, 10, 0]
-          }}
-          transition={{
-            duration: 5,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        >
-          🐔💰
-        </motion.div>
 
-        <motion.div
-          className="absolute bottom-20 left-[20%] w-12 h-12 text-3xl z-10 hidden md:block"
-          animate={{
-            scale: [1, 1.1, 1],
-            y: [0, 10, 0],
-            rotate: [0, -5, 0]
-          }}
-          transition={{
-            duration: 3.5,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 0.8
-          }}
-        >
-          🐣
-        </motion.div>
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-amber-200 text-amber-800 hover:bg-amber-300">
@@ -760,40 +707,6 @@ export default function LandingPage() {
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-amber-300 rounded-full opacity-30 blur-3xl"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-amber-700 rounded-full opacity-20 blur-3xl"></div>
 
-        {/* Township-style animated chicken */}
-        <motion.div
-          className="absolute top-10 left-[10%] w-16 h-16 text-5xl z-10 hidden md:block"
-          animate={{
-            y: [0, -20, 0],
-            x: [0, 30, 0, -30, 0],
-            rotate: [0, 15, 0, -15, 0]
-          }}
-          transition={{
-            duration: 7,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        >
-          ✨🐔✨
-        </motion.div>
-
-        <motion.div
-          className="absolute bottom-10 right-[15%] w-16 h-16 text-5xl z-10 hidden md:block"
-          animate={{
-            y: [0, -15, 0],
-            x: [0, -40, 0],
-            rotate: [0, -10, 0, 10, 0]
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 1
-          }}
-        >
-          🐓💰
-        </motion.div>
-
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <motion.div
@@ -801,7 +714,7 @@ export default function LandingPage() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               viewport={{ once: true }}
-            >
+                        >
               <h2 className="text-3xl md:text-4xl font-bold mb-6">
                 Ready to Start Your Farming Journey?
               </h2>
