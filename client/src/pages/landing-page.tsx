@@ -97,7 +97,7 @@ export default function LandingPage() {
           >
             <div className="relative rounded-lg overflow-hidden shadow-xl">
               <img
-                src="/assets/chickfarms-banner.png"
+                src={`/assets/mainscreenchickfarms.png?t=${new Date().getTime()}`}
                 alt="ChickFarms Game Preview"
                 className="w-full h-auto"
               />
