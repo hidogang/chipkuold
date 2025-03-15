@@ -21,6 +21,31 @@ import {
 import BalanceBar from "@/components/balance-bar";
 import { Droplets, Wheat } from "lucide-react";
 
+// Calculate remaining cooldown time for a chicken
+const getRemainingCooldown = (chicken: Chicken): { hours: number, minutes: number, seconds: number } | null => {
+  if (!chicken.lastHatchTime) return null;
+
+  const requirements = {
+    baby: { cooldown: 6 * 60 * 60 * 1000 }, // 6 hours
+    regular: { cooldown: 5 * 60 * 60 * 1000 }, // 5 hours
+    golden: { cooldown: 3 * 60 * 60 * 1000 }, // 3 hours
+  };
+
+  const cooldownTime = requirements[chicken.type as keyof typeof requirements].cooldown;
+  const now = Date.now();
+  const hatchTime = new Date(chicken.lastHatchTime).getTime();
+  const timePassed = now - hatchTime;
+
+  if (timePassed >= cooldownTime) return null;
+
+  const remainingTime = cooldownTime - timePassed;
+  const hours = Math.floor(remainingTime / (60 * 60 * 1000));
+  const minutes = Math.floor((remainingTime % (60 * 60 * 1000)) / (60 * 1000));
+  const seconds = Math.floor((remainingTime % (60 * 1000)) / 1000);
+
+  return { hours, minutes, seconds };
+};
+
 // Update the image paths and visibility in the chicken cards section
 const getChickenImage = (type: string) => {
   const imagePath = `/assets/chickens/${type}.svg`;
@@ -232,30 +257,6 @@ export default function HomePage() {
     return 'bg-gradient-to-b from-amber-50/50 to-white';
   };
 
-  // Calculate remaining cooldown time for a chicken
-  const getRemainingCooldown = (chicken: Chicken): { hours: number, minutes: number, seconds: number } | null => {
-    if (!chicken.lastHatchTime) return null;
-
-    const requirements = {
-      baby: { cooldown: 6 * 60 * 60 * 1000 }, // 6 hours
-      regular: { cooldown: 5 * 60 * 60 * 1000 }, // 5 hours
-      golden: { cooldown: 3 * 60 * 60 * 1000 }, // 3 hours
-    };
-
-    const cooldownTime = requirements[chicken.type as keyof typeof requirements].cooldown;
-    const now = Date.now();
-    const hatchTime = new Date(chicken.lastHatchTime).getTime();
-    const timePassed = now - hatchTime;
-
-    if (timePassed >= cooldownTime) return null;
-
-    const remainingTime = cooldownTime - timePassed;
-    const hours = Math.floor(remainingTime / (60 * 60 * 1000));
-    const minutes = Math.floor((remainingTime % (60 * 60 * 1000)) / (60 * 1000));
-    const seconds = Math.floor((remainingTime % (60 * 1000)) / 1000);
-
-    return { hours, minutes, seconds };
-  };
 
   // Helper function to determine if a chicken can hatch
   const canHatch = (chicken: Chicken) => {
