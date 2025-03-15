@@ -300,8 +300,8 @@ export default function AdminPage() {
                       <TableCell>{transaction.userId}</TableCell>
                       <TableCell className="capitalize">{transaction.type}</TableCell>
                       <TableCell>${transaction.amount}</TableCell>
-                      <TableCell className="font-mono">
-                        {transaction.transactionId || "-"}
+                      <TableCell className="font-mono text-xs truncate max-w-[150px]">
+                        {transaction.transactionId || transaction.id.toString()}
                       </TableCell>
                       <TableCell>
                         <span
@@ -405,7 +405,7 @@ export default function AdminPage() {
                               size="sm"
                               onClick={() =>
                                 updateTransactionMutation.mutate({
-                                  transactionId: withdrawal.id.toString(),
+                                  transactionId: withdrawal.transactionId || withdrawal.id.toString(),
                                   status: "completed",
                                 })
                               }
@@ -417,7 +417,7 @@ export default function AdminPage() {
                               variant="destructive"
                               onClick={() =>
                                 updateTransactionMutation.mutate({
-                                  transactionId: withdrawal.id.toString(),
+                                  transactionId: withdrawal.transactionId || withdrawal.id.toString(),
                                   status: "rejected",
                                 })
                               }

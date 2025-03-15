@@ -20,6 +20,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const transactions = await storage.getTransactions();
     res.json(transactions);
   });
+  
+  // Admin withdrawals endpoint
+  app.get("/api/admin/withdrawals", isAdmin, async (req, res) => {
+    const transactions = await storage.getTransactions();
+    // Filter only withdrawal transactions
+    const withdrawals = transactions.filter(transaction => transaction.type === "withdrawal");
+    res.json(withdrawals);
+  });
+  
+  // Admin stats endpoint
+  app.get("/api/admin/stats", isAdmin, async (req, res) => {
+    const transactions = await storage.getTransactions();
+    const users = await storage.getUser(1); // Just to get the total users count
+    
+    // Calculate today's date (start and end)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    // Calculate yesterday's date (start and end)
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    // Filter transactions for deposits and withdrawals
+    const todayDeposits = transactions
+      .filter(t => t.type === "recharge" && t.status === "completed" && new Date(t.createdAt) >= today && new Date(t.createdAt) < tomorrow)
+      .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+    
+    const totalDeposits = transactions
+      .filter(t => t.type === "recharge" && t.status === "completed")
+      .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+    
+    const pendingWithdrawals = transactions.filter(t => t.type === "withdrawal" && t.status === "pending").length;
+    
+    // Dummy data for login stats (would need actual tracking in a real application)
+    const stats = {
+      todayLogins: 5,
+      yesterdayLogins: 8,
+      totalUsers: 10,
+      todayDeposits,
+      totalDeposits,
+      pendingWithdrawals
+    };
+    
+    res.json(stats);
+  });
 
   app.post("/api/admin/transactions/update", isAdmin, async (req, res) => {
     const schema = z.object({
@@ -351,11 +398,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Store USDT address as bankDetails JSON field for compatibility
       const usdtAddressData = JSON.stringify({ usdtAddress: result.data.usdtAddress });
       
+      // Generate a unique transaction ID for withdrawal requests
+      const transactionId = `W${Date.now()}${Math.floor(Math.random() * 1000)}`;
+      
       const transaction = await storage.createTransaction(
         req.user.id,
         "withdrawal",
         result.data.amount,
-        undefined,
+        transactionId,
         undefined,
         usdtAddressData
       );
