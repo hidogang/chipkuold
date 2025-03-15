@@ -20,7 +20,7 @@ export async function apiRequest(
       "Accept": "application/json",
     },
     body: data ? JSON.stringify(data) : undefined,
-    credentials: "include",
+    credentials: "include", // Important: Include credentials for all requests
   });
 
   console.log(`[API Response] ${method} ${url} - Status:`, res.status);
@@ -36,7 +36,7 @@ export const getQueryFn: <T>(options: {
   async ({ queryKey }) => {
     console.log(`[Query] Fetching ${queryKey[0]}`);
     const res = await fetch(queryKey[0] as string, {
-      credentials: "include",
+      credentials: "include", // Important: Include credentials for all requests
       headers: {
         "Accept": "application/json",
       }

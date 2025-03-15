@@ -45,21 +45,13 @@ export function setupAuth(app: Express) {
       path: '/',
       httpOnly: true
     },
+    name: 'chickfarms.sid' // Custom session cookie name
   };
 
   app.set("trust proxy", 1);
   app.use(session(sessionSettings));
   app.use(passport.initialize());
   app.use(passport.session());
-
-  // Enhanced logging middleware for debugging auth
-  app.use((req, res, next) => {
-    console.log('[Auth Debug] Session ID:', req.sessionID);
-    console.log('[Auth Debug] User:', req.user);
-    console.log('[Auth Debug] Is Admin:', req.user?.isAdmin);
-    console.log('[Auth Debug] Session:', req.session);
-    next();
-  });
 
   passport.use(
     new LocalStrategy(async (username, password, done) => {
@@ -68,26 +60,14 @@ export function setupAuth(app: Express) {
         const user = await storage.getUserByUsername(username);
         if (!user) {
           console.log("[Auth] User not found:", username);
-          return done(null, false);
-        }
-
-        // Special case for admin user with enhanced logging
-        if (username === "adminraja") {
-          console.log("[Auth] Admin login attempt");
-          if (password === "admin8751") {
-            console.log("[Auth] Admin login successful");
-            return done(null, { ...user, isAdmin: true });
-          } else {
-            console.log("[Auth] Admin login failed: Incorrect password");
-            return done(null, false);
-          }
+          return done(null, false, { message: "Invalid credentials" });
         }
 
         const passwordMatch = await comparePasswords(password, user.password);
         console.log("[Auth] Password match result:", passwordMatch);
 
         if (!passwordMatch) {
-          return done(null, false);
+          return done(null, false, { message: "Invalid credentials" });
         }
 
         return done(null, user);
@@ -99,44 +79,24 @@ export function setupAuth(app: Express) {
   );
 
   passport.serializeUser((user, done) => {
-    console.log("[Auth] Serializing user:", user.id, "isAdmin:", user.isAdmin);
-    done(null, { id: user.id, isAdmin: user.isAdmin });
+    console.log("[Auth] Serializing user:", user.id);
+    done(null, user.id);
   });
 
-  passport.deserializeUser(async (data: { id: number; isAdmin: boolean }, done) => {
+  passport.deserializeUser(async (id: number, done) => {
     try {
-      console.log("[Auth] Deserializing user:", data);
-      const user = await storage.getUser(data.id);
+      console.log("[Auth] Deserializing user:", id);
+      const user = await storage.getUser(id);
       if (!user) {
-        console.log("[Auth] User not found during deserialization:", data.id);
-        return done(new Error("User not found"));
+        console.log("[Auth] User not found during deserialization:", id);
+        return done(null, false);
       }
-      console.log("[Auth] User deserialized successfully:", data.id, "isAdmin:", data.isAdmin);
-      done(null, { ...user, isAdmin: data.isAdmin });
+      console.log("[Auth] User deserialized successfully:", id);
+      done(null, user);
     } catch (err) {
       console.error("[Auth] Deserialization error:", err);
       done(err);
     }
-  });
-
-  // Enhanced isAdmin middleware
-  app.use((req: any, res, next) => {
-    if (req.path.startsWith('/api/admin/')) {
-      console.log('[Admin Check] Request to admin endpoint:', req.path);
-      console.log('[Admin Check] User:', req.user);
-      console.log('[Admin Check] IsAdmin:', req.user?.isAdmin);
-
-      if (!req.isAuthenticated()) {
-        console.log('[Admin Check] User not authenticated');
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      if (!req.user?.isAdmin) {
-        console.log('[Admin Check] User not admin');
-        return res.status(403).json({ error: 'Admin access required' });
-      }
-    }
-    next();
   });
 
   app.post("/api/register", async (req, res, next) => {
@@ -148,15 +108,6 @@ export function setupAuth(app: Express) {
         return res.status(400).json({ message: "Username already exists" });
       }
 
-      // Check referral code if provided
-      if (req.body.referredBy) {
-        const referrer = await storage.getUserByReferralCode(req.body.referredBy);
-        if (!referrer) {
-          console.log("[Auth] Registration failed - invalid referral code:", req.body.referredBy);
-          return res.status(400).json({ message: "Invalid referral code" });
-        }
-      }
-
       const hashedPassword = await hashPassword(req.body.password);
       const user = await storage.createUser({
         ...req.body,
@@ -166,7 +117,11 @@ export function setupAuth(app: Express) {
       console.log("[Auth] Registration successful for:", user.username);
       req.login(user, (err) => {
         if (err) return next(err);
-        res.status(201).json(user);
+        res.status(201).json({
+          id: user.id,
+          username: user.username,
+          createdAt: user.createdAt
+        });
       });
     } catch (err) {
       console.error("[Auth] Registration error:", err);
@@ -183,7 +138,7 @@ export function setupAuth(app: Express) {
       }
       if (!user) {
         console.log("[Auth] Login failed for:", req.body.username);
-        return res.status(401).json({ message: "Invalid credentials" });
+        return res.status(401).json({ message: info?.message || "Invalid credentials" });
       }
 
       req.login(user, (err) => {
@@ -192,7 +147,11 @@ export function setupAuth(app: Express) {
           return next(err);
         }
         console.log("[Auth] Login successful for:", user.username);
-        res.json(user);
+        res.json({
+          id: user.id,
+          username: user.username,
+          createdAt: user.createdAt
+        });
       });
     })(req, res, next);
   });
@@ -205,20 +164,32 @@ export function setupAuth(app: Express) {
         console.error("[Auth] Logout error:", err);
         return next(err);
       }
-      console.log("[Auth] Logout successful for:", username);
-      res.sendStatus(200);
+      req.session.destroy((err) => {
+        if (err) {
+          console.error("[Auth] Session destruction error:", err);
+          return next(err);
+        }
+        res.clearCookie('chickfarms.sid');
+        console.log("[Auth] Logout successful for:", username);
+        res.sendStatus(200);
+      });
     });
   });
 
   app.get("/api/user", (req, res) => {
     console.log("[Auth] User check - Is authenticated:", req.isAuthenticated());
     console.log("[Auth] User check - Session:", req.session);
-    console.log("[Auth] User check - User:", req.user);
 
     if (!req.isAuthenticated()) {
       console.log("[Auth] User check failed - not authenticated");
-      return res.sendStatus(401);
+      return res.status(401).json({ message: "Not authenticated" });
     }
-    res.json(req.user);
+
+    const user = req.user;
+    res.json({
+      id: user.id,
+      username: user.username,
+      createdAt: user.createdAt
+    });
   });
 }

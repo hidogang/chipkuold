@@ -15,7 +15,7 @@ export default function LandingPage() {
     if (user) {
       setLocation("/home");
     } else {
-      setLocation("/auth");
+      setLocation("/auth?redirect=/home");
     }
   };
 
@@ -682,7 +682,7 @@ export default function LandingPage() {
                     <h4 className="font-semibold text-amber-900">Water</h4>
                   </div>
                   <p className="text-sm text-amber-700">
-                    Essential for chicken health and egg production.
+                    Essential                    for chicken health and egg production.
                   </p>
                 </div>
                 <div className="p-4 bg-white rounded-lg border border-amber-100 hover:shadow-md transition-shadow">

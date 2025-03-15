@@ -14,15 +14,16 @@ import {
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Redirect, useLocation } from "wouter";
+import { Redirect, useLocation, useNavigate } from "wouter";
 
 export default function AuthPage() {
   const { user, loginMutation, registerMutation } = useAuth();
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
 
-  // Get referral code from URL if present
+  // Get referral code and redirect path from URL if present
   const params = new URLSearchParams(window.location.search);
   const referralCode = params.get('ref');
+  const redirectPath = params.get('redirect') || '/'; // Default to '/' if no redirect is specified
 
   const loginForm = useForm({
     resolver: zodResolver(insertUserSchema),
@@ -41,8 +42,16 @@ export default function AuthPage() {
     },
   });
 
+  const handleLoginSuccess = () => {
+    setLocation(redirectPath);
+  };
+
+  const handleRegisterSuccess = () => {
+    setLocation(redirectPath);
+  };
+
   if (user) {
-    return <Redirect to="/" />;
+    return <Redirect to={redirectPath} />;
   }
 
   return (
@@ -64,7 +73,13 @@ export default function AuthPage() {
 
               <TabsContent value="login">
                 <Form {...loginForm}>
-                  <form onSubmit={loginForm.handleSubmit((data) => loginMutation.mutate(data))} className="space-y-3 sm:space-y-4">
+                  <form 
+                    onSubmit={loginForm.handleSubmit(async (data) => {
+                      await loginMutation.mutateAsync(data);
+                      handleLoginSuccess();
+                    })} 
+                    className="space-y-3 sm:space-y-4"
+                  >
                     <FormField
                       control={loginForm.control}
                       name="username"
@@ -98,7 +113,13 @@ export default function AuthPage() {
 
               <TabsContent value="register">
                 <Form {...registerForm}>
-                  <form onSubmit={registerForm.handleSubmit((data) => registerMutation.mutate(data))} className="space-y-3 sm:space-y-4">
+                  <form 
+                    onSubmit={registerForm.handleSubmit(async (data) => {
+                      await registerMutation.mutateAsync(data);
+                      handleRegisterSuccess();
+                    })} 
+                    className="space-y-3 sm:space-y-4"
+                  >
                     <FormField
                       control={registerForm.control}
                       name="username"
@@ -160,7 +181,7 @@ export default function AuthPage() {
             </p>
           </div>
         </div>
-        
+
         {/* Mobile version of info panel */}
         <div className="md:hidden bg-primary/10 rounded-lg p-4 mt-2">
           <h3 className="text-base font-semibold mb-2">Referral Program</h3>
