@@ -25,7 +25,7 @@ export default function LandingPage() {
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-amber-100">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-2">
-            <img src="/assets/chickfarms-logo.svg" alt="ChickFarms Logo" className="h-10" />
+            <img src="/assets/chickfarms-logo.png" alt="ChickFarms Logo" className="h-10" />
             <span className="text-xl font-bold text-amber-900">ChickFarms</span>
           </div>
           <div className="flex items-center space-x-4">
@@ -567,7 +567,7 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center space-x-2 mb-4">
-                <img src="/assets/chickfarms-logo.svg" alt="ChickFarms Logo" className="h-8" />
+                <img src="/assets/chickfarms-logo.png" alt="ChickFarms Logo" className="h-8" />
                 <span className="text-lg font-bold text-white">ChickFarms</span>
               </div>
               <p className="text-amber-300 mb-4">
