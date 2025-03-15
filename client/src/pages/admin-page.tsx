@@ -181,12 +181,12 @@ export default function AdminPage() {
   const updatePricesMutation = useMutation({
     mutationFn: async (data: z.infer<typeof priceSchema>) => {
       const priceUpdates = [
-        { itemType: 'water_bucket', price: data.waterBucketPrice.toString() },
-        { itemType: 'wheat_bag', price: data.wheatBagPrice.toString() },
-        { itemType: 'egg', price: data.eggPrice.toString() },
-        { itemType: 'baby_chicken', price: data.babyChickenPrice.toString() },
-        { itemType: 'regular_chicken', price: data.regularChickenPrice.toString() },
-        { itemType: 'golden_chicken', price: data.goldenChickenPrice.toString() }
+        { itemType: 'water_bucket', price: data.waterBucketPrice },
+        { itemType: 'wheat_bag', price: data.wheatBagPrice },
+        { itemType: 'egg', price: data.eggPrice },
+        { itemType: 'baby_chicken', price: data.babyChickenPrice },
+        { itemType: 'regular_chicken', price: data.regularChickenPrice },
+        { itemType: 'golden_chicken', price: data.goldenChickenPrice }
       ];
 
       const res = await apiRequest("POST", "/api/admin/prices", {
@@ -197,6 +197,7 @@ export default function AdminPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/prices"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/prices"] }); // Also invalidate shop prices
       toast({
         title: "Success",
         description: "Game prices updated successfully",

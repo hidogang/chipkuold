@@ -129,18 +129,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       price: z.number().positive(),
     });
 
-    const result = schema.safeParse(req.body);
-    if (!result.success) return res.status(400).json(result.error);
-
     try {
-      await storage.updatePrice(result.data.itemType, result.data.price);
+      // Validate the array of price updates
+      if (!Array.isArray(req.body.prices)) {
+        return res.status(400).json({ error: "Invalid price updates format" });
+      }
+
+      // Update each price
+      for (const priceUpdate of req.body.prices) {
+        const result = schema.safeParse(priceUpdate);
+        if (!result.success) continue;
+        await storage.updatePrice(result.data.itemType, result.data.price);
+      }
+
+      // Update withdrawal tax if provided
+      if (typeof req.body.withdrawalTaxPercentage === 'number') {
+        await storage.updateWithdrawalTax(req.body.withdrawalTaxPercentage);
+      }
+
       res.json({ success: true });
     } catch (err) {
-      if (err instanceof Error) {
-        res.status(400).send(err.message);
-      } else {
-        res.status(400).send("Failed to update price");
-      }
+      console.error('Error updating prices:', err);
+      res.status(500).json({ error: 'Failed to update prices' });
     }
   });
 
