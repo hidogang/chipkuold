@@ -189,21 +189,29 @@ export default function AdminPage() {
         { itemType: 'golden_chicken', price: data.goldenChickenPrice }
       ];
 
-      const res = await apiRequest("POST", "/api/admin/prices", {
+      console.log('Sending price updates:', priceUpdates);
+
+      const res = await apiRequest("POST", "/api/admin/prices/update", {
         prices: priceUpdates,
         withdrawalTaxPercentage: data.withdrawalTaxPercentage
       });
-      return res.json();
+
+      const result = await res.json();
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to update prices');
+      }
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/prices"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/prices"] }); // Also invalidate shop prices
+      queryClient.invalidateQueries({ queryKey: ["/api/prices"] });
       toast({
         title: "Success",
         description: "Game prices updated successfully",
       });
     },
     onError: (error: Error) => {
+      console.error('Price update error:', error);
       toast({
         title: "Error",
         description: error.message,

@@ -231,7 +231,7 @@ export class DatabaseStorage implements IStorage {
 
   async updatePrice(itemType: string, price: number): Promise<void> {
     await db.update(prices)
-      .set({ price: price.toString() })
+      .set({ price: price.toFixed(2) })  // Ensure price is stored as string with 2 decimal places
       .where(eq(prices.itemType, itemType));
   }
 

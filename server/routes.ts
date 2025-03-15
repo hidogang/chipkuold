@@ -7,54 +7,54 @@ import { z } from "zod";
 export async function registerRoutes(app: Express): Promise<Server> {
   setupAuth(app);
 
-  // Admin middleware to protect admin routes
-  const isAdmin = (req: any, res: any, next: any) => {
-    if (!req.user?.isAdmin) {
-      return res.status(403).send("Admin access required");
-    }
-    next();
-  };
+  // Admin middleware moved to auth.ts for centralized handling
 
   // Admin routes
-  app.get("/api/admin/transactions", isAdmin, async (req, res) => {
-    const transactions = await storage.getTransactions();
-    res.json(transactions);
+  app.get("/api/admin/transactions", async (req, res) => {
+    try {
+      console.log('[Admin Route] Getting transactions');
+      const transactions = await storage.getTransactions();
+      res.json(transactions);
+    } catch (err) {
+      console.error('[Admin Route] Error getting transactions:', err);
+      res.status(500).json({ error: 'Failed to fetch transactions' });
+    }
   });
-  
+
   // Admin withdrawals endpoint
-  app.get("/api/admin/withdrawals", isAdmin, async (req, res) => {
+  app.get("/api/admin/withdrawals", async (req, res) => {
     const transactions = await storage.getTransactions();
     // Filter only withdrawal transactions
     const withdrawals = transactions.filter(transaction => transaction.type === "withdrawal");
     res.json(withdrawals);
   });
-  
+
   // Admin stats endpoint
-  app.get("/api/admin/stats", isAdmin, async (req, res) => {
+  app.get("/api/admin/stats", async (req, res) => {
     const transactions = await storage.getTransactions();
     const users = await storage.getUser(1); // Just to get the total users count
-    
+
     // Calculate today's date (start and end)
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    
+
     // Calculate yesterday's date (start and end)
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
-    
+
     // Filter transactions for deposits and withdrawals
     const todayDeposits = transactions
       .filter(t => t.type === "recharge" && t.status === "completed" && new Date(t.createdAt) >= today && new Date(t.createdAt) < tomorrow)
       .reduce((sum, t) => sum + parseFloat(t.amount), 0);
-    
+
     const totalDeposits = transactions
       .filter(t => t.type === "recharge" && t.status === "completed")
       .reduce((sum, t) => sum + parseFloat(t.amount), 0);
-    
+
     const pendingWithdrawals = transactions.filter(t => t.type === "withdrawal" && t.status === "pending").length;
-    
+
     // Dummy data for login stats (would need actual tracking in a real application)
     const stats = {
       todayLogins: 5,
@@ -64,11 +64,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       totalDeposits,
       pendingWithdrawals
     };
-    
+
     res.json(stats);
   });
 
-  app.get("/api/admin/prices", isAdmin, async (req, res) => {
+  app.get("/api/admin/prices", async (req, res) => {
     try {
       const prices = await storage.getPrices();
       // Transform prices array into GamePrices object
@@ -88,7 +88,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/transactions/update", isAdmin, async (req, res) => {
+  app.post("/api/admin/prices/update", async (req, res) => {
+    try {
+      console.log('Received price updates:', req.body.prices);
+
+      // Validate the array of price updates
+      if (!Array.isArray(req.body.prices)) {
+        console.error('Invalid price updates format:', req.body);
+        return res.status(400).json({ error: "Invalid price updates format" });
+      }
+
+      // Update each price
+      for (const priceUpdate of req.body.prices) {
+        const schema = z.object({
+          itemType: z.string(),
+          price: z.number().positive(),
+        });
+
+        const result = schema.safeParse(priceUpdate);
+        if (!result.success) {
+          console.error('Invalid price update:', priceUpdate, result.error);
+          continue;
+        }
+
+        console.log('Updating price:', result.data);
+        await storage.updatePrice(result.data.itemType, result.data.price);
+      }
+
+      // Update withdrawal tax if provided
+      if (typeof req.body.withdrawalTaxPercentage === 'number') {
+        console.log('Updating withdrawal tax:', req.body.withdrawalTaxPercentage);
+        await storage.updateWithdrawalTax(req.body.withdrawalTaxPercentage);
+      }
+
+      // Get updated prices to verify changes
+      const updatedPrices = await storage.getPrices();
+      console.log('Updated prices:', updatedPrices);
+
+      res.json({ success: true, prices: updatedPrices });
+    } catch (err) {
+      console.error('Error updating prices:', err);
+      res.status(500).json({ error: 'Failed to update prices' });
+    }
+  });
+
+  app.get("/api/prices", async (req, res) => {
+    try {
+      const prices = await storage.getPrices();
+      console.log('Fetched prices:', prices);
+      res.json(prices);
+    } catch (err) {
+      console.error('Error fetching prices:', err);
+      res.status(500).json({ error: 'Failed to fetch prices' });
+    }
+  });
+
+  app.post("/api/admin/transactions/update", async (req, res) => {
     const schema = z.object({
       transactionId: z.string(),
       status: z.enum(["completed", "rejected"]),
@@ -123,38 +178,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/prices/update", isAdmin, async (req, res) => {
-    const schema = z.object({
-      itemType: z.string(),
-      price: z.number().positive(),
-    });
-
-    try {
-      // Validate the array of price updates
-      if (!Array.isArray(req.body.prices)) {
-        return res.status(400).json({ error: "Invalid price updates format" });
-      }
-
-      // Update each price
-      for (const priceUpdate of req.body.prices) {
-        const result = schema.safeParse(priceUpdate);
-        if (!result.success) continue;
-        await storage.updatePrice(result.data.itemType, result.data.price);
-      }
-
-      // Update withdrawal tax if provided
-      if (typeof req.body.withdrawalTaxPercentage === 'number') {
-        await storage.updateWithdrawalTax(req.body.withdrawalTaxPercentage);
-      }
-
-      res.json({ success: true });
-    } catch (err) {
-      console.error('Error updating prices:', err);
-      res.status(500).json({ error: 'Failed to update prices' });
-    }
-  });
-
-  app.post("/api/admin/qrcode", isAdmin, async (req, res) => {
+  app.post("/api/admin/qrcode", async (req, res) => {
     const schema = z.object({
       address: z.string(),
     });
@@ -174,7 +198,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/withdrawal-tax", isAdmin, async (req, res) => {
+  app.post("/api/admin/withdrawal-tax", async (req, res) => {
     const schema = z.object({
       taxPercentage: z.number().min(0).max(100),
     });
@@ -424,13 +448,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       await storage.updateUserBalance(req.user.id, -result.data.amount);
-      
+
       // Store USDT address as bankDetails JSON field for compatibility
       const usdtAddressData = JSON.stringify({ usdtAddress: result.data.usdtAddress });
-      
+
       // Generate a unique transaction ID for withdrawal requests
       const transactionId = `W${Date.now()}${Math.floor(Math.random() * 1000)}`;
-      
+
       const transaction = await storage.createTransaction(
         req.user.id,
         "withdrawal",

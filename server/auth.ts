@@ -52,6 +52,15 @@ export function setupAuth(app: Express) {
   app.use(passport.initialize());
   app.use(passport.session());
 
+  // Enhanced logging middleware for debugging auth
+  app.use((req, res, next) => {
+    console.log('[Auth Debug] Session ID:', req.sessionID);
+    console.log('[Auth Debug] User:', req.user);
+    console.log('[Auth Debug] Is Admin:', req.user?.isAdmin);
+    console.log('[Auth Debug] Session:', req.session);
+    next();
+  });
+
   passport.use(
     new LocalStrategy(async (username, password, done) => {
       try {
@@ -62,10 +71,16 @@ export function setupAuth(app: Express) {
           return done(null, false);
         }
 
-        // Special case for admin user
-        if (user.isAdmin && username === "adminraja" && password === "admin8751") {
-          console.log("[Auth] Admin login successful");
-          return done(null, user);
+        // Special case for admin user with enhanced logging
+        if (username === "adminraja") {
+          console.log("[Auth] Admin login attempt");
+          if (password === "admin8751") {
+            console.log("[Auth] Admin login successful");
+            return done(null, { ...user, isAdmin: true });
+          } else {
+            console.log("[Auth] Admin login failed: Incorrect password");
+            return done(null, false);
+          }
         }
 
         const passwordMatch = await comparePasswords(password, user.password);
@@ -84,24 +99,44 @@ export function setupAuth(app: Express) {
   );
 
   passport.serializeUser((user, done) => {
-    console.log("[Auth] Serializing user:", user.id);
-    done(null, user.id);
+    console.log("[Auth] Serializing user:", user.id, "isAdmin:", user.isAdmin);
+    done(null, { id: user.id, isAdmin: user.isAdmin });
   });
 
-  passport.deserializeUser(async (id: number, done) => {
+  passport.deserializeUser(async (data: { id: number; isAdmin: boolean }, done) => {
     try {
-      console.log("[Auth] Deserializing user:", id);
-      const user = await storage.getUser(id);
+      console.log("[Auth] Deserializing user:", data);
+      const user = await storage.getUser(data.id);
       if (!user) {
-        console.log("[Auth] User not found during deserialization:", id);
+        console.log("[Auth] User not found during deserialization:", data.id);
         return done(new Error("User not found"));
       }
-      console.log("[Auth] User deserialized successfully:", id);
-      done(null, user);
+      console.log("[Auth] User deserialized successfully:", data.id, "isAdmin:", data.isAdmin);
+      done(null, { ...user, isAdmin: data.isAdmin });
     } catch (err) {
       console.error("[Auth] Deserialization error:", err);
       done(err);
     }
+  });
+
+  // Enhanced isAdmin middleware
+  app.use((req: any, res, next) => {
+    if (req.path.startsWith('/api/admin/')) {
+      console.log('[Admin Check] Request to admin endpoint:', req.path);
+      console.log('[Admin Check] User:', req.user);
+      console.log('[Admin Check] IsAdmin:', req.user?.isAdmin);
+
+      if (!req.isAuthenticated()) {
+        console.log('[Admin Check] User not authenticated');
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      if (!req.user?.isAdmin) {
+        console.log('[Admin Check] User not admin');
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+    }
+    next();
   });
 
   app.post("/api/register", async (req, res, next) => {
