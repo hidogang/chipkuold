@@ -1,7 +1,28 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <circle cx="50" cy="50" r="45" fill="#FFA726"/>
-  <circle cx="40" cy="40" r="5" fill="#3E2723"/>
-  <path d="M55 60 Q50 65 45 60" stroke="#3E2723" stroke-width="2" fill="none"/>
-  <path d="M25 45 L15 35" stroke="#F57F17" stroke-width="3"/>
-  <path d="M75 45 L85 35" stroke="#F57F17" stroke-width="3"/>
+  <!-- Main body -->
+  <circle cx="50" cy="60" r="35" fill="#FFA726"/>
+
+  <!-- Wings -->
+  <path d="M20 60 Q35 40 30 70" fill="#FB8C00"/>
+  <path d="M80 60 Q65 40 70 70" fill="#FB8C00"/>
+
+  <!-- Head -->
+  <circle cx="50" cy="35" r="22" fill="#FFA726"/>
+
+  <!-- Comb -->
+  <path d="M50 15 L45 25 L55 25 Z" fill="#D84315"/>
+
+  <!-- Eyes -->
+  <circle cx="42" cy="32" r="4" fill="#3E2723"/>
+  <circle cx="58" cy="32" r="4" fill="#3E2723"/>
+
+  <!-- Beak -->
+  <path d="M46 38 L54 38 L50 45 Z" fill="#F57C00"/>
+
+  <!-- Feet -->
+  <path d="M40 90 L35 98 M45 90 L40 98 M55 90 L60 98" stroke="#F57C00" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Feather details -->
+  <path d="M30 50 Q40 45 35 60" fill="none" stroke="#FB8C00" stroke-width="2"/>
+  <path d="M70 50 Q60 45 65 60" fill="none" stroke="#FB8C00" stroke-width="2"/>
 </svg>
