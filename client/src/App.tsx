@@ -152,8 +152,9 @@ function Router() {
   return (
     // Key the Switch with location path to force remounting of components when the route changes
     <Switch key={locationPath}>
+      <Route path="/" component={LandingPage} />
       <Route path="/auth" component={AuthPage} />
-      <ProtectedRoute path="/" component={HomePage} />
+      <ProtectedRoute path="/home" component={HomePage} />
       <ProtectedRoute path="/shop" component={ShopPage} />
       <ProtectedRoute path="/market" component={MarketPage} />
       <ProtectedRoute path="/wallet" component={WalletPage} />
@@ -167,6 +168,8 @@ function Router() {
 function App() {
   const [isPortrait, setIsPortrait] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [location] = useLocation();
+  const isLandingPage = location === "/";
 
   useEffect(() => {
     // Add an absolute maximum loading time
@@ -197,7 +200,7 @@ function App() {
       <AuthProvider>
         <div className="township-app min-h-screen bg-background text-foreground overflow-x-hidden">
           <ScrollToTop />
-          {isPortrait && (
+          {isPortrait && !isLandingPage && (
             <div className="rotate-device-message fixed inset-0 bg-amber-900/90 flex flex-col items-center justify-center z-[9000] text-white p-8">
               <RotateCcw className="w-12 h-12 mb-4 animate-spin" />
               <h2 className="text-2xl font-bold mb-2">Please Rotate Your Device</h2>
@@ -216,11 +219,11 @@ function App() {
             >
               <main 
                 id="main-content"
-                className="flex-grow bg-gradient-to-b from-amber-50/50 to-white pt-20 pb-20 md:pb-16 overflow-x-hidden"
+                className={`flex-grow bg-gradient-to-b from-amber-50/50 to-white overflow-x-hidden ${!isLandingPage ? "pt-20 pb-20 md:pb-16" : ""}`}
               >
                 <Router />
               </main>
-              <Navigation />
+              {!isLandingPage && <Navigation />}
               <Toaster />
             </motion.div>
           )}
