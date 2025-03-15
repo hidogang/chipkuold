@@ -2,13 +2,14 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Switch, Route, useLocation, Redirect } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
-import { AuthProvider } from "./hooks/use-auth";
+import { AuthProvider, useAuth } from "./hooks/use-auth";
 import { ProtectedRoute } from "./lib/protected-route";
 import { useState, useEffect, useRef } from "react";
 import { RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/components/navigation";
 import ScrollToTop from "@/components/scroll-to-top";
+import { Loader } from "@/components/ui/loader";
 
 // Import pages
 import HomePage from "@/pages/home-page";
@@ -27,56 +28,37 @@ function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
   const logoRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
-    // Backup safety timer to ensure we always exit the loading screen
-    const safetyTimer = setTimeout(() => {
-      console.log("Safety timer triggered - forcing completion");
-      onFinishLoading();
-    }, 5000);
-
-    // Simple animation sequence
-    const animation = {
-      start: setTimeout(() => {
-        // Start fade out when progress is nearly done
-        if (progress > 90) {
-          handleComplete();
-        }
-      }, 2200)
-    };
-
-    // Progress bar animation - faster increments
+    const loadingTime = 2000;
     const interval = setInterval(() => {
       setProgress(prev => {
-        const increment = Math.random() * 8 + 12; // Between 12-20 per tick
-        const newProgress = prev + increment;
+        const increment = 100 / (loadingTime / 100);
+        const newProgress = Math.min(prev + increment, 100);
 
         if (newProgress >= 100) {
           clearInterval(interval);
-          handleComplete();
-          return 100;
+          setFadeOut(true);
+          setTimeout(() => onFinishLoading(), 500);
         }
 
         return newProgress;
       });
-    }, 200);
+    }, 100);
 
-    // Handle animation completion
-    const handleComplete = () => {
+    const safetyTimer = setTimeout(() => {
+      setProgress(100);
       setFadeOut(true);
-      setTimeout(() => onFinishLoading(), 600);
-    };
+      onFinishLoading();
+    }, 3000);
 
     return () => {
-      // Clear all timers on unmount
-      clearTimeout(safetyTimer);
-      clearTimeout(animation.start);
       clearInterval(interval);
+      clearTimeout(safetyTimer);
     };
-  }, [onFinishLoading, progress]);
+  }, [onFinishLoading]);
 
   return (
     <div className={`fixed inset-0 z-[9999] overflow-hidden bg-gradient-to-b from-amber-50 to-orange-50 
       flex flex-col items-center justify-center transition-opacity duration-500 ${fadeOut ? 'opacity-0' : 'opacity-100'}`}>
-      {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="cloud-container">
           <div className="cloud cloud-1"></div>
@@ -86,7 +68,6 @@ function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
         </div>
       </div>
 
-      {/* Simple logo animation */}
       <motion.div
         className="relative mb-8"
         initial={{ scale: 0.8, opacity: 0, y: 10 }}
@@ -100,7 +81,6 @@ function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
           className="w-32 h-32 object-contain"
         />
 
-        {/* Subtle glow effect */}
         <motion.div
           className="absolute inset-0 rounded-full"
           animate={{
@@ -120,7 +100,6 @@ function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
         />
       </motion.div>
 
-      {/* Loading text with animation */}
       <motion.h2
         className="text-xl font-bold text-amber-800 mb-6"
         initial={{ opacity: 0 }}
@@ -130,7 +109,6 @@ function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
         Loading your chicken farm...
       </motion.h2>
 
-      {/* Simple progress bar */}
       <div className="w-64 h-2.5 bg-amber-100 rounded-full overflow-hidden shadow-inner relative z-10">
         <motion.div
           className="h-full"
@@ -147,13 +125,24 @@ function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
 
 function Router() {
   const [locationPath] = useLocation();
+  const { isLoading, user } = useAuth();
+
+  // Don't show loading state for public routes
+  const isPublicRoute = locationPath === "/landing" || locationPath === "/auth";
+  if (isLoading && !isPublicRoute) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader size="default" />
+      </div>
+    );
+  }
 
   return (
     <Switch key={locationPath}>
-      <Route path="/landing" component={LandingPage} />
       <Route path="/">
-        {() => <Redirect to="/home" />}
+        {() => <Redirect to="/landing" />}
       </Route>
+      <Route path="/landing" component={LandingPage} />
       <Route path="/auth" component={AuthPage} />
       <ProtectedRoute path="/home" component={HomePage} />
       <ProtectedRoute path="/shop" component={ShopPage} />
@@ -170,14 +159,12 @@ function App() {
   const [isPortrait, setIsPortrait] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [location] = useLocation();
-  const isLandingPage = location === "/";
+  const isLandingPage = location === "/" || location === "/landing";
 
   useEffect(() => {
-    // Add an absolute maximum loading time
     const maxLoadingTime = setTimeout(() => {
       setIsLoading(false);
-      console.log("Maximum loading time reached - forcing app to start");
-    }, 10000);
+    }, 5000);
 
     const checkOrientation = () => {
       setIsPortrait(window.innerHeight > window.innerWidth);
