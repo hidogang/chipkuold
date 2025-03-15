@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#FFFFFF" rx="10"/>
+  
+  <!-- Header -->
+  <rect x="0" y="0" width="800" height="60" fill="#FEF3C7" rx="10"/>
+  <text x="30" y="38" font-family="Arial" font-size="24" fill="#92400E">Marketplace</text>
+  
+  <!-- Resource Cards -->
+  <g transform="translate(30, 80)">
+    <!-- Water Card -->
+    <rect width="360" height="220" fill="#F0F9FF" rx="8"/>
+    <circle cx="180" cy="70" r="40" fill="#7DD3FC"/>
+    <text x="180" y="80" font-family="Arial" font-size="36" text-anchor="middle" fill="#0C4A6E">💧</text>
+    <text x="180" y="140" font-family="Arial" font-size="24" text-anchor="middle" fill="#0E7490">Water</text>
+    <text x="180" y="170" font-family="Arial" font-size="20" text-anchor="middle" fill="#0E7490">2.00 USDT</text>
+    <rect x="80" y="180" width="200" height="40" fill="#0EA5E9" rx="4"/>
+    <text x="180" y="205" font-family="Arial" font-size="16" fill="white" text-anchor="middle">Buy Water</text>
+    
+    <!-- Wheat Card -->
+    <rect x="380" width="360" height="220" fill="#FEFCE8" rx="8"/>
+    <circle cx="560" cy="70" r="40" fill="#FCD34D"/>
+    <text x="560" y="80" font-family="Arial" font-size="36" text-anchor="middle" fill="#92400E">🌾</text>
+    <text x="560" y="140" font-family="Arial" font-size="24" text-anchor="middle" fill="#92400E">Wheat</text>
+    <text x="560" y="170" font-family="Arial" font-size="20" text-anchor="middle" fill="#92400E">3.00 USDT</text>
+    <rect x="460" y="180" width="200" height="40" fill="#F59E0B" rx="4"/>
+    <text x="560" y="205" font-family="Arial" font-size="16" fill="white" text-anchor="middle">Buy Wheat</text>
+  </g>
+  
+  <!-- Market History -->
+  <rect x="30" y="320" width="740" height="260" fill="#FEFCE8" rx="8"/>
+  <text x="50" y="360" font-family="Arial" font-size="20" fill="#92400E">Market History</text>
+  
+  <!-- Transaction Items -->
+  <g transform="translate(50, 380)">
+    <!-- Transaction 1 -->
+    <rect width="700" height="50" fill="#FEF3C7" rx="4"/>
+    <text x="20" y="32" font-family="Arial" font-size="16" fill="#92400E">Bought 5 Water</text>
+    <text x="580" y="32" font-family="Arial" font-size="16" fill="#B91C1C">-10.00 USDT</text>
+    
+    <!-- Transaction 2 -->
+    <rect y="60" width="700" height="50" fill="#FEF3C7" rx="4"/>
+    <text x="20" y="92" font-family="Arial" font-size="16" fill="#92400E">Bought 3 Wheat</text>
+    <text x="580" y="92" font-family="Arial" font-size="16" fill="#B91C1C">-9.00 USDT</text>
+    
+    <!-- Transaction 3 -->
+    <rect y="120" width="700" height="50" fill="#FEF3C7" rx="4"/>
+    <text x="20" y="152" font-family="Arial" font-size="16" fill="#92400E">Sold 10 Eggs</text>
+    <text x="580" y="152" font-family="Arial" font-size="16" fill="#15803D">+20.00 USDT</text>
+  </g>
+</svg>

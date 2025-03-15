@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#FFFFFF" rx="10"/>
+  
+  <!-- Header -->
+  <rect x="0" y="0" width="800" height="60" fill="#FEF3C7" rx="10"/>
+  <text x="30" y="38" font-family="Arial" font-size="24" fill="#92400E">Referral Program</text>
+  
+  <!-- Referral Stats Card -->
+  <rect x="30" y="80" width="740" height="150" fill="#FEF9C3" rx="8"/>
+  <text x="50" y="120" font-family="Arial" font-size="18" fill="#92400E">Total Earnings</text>
+  <text x="50" y="160" font-family="Arial" font-size="32" font-weight="bold" fill="#92400E">250.00 USDT</text>
+  <text x="50" y="200" font-family="Arial" font-size="16" fill="#92400E">Active Referrals: 5</text>
+  
+  <!-- Referral Link -->
+  <rect x="30" y="250" width="740" height="80" fill="#FEFCE8" rx="8"/>
+  <text x="50" y="290" font-family="Arial" font-size="16" fill="#92400E">Your Referral Link</text>
+  <rect x="50" y="300" width="600" height="40" fill="#FEF3C7" rx="4"/>
+  <text x="70" y="325" font-family="Arial" font-size="14" fill="#92400E">https://chickfarms.com/ref/ABC123</text>
+  <rect x="670" y="300" width="80" height="40" fill="#F59E0B" rx="4"/>
+  <text x="710" y="325" font-family="Arial" font-size="14" fill="white" text-anchor="middle">Copy</text>
+  
+  <!-- Referral List -->
+  <rect x="30" y="350" width="740" height="230" fill="#FEFCE8" rx="8"/>
+  <text x="50" y="390" font-family="Arial" font-size="20" fill="#92400E">Recent Referrals</text>
+  
+  <!-- Referral Items -->
+  <g transform="translate(50, 410)">
+    <!-- Referral 1 -->
+    <rect width="700" height="50" fill="#FEF3C7" rx="4"/>
+    <circle cx="25" cy="25" r="15" fill="#F59E0B"/>
+    <text x="60" y="32" font-family="Arial" font-size="16" fill="#92400E">User123</text>
+    <text x="580" y="32" font-family="Arial" font-size="16" fill="#15803D">+25.00 USDT</text>
+    
+    <!-- Referral 2 -->
+    <rect y="60" width="700" height="50" fill="#FEF3C7" rx="4"/>
+    <circle cx="25" cy="85" r="15" fill="#F59E0B"/>
+    <text x="60" y="92" font-family="Arial" font-size="16" fill="#92400E">FarmerJoe</text>
+    <text x="580" y="92" font-family="Arial" font-size="16" fill="#15803D">+15.50 USDT</text>
+    
+    <!-- Referral 3 -->
+    <rect y="120" width="700" height="50" fill="#FEF3C7" rx="4"/>
+    <circle cx="25" cy="145" r="15" fill="#F59E0B"/>
+    <text x="60" y="152" font-family="Arial" font-size="16" fill="#92400E">ChickenLover</text>
+    <text x="580" y="152" font-family="Arial" font-size="16" fill="#15803D">+10.00 USDT</text>
+  </g>
+</svg>

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#FFFFFF" rx="10"/>
+  
+  <!-- Header -->
+  <rect x="0" y="0" width="800" height="60" fill="#FEF3C7" rx="10"/>
+  <text x="30" y="38" font-family="Arial" font-size="24" fill="#92400E">Wallet</text>
+  
+  <!-- Balance Card -->
+  <rect x="30" y="80" width="740" height="120" fill="#FEF9C3" rx="8"/>
+  <text x="50" y="120" font-family="Arial" font-size="18" fill="#92400E">Total Balance</text>
+  <text x="50" y="160" font-family="Arial" font-size="32" font-weight="bold" fill="#92400E">1,234.56 USDT</text>
+  
+  <!-- Transaction History -->
+  <rect x="30" y="220" width="740" height="360" fill="#FEFCE8" rx="8"/>
+  <text x="50" y="260" font-family="Arial" font-size="20" fill="#92400E">Transaction History</text>
+  
+  <!-- Transaction Items -->
+  <g transform="translate(50, 290)">
+    <!-- Transaction 1 -->
+    <rect width="700" height="60" fill="#FEF3C7" rx="4"/>
+    <text x="20" y="35" font-family="Arial" font-size="16" fill="#92400E">Deposit</text>
+    <text x="580" y="35" font-family="Arial" font-size="16" fill="#15803D">+100.00 USDT</text>
+    
+    <!-- Transaction 2 -->
+    <rect y="70" width="700" height="60" fill="#FEF3C7" rx="4"/>
+    <text x="20" y="105" font-family="Arial" font-size="16" fill="#92400E">Purchase: Golden Chicken</text>
+    <text x="580" y="105" font-family="Arial" font-size="16" fill="#B91C1C">-50.00 USDT</text>
+    
+    <!-- Transaction 3 -->
+    <rect y="140" width="700" height="60" fill="#FEF3C7" rx="4"/>
+    <text x="20" y="175" font-family="Arial" font-size="16" fill="#92400E">Egg Sales</text>
+    <text x="580" y="175" font-family="Arial" font-size="16" fill="#15803D">+25.50 USDT</text>
+  </g>
+  
+  <!-- Action Buttons -->
+  <rect x="30" y="520" width="360" height="50" fill="#F59E0B" rx="8"/>
+  <text x="165" y="552" font-family="Arial" font-size="18" fill="white" text-anchor="middle">Deposit</text>
+  
+  <rect x="410" y="520" width="360" height="50" fill="#B45309" rx="8"/>
+  <text x="545" y="552" font-family="Arial" font-size="18" fill="white" text-anchor="middle">Withdraw</text>
+</svg>

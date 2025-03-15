@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#FFFFFF" rx="10"/>
+  
+  <!-- Header -->
+  <rect x="0" y="0" width="800" height="60" fill="#FEF3C7" rx="10"/>
+  <text x="30" y="38" font-family="Arial" font-size="24" fill="#92400E">Your Chickens</text>
+  
+  <!-- Chicken Cards -->
+  <g transform="translate(30, 80)">
+    <!-- Baby Chicken Card -->
+    <rect width="360" height="220" fill="#FEF9C3" rx="8"/>
+    <use href="/assets/chickens/baby.svg#chicken" x="140" y="40" width="80" height="80"/>
+    <text x="180" y="140" font-family="Arial" font-size="24" text-anchor="middle" fill="#92400E">Baby Chicken</text>
+    <text x="180" y="170" font-family="Arial" font-size="20" text-anchor="middle" fill="#92400E">2 Eggs / 4h</text>
+    <rect x="80" y="180" width="200" height="40" fill="#F59E0B" rx="4"/>
+    <text x="180" y="205" font-family="Arial" font-size="16" fill="white" text-anchor="middle">Feed Chicken</text>
+    
+    <!-- Regular Chicken Card -->
+    <rect x="380" width="360" height="220" fill="#FEF9C3" rx="8"/>
+    <use href="/assets/chickens/regular.svg#chicken" x="520" y="40" width="80" height="80"/>
+    <text x="560" y="140" font-family="Arial" font-size="24" text-anchor="middle" fill="#92400E">Regular Chicken</text>
+    <text x="560" y="170" font-family="Arial" font-size="20" text-anchor="middle" fill="#92400E">5 Eggs / 8h</text>
+    <rect x="460" y="180" width="200" height="40" fill="#F59E0B" rx="4"/>
+    <text x="560" y="205" font-family="Arial" font-size="16" fill="white" text-anchor="middle">Feed Chicken</text>
+  </g>
+  
+  <!-- Golden Chicken Card -->
+  <g transform="translate(30, 320)">
+    <rect width="360" height="220" fill="#FEF9C3" rx="8"/>
+    <use href="/assets/chickens/golden.svg#chicken" x="140" y="40" width="80" height="80"/>
+    <text x="180" y="140" font-family="Arial" font-size="24" text-anchor="middle" fill="#92400E">Golden Chicken</text>
+    <text x="180" y="170" font-family="Arial" font-size="20" text-anchor="middle" fill="#92400E">20 Eggs / 24h</text>
+    <rect x="80" y="180" width="200" height="40" fill="#F59E0B" rx="4"/>
+    <text x="180" y="205" font-family="Arial" font-size="16" fill="white" text-anchor="middle">Feed Chicken</text>
+  </g>
+  
+  <!-- Stats -->
+  <rect x="410" y="320" width="360" height="220" fill="#FEFCE8" rx="8"/>
+  <text x="430" y="360" font-family="Arial" font-size="20" fill="#92400E">Farm Stats</text>
+  <text x="430" y="400" font-family="Arial" font-size="16" fill="#92400E">Total Chickens: 3</text>
+  <text x="430" y="430" font-family="Arial" font-size="16" fill="#92400E">Daily Egg Production: 27</text>
+  <text x="430" y="460" font-family="Arial" font-size="16" fill="#92400E">Water Stock: 10</text>
+  <text x="430" y="490" font-family="Arial" font-size="16" fill="#92400E">Wheat Stock: 15</text>
+</svg>
