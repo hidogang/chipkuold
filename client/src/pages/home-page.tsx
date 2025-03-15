@@ -40,6 +40,31 @@ const getChickenImage = (type: string) => {
   );
 };
 
+// Calculate remaining cooldown time for a chicken
+const getRemainingCooldown = (chicken: Chicken): { hours: number, minutes: number, seconds: number } | null => {
+  if (!chicken.lastHatchTime) return null;
+
+  const requirements = {
+    baby: { cooldown: 6 * 60 * 60 * 1000 }, // 6 hours
+    regular: { cooldown: 5 * 60 * 60 * 1000 }, // 5 hours
+    golden: { cooldown: 3 * 60 * 60 * 1000 }, // 3 hours
+  };
+
+  const cooldownTime = requirements[chicken.type as keyof typeof requirements].cooldown;
+  const now = Date.now();
+  const hatchTime = new Date(chicken.lastHatchTime).getTime();
+  const timePassed = now - hatchTime;
+
+  if (timePassed >= cooldownTime) return null;
+
+  const remainingTime = cooldownTime - timePassed;
+  const hours = Math.floor(remainingTime / (60 * 60 * 1000));
+  const minutes = Math.floor((remainingTime % (60 * 60 * 1000)) / (60 * 1000));
+  const seconds = Math.floor((remainingTime % (60 * 1000)) / 1000);
+
+  return { hours, minutes, seconds };
+};
+
 export default function HomePage() {
   const { toast } = useToast();
   const { user } = useAuth();
@@ -126,136 +151,6 @@ export default function HomePage() {
     const interval = setInterval(updateCooldowns, 1000);
     return () => clearInterval(interval);
   }, [chickensQuery.data]);
-
-  // Improved loading screen with smoother animations
-  if (chickensQuery.isLoading || resourcesQuery.isLoading) {
-    return (
-      <div className="h-full w-full bg-gradient-to-b from-amber-50 to-orange-50 flex flex-col items-center justify-center overflow-hidden">
-        <div className="relative">
-          {/* Background logo (larger and faded) */}
-          <motion.div
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: 1.5, opacity: 0.15 }}
-            transition={{ 
-              duration: 1.5,
-              ease: "easeOut"
-            }}
-            className="absolute inset-0 flex items-center justify-center"
-            style={{ zIndex: 0 }}
-          >
-            <img
-              src="/assets/chickfarms-logo.png"
-              alt="ChickFarms Logo Background"
-              className="w-40 h-40 object-contain"
-            />
-          </motion.div>
-          
-          {/* Foreground logo (smaller and focused) */}
-          <motion.div
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ 
-              duration: 0.7,
-              delay: 0.3,
-              ease: "easeOut" 
-            }}
-            className="relative"
-            style={{ zIndex: 1 }}
-          >
-            <img
-              src="/assets/chickfarms-logo.png"
-              alt="ChickFarms Logo"
-              className="w-32 h-32 object-contain"
-            />
-            
-            {/* Animated cloud overlay */}
-            <motion.div
-              className="absolute inset-0"
-              animate={{
-                scale: [1, 1.1, 1],
-                opacity: [0.7, 0.5, 0.7]
-              }}
-              transition={{
-                repeat: Infinity,
-                duration: 3,
-                ease: "easeInOut"
-              }}
-            >
-              <img
-                src="/assets/cloud.svg"
-                alt="Cloud"
-                className="w-full h-full object-contain opacity-20"
-              />
-            </motion.div>
-          </motion.div>
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
-          className="mt-5 text-center"
-        >
-          <h2 className="text-xl font-bold text-amber-800 mb-2">Loading your chicken farm...</h2>
-          <p className="text-sm text-amber-600 mb-4">Getting everything ready for your farming adventure!</p>
-          <div className="relative w-48 h-2 bg-amber-100 rounded-full overflow-hidden">
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-amber-500 to-orange-500"
-              initial={{ x: "-100%" }}
-              animate={{ x: "100%" }}
-              transition={{
-                repeat: Infinity,
-                duration: 1.5,
-                ease: "linear"
-              }}
-            />
-          </div>
-        </motion.div>
-      </div>
-    );
-  }
-
-  // Create a proper Resource type object with required fields
-  const resources: Resource = resourcesQuery.data
-    ? resourcesQuery.data
-    : {
-        id: 0,
-        userId: user?.id || 0,
-        waterBuckets: 0,
-        wheatBags: 0,
-        eggs: 0
-      };
-
-  // Simplified background to be light and consistent with other pages
-  const getBgStyle = () => {
-    // Always return light background regardless of time of day
-    return 'bg-gradient-to-b from-amber-50/50 to-white';
-  };
-
-  // Calculate remaining cooldown time for a chicken
-  const getRemainingCooldown = (chicken: Chicken): { hours: number, minutes: number, seconds: number } | null => {
-    if (!chicken.lastHatchTime) return null;
-
-    const requirements = {
-      baby: { cooldown: 6 * 60 * 60 * 1000 }, // 6 hours
-      regular: { cooldown: 5 * 60 * 60 * 1000 }, // 5 hours
-      golden: { cooldown: 3 * 60 * 60 * 1000 }, // 3 hours
-    };
-
-    const cooldownTime = requirements[chicken.type as keyof typeof requirements].cooldown;
-    const now = Date.now();
-    const hatchTime = new Date(chicken.lastHatchTime).getTime();
-    const timePassed = now - hatchTime;
-
-    if (timePassed >= cooldownTime) return null;
-
-    const remainingTime = cooldownTime - timePassed;
-    const hours = Math.floor(remainingTime / (60 * 60 * 1000));
-    const minutes = Math.floor((remainingTime % (60 * 60 * 1000)) / (60 * 1000));
-    const seconds = Math.floor((remainingTime % (60 * 1000)) / 1000);
-
-    return { hours, minutes, seconds };
-  };
 
   // Helper function to determine if a chicken can hatch
   const canHatch = (chicken: Chicken) => {
@@ -412,6 +307,24 @@ export default function HomePage() {
       </div>
     );
   }
+
+  // Create a proper Resource type object with required fields
+  const resources: Resource = resourcesQuery.data
+    ? resourcesQuery.data
+    : {
+        id: 0,
+        userId: user?.id || 0,
+        waterBuckets: 0,
+        wheatBags: 0,
+        eggs: 0
+      };
+
+  // Simplified background to be light and consistent with other pages
+  const getBgStyle = () => {
+    // Always return light background regardless of time of day
+    return 'bg-gradient-to-b from-amber-50/50 to-white';
+  };
+
 
   return (
     <div className={`h-full flex flex-col ${getBgStyle()}`}>
