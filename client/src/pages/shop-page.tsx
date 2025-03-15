@@ -18,7 +18,7 @@ const CHICKEN_TYPES = [
   {
     type: "baby",
     name: "Baby Chicken",
-    description: "2 eggs per hatch, 6hr cooldown",
+    description: "Produces 2 eggs every 6 hours. Perfect for beginners!",
     requirements: {
       water: 1,
       wheat: 1
@@ -32,7 +32,7 @@ const CHICKEN_TYPES = [
   {
     type: "regular",
     name: "Regular Chicken",
-    description: "5 eggs per hatch, 5hr cooldown",
+    description: "Produces 5 eggs every 5 hours. Balanced investment.",
     requirements: {
       water: 2,
       wheat: 2
@@ -46,7 +46,7 @@ const CHICKEN_TYPES = [
   {
     type: "golden",
     name: "Golden Chicken",
-    description: "20 eggs per hatch, 3hr cooldown",
+    description: "Produces 20 eggs every 3 hours. For serious farmers!",
     requirements: {
       water: 10,
       wheat: 15

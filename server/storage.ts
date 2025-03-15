@@ -97,9 +97,9 @@ export class DatabaseStorage implements IStorage {
 
   private async initializePrices() {
     const defaultPrices = [
-      { itemType: "baby_chicken", price: "5" },
-      { itemType: "regular_chicken", price: "15" },
-      { itemType: "golden_chicken", price: "40" },
+      { itemType: "baby_chicken", price: "90" },
+      { itemType: "regular_chicken", price: "150" },
+      { itemType: "golden_chicken", price: "400" },
       { itemType: "water_bucket", price: "0.5" },
       { itemType: "wheat_bag", price: "0.5" },
       { itemType: "egg", price: "0.1" }
