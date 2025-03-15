@@ -1,8 +1,8 @@
 import { drizzle } from 'drizzle-orm/neon-serverless';
 import { eq, and, desc } from 'drizzle-orm';
 import { db } from './db';
-import { User, Chicken, Resource, Transaction, Price, InsertUser, UserProfile, InsertUserProfile } from "@shared/schema";
-import { users, chickens, resources, transactions, prices, userProfiles } from "@shared/schema";
+import { User, Chicken, Resource, Transaction, Price, InsertUser, UserProfile, InsertUserProfile, gameSettings } from "@shared/schema";
+import { users, chickens, resources, transactions, prices, userProfiles, gameSettings as gameSettingsTable } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
 import { randomBytes } from "crypto";
@@ -58,19 +58,52 @@ export interface IStorage {
 
 export class DatabaseStorage implements IStorage {
   public sessionStore: session.Store;
-  private paymentAddress: string;
-  private withdrawalTax: number;
+  private defaultPaymentAddress: string = "TRX8nHHo2Jd7H9ZwKhh6h8h";
+  private defaultWithdrawalTax: number = 5;
 
   constructor() {
     this.sessionStore = new MemoryStore({ checkPeriod: 86400000 });
-    this.paymentAddress = "TRX8nHHo2Jd7H9ZwKhh6h8h";
-    this.withdrawalTax = 5; // 5% default tax
     this.initializeDefaults();
   }
 
   private async initializeDefaults() {
-    await this.initializePrices();
-    await this.initializeAdminUser();
+    try {
+      await this.initializePrices();
+      await this.initializeAdminUser();
+      await this.initializeGameSettings();
+    } catch (error) {
+      console.error("Error in initializeDefaults:", error);
+      throw error;
+    }
+  }
+
+  private async initializeGameSettings() {
+    try {
+      const [withdrawalTaxSetting] = await db.select()
+        .from(gameSettingsTable)
+        .where(eq(gameSettingsTable.settingKey, "withdrawal_tax"));
+
+      if (!withdrawalTaxSetting) {
+        await db.insert(gameSettingsTable).values({
+          settingKey: "withdrawal_tax",
+          settingValue: this.defaultWithdrawalTax.toString(),
+        });
+      }
+
+      const [paymentAddressSetting] = await db.select()
+        .from(gameSettingsTable)
+        .where(eq(gameSettingsTable.settingKey, "payment_address"));
+
+      if (!paymentAddressSetting) {
+        await db.insert(gameSettingsTable).values({
+          settingKey: "payment_address",
+          settingValue: this.defaultPaymentAddress,
+        });
+      }
+    } catch (error) {
+      console.error("Error initializing game settings:", error);
+      throw error;
+    }
   }
 
   private async initializeAdminUser() {
@@ -148,15 +181,20 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateUserBalance(userId: number, amount: number): Promise<void> {
-    const [user] = await db.select().from(users).where(eq(users.id, userId));
-    if (!user) throw new Error("User not found");
+    try {
+      const [user] = await db.select().from(users).where(eq(users.id, userId));
+      if (!user) throw new Error("User not found");
 
-    const newBalance = parseFloat(user.usdtBalance) + amount;
-    if (newBalance < 0) throw new Error("Insufficient USDT balance");
+      const newBalance = parseFloat(user.usdtBalance) + amount;
+      if (newBalance < 0) throw new Error("Insufficient USDT balance");
 
-    await db.update(users)
-      .set({ usdtBalance: newBalance.toFixed(2) })
-      .where(eq(users.id, userId));
+      await db.update(users)
+        .set({ usdtBalance: newBalance.toFixed(2) })
+        .where(eq(users.id, userId));
+    } catch (error) {
+      console.error("Error updating user balance:", error);
+      throw error;
+    }
   }
 
   async getChickensByUserId(userId: number): Promise<Chicken[]> {
@@ -249,11 +287,28 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updatePaymentAddress(address: string): Promise<void> {
-    this.paymentAddress = address;
+    try {
+      await db.update(gameSettingsTable)
+        .set({ settingValue: address })
+        .where(eq(gameSettingsTable.settingKey, "payment_address"));
+    } catch (error) {
+      console.error("Error updating payment address:", error);
+      throw error;
+    }
   }
 
   async updateWithdrawalTax(percentage: number): Promise<void> {
-    this.withdrawalTax = percentage;
+    if (percentage < 0 || percentage > 100) {
+      throw new Error("Withdrawal tax percentage must be between 0 and 100");
+    }
+    try {
+      await db.update(gameSettingsTable)
+        .set({ settingValue: percentage.toString() })
+        .where(eq(gameSettingsTable.settingKey, "withdrawal_tax"));
+    } catch (error) {
+      console.error("Error updating withdrawal tax:", error);
+      throw error;
+    }
   }
 
   async getUserProfile(userId: number): Promise<UserProfile | undefined> {

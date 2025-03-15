@@ -43,7 +43,7 @@ export const transactions = pgTable("transactions", {
 export const gameSettings = pgTable("game_settings", {
   id: serial("id").primaryKey(),
   settingKey: text("setting_key").notNull().unique(),
-  settingValue: decimal("setting_value", { precision: 10, scale: 2 }).notNull(),
+  settingValue: text("setting_value").notNull(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
@@ -63,17 +63,32 @@ export const userProfiles = pgTable("user_profiles", {
   lastUpdated: timestamp("last_updated").notNull().defaultNow(),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
-  referredBy: true,
-}).partial({
-  referredBy: true,
-});
+export const insertUserSchema = createInsertSchema(users)
+  .pick({
+    username: true,
+    password: true,
+    referredBy: true,
+  })
+  .extend({
+    username: z.string().min(3, "Username must be at least 3 characters"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    referredBy: z.string().nullish(),
+  })
+  .partial({
+    referredBy: true,
+  });
 
 export const insertChickenSchema = createInsertSchema(chickens);
 export const insertResourceSchema = createInsertSchema(resources);
-export const insertTransactionSchema = createInsertSchema(transactions);
+export const insertTransactionSchema = createInsertSchema(transactions)
+  .extend({
+    amount: z.number()
+      .min(0.01, "Amount must be greater than 0")
+      .max(1000000, "Amount cannot exceed 1,000,000"),
+    type: z.enum(["recharge", "withdrawal", "purchase", "commission"]),
+    status: z.enum(["pending", "completed", "rejected"]),
+    bankDetails: z.string().nullish(),
+  });
 export const insertPriceSchema = createInsertSchema(prices);
 export const insertUserProfileSchema = createInsertSchema(userProfiles).omit({
   id: true,
