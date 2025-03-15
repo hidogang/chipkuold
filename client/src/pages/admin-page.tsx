@@ -36,6 +36,8 @@ interface AdminStats {
   totalUsers: number;
   todayDeposits: number;
   totalDeposits: number;
+  todayWithdrawals: number;
+  totalWithdrawals: number;
   pendingWithdrawals: number;
 }
 
@@ -235,6 +237,8 @@ export default function AdminPage() {
     totalUsers: 0,
     todayDeposits: 0,
     totalDeposits: 0,
+    todayWithdrawals: 0,
+    totalWithdrawals: 0,
     pendingWithdrawals: 0,
   };
 
@@ -275,11 +279,11 @@ export default function AdminPage() {
           <CardContent>
             <div className="space-y-2">
               <div>
-                <span className="text-2xl font-bold">${stats.todayDeposits}</span>
+                <span className="text-2xl font-bold">${stats.todayDeposits.toFixed(2)}</span>
                 <span className="text-xs text-muted-foreground ml-2">Today's Deposits</span>
               </div>
               <div>
-                <span className="text-xl font-bold">${stats.totalDeposits}</span>
+                <span className="text-xl font-bold">${stats.totalDeposits.toFixed(2)}</span>
                 <span className="text-xs text-muted-foreground ml-2">Total Deposits</span>
               </div>
             </div>
@@ -292,9 +296,19 @@ export default function AdminPage() {
             <ArrowUpFromLine className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div>
-              <span className="text-2xl font-bold">{stats.pendingWithdrawals}</span>
-              <span className="text-xs text-muted-foreground ml-2">Pending Requests</span>
+            <div className="space-y-2">
+              <div>
+                <span className="text-2xl font-bold">${stats.todayWithdrawals.toFixed(2)}</span>
+                <span className="text-xs text-muted-foreground ml-2">Today's Withdrawals</span>
+              </div>
+              <div>
+                <span className="text-xl font-bold">${stats.totalWithdrawals.toFixed(2)}</span>
+                <span className="text-xs text-muted-foreground ml-2">Total Withdrawals</span>
+              </div>
+              <div>
+                <span className="text-xl font-bold">{stats.pendingWithdrawals}</span>
+                <span className="text-xs text-muted-foreground ml-2">Pending Requests</span>
+              </div>
             </div>
           </CardContent>
         </Card>

@@ -53,15 +53,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       .filter(t => t.type === "recharge" && t.status === "completed")
       .reduce((sum, t) => sum + parseFloat(t.amount), 0);
 
+    // Calculate withdrawal statistics
+    const todayWithdrawals = transactions
+      .filter(t => t.type === "withdrawal" && t.status === "completed" && new Date(t.createdAt) >= today && new Date(t.createdAt) < tomorrow)
+      .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+
+    const totalWithdrawals = transactions
+      .filter(t => t.type === "withdrawal" && t.status === "completed")
+      .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+
     const pendingWithdrawals = transactions.filter(t => t.type === "withdrawal" && t.status === "pending").length;
 
-    // Dummy data for login stats (would need actual tracking in a real application)
     const stats = {
       todayLogins: 5,
       yesterdayLogins: 8,
       totalUsers: 10,
       todayDeposits,
       totalDeposits,
+      todayWithdrawals,
+      totalWithdrawals,
       pendingWithdrawals
     };
 
