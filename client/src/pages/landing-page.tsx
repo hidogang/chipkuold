@@ -29,21 +29,47 @@ export default function LandingPage() {
             <span className="text-xl font-bold text-amber-900">ChickFarms</span>
           </div>
           <div className="flex items-center space-x-4">
-            <Button
-              variant="ghost"
-              onClick={() => setLocation(user ? "/home" : "/auth")}
-              className="text-amber-900 hover:text-amber-700 hover:bg-amber-50"
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              {user ? "Dashboard" : "Login"}
-            </Button>
-            {!user && (
               <Button
-                variant="default"
-                onClick={() => setLocation("/auth")}
-                className="bg-amber-500 hover:bg-amber-600 text-white"
+                variant="ghost"
+                onClick={() => setLocation(user ? "/home" : "/auth")}
+                className="text-amber-900 hover:text-amber-700 hover:bg-amber-50"
               >
-                Sign Up
+                <span className="flex items-center">
+                  <span className="mr-1.5 text-lg">🏠</span> {user ? "Dashboard" : "Login"}
+                </span>
               </Button>
+            </motion.div>
+            
+            {!user && (
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="relative"
+              >
+                <motion.div
+                  animate={{ 
+                    boxShadow: ["0px 0px 0px rgba(245, 158, 11, 0)", "0px 0px 15px rgba(245, 158, 11, 0.5)", "0px 0px 0px rgba(245, 158, 11, 0)"]
+                  }}
+                  transition={{ 
+                    repeat: Infinity, 
+                    duration: 2
+                  }}
+                  className="absolute inset-0 rounded-md"
+                />
+                <Button
+                  variant="default"
+                  onClick={() => setLocation("/auth")}
+                  className="bg-amber-500 hover:bg-amber-600 text-white relative z-10 border border-amber-400"
+                >
+                  <span className="flex items-center">
+                    <span className="mr-1.5 text-lg">🐔</span> Sign Up
+                  </span>
+                </Button>
+              </motion.div>
             )}
           </div>
         </div>
@@ -183,7 +209,39 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works */}
-      <section id="how-it-works" className="py-20 bg-white">
+      <section id="how-it-works" className="py-20 bg-white relative overflow-hidden">
+        {/* More animated chickens */}
+        <motion.div 
+          className="absolute top-20 right-[10%] w-12 h-12 text-4xl z-10 hidden md:block"
+          animate={{ 
+            y: [0, -10, 0],
+            x: [0, 10, 0, -10, 0],
+            rotate: [0, 5, 0, -5, 0]
+          }}
+          transition={{ 
+            duration: 3,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          🐓
+        </motion.div>
+        
+        <motion.div 
+          className="absolute bottom-40 left-[5%] w-12 h-12 text-3xl z-10 hidden md:block"
+          animate={{ 
+            scale: [1, 1.1, 1],
+            rotate: [0, -10, 0, 10, 0]
+          }}
+          transition={{ 
+            duration: 4,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 0.5
+          }}
+        >
+          🥚
+        </motion.div>
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-amber-100 text-amber-800 hover:bg-amber-200">
@@ -463,7 +521,40 @@ export default function LandingPage() {
       </section>
 
       {/* Marketplace */}
-      <section className="py-20 bg-amber-50">
+      <section className="py-20 bg-amber-50 relative overflow-hidden">
+        {/* More animated chickens */}
+        <motion.div 
+          className="absolute top-40 right-[15%] w-12 h-12 text-3xl z-10 hidden md:block"
+          animate={{ 
+            y: [0, -15, 0],
+            x: [0, -20, 0],
+            rotate: [0, 10, 0]
+          }}
+          transition={{ 
+            duration: 5,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          🐔💰
+        </motion.div>
+        
+        <motion.div 
+          className="absolute bottom-20 left-[20%] w-12 h-12 text-3xl z-10 hidden md:block"
+          animate={{ 
+            scale: [1, 1.1, 1],
+            y: [0, 10, 0],
+            rotate: [0, -5, 0]
+          }}
+          transition={{ 
+            duration: 3.5,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 0.8
+          }}
+        >
+          🐣
+        </motion.div>
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-amber-200 text-amber-800 hover:bg-amber-300">
@@ -668,6 +759,40 @@ export default function LandingPage() {
       <section className="py-20 bg-gradient-to-br from-amber-400 to-amber-600 text-white relative overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-amber-300 rounded-full opacity-30 blur-3xl"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-amber-700 rounded-full opacity-20 blur-3xl"></div>
+        
+        {/* Township-style animated chicken */}
+        <motion.div 
+          className="absolute top-10 left-[10%] w-16 h-16 text-5xl z-10 hidden md:block"
+          animate={{ 
+            y: [0, -20, 0],
+            x: [0, 30, 0, -30, 0],
+            rotate: [0, 15, 0, -15, 0]
+          }}
+          transition={{ 
+            duration: 7,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          ✨🐔✨
+        </motion.div>
+        
+        <motion.div 
+          className="absolute bottom-10 right-[15%] w-16 h-16 text-5xl z-10 hidden md:block"
+          animate={{ 
+            y: [0, -15, 0],
+            x: [0, -40, 0],
+            rotate: [0, -10, 0, 10, 0]
+          }}
+          transition={{ 
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1
+          }}
+        >
+          🐓💰
+        </motion.div>
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
