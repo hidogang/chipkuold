@@ -1,17 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { Resource } from "@shared/schema";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 export default function BalanceBar() {
   const { user } = useAuth();
 
   const resourcesQuery = useQuery<Resource>({
     queryKey: ["/api/resources"],
-    staleTime: 0,
-    retry: 2,
+    staleTime: 0, // Always fetch fresh data
+    retry: 2, // Retry failed requests twice
   });
 
+  // Debug log for balance updates
   console.log('[BalanceBar] Current user balance:', user?.usdtBalance);
   console.log('[BalanceBar] Resources query data:', resourcesQuery.data);
 
@@ -39,9 +40,9 @@ export default function BalanceBar() {
         </svg>
       ),
       color: "#29B6F6",
-      bgGradient: "linear-gradient(135deg, rgba(3, 169, 244, 0.2), rgba(3, 169, 244, 0.05))",
-      borderGradient: "linear-gradient(135deg, rgba(3, 169, 244, 0.5), rgba(3, 169, 244, 0.2))",
-      glowColor: "rgba(3, 169, 244, 0.3)",
+      bgColor: "rgba(3, 169, 244, 0.1)",
+      borderColor: "rgba(3, 169, 244, 0.3)",
+      iconBg: "rgba(41, 182, 246, 0.15)",
       textColor: "#01579B"
     },
     {
@@ -56,9 +57,9 @@ export default function BalanceBar() {
         </svg>
       ),
       color: "#FFC107",
-      bgGradient: "linear-gradient(135deg, rgba(255, 193, 7, 0.2), rgba(255, 193, 7, 0.05))",
-      borderGradient: "linear-gradient(135deg, rgba(255, 193, 7, 0.5), rgba(255, 193, 7, 0.2))",
-      glowColor: "rgba(255, 193, 7, 0.3)",
+      bgColor: "rgba(255, 193, 7, 0.1)",
+      borderColor: "rgba(255, 193, 7, 0.3)",
+      iconBg: "rgba(255, 193, 7, 0.15)",
       textColor: "#FF6F00"
     },
     {
@@ -73,9 +74,9 @@ export default function BalanceBar() {
         </svg>
       ),
       color: "#FFB74D",
-      bgGradient: "linear-gradient(135deg, rgba(255, 183, 77, 0.2), rgba(255, 183, 77, 0.05))",
-      borderGradient: "linear-gradient(135deg, rgba(255, 183, 77, 0.5), rgba(255, 183, 77, 0.2))",
-      glowColor: "rgba(255, 183, 77, 0.3)",
+      bgColor: "rgba(255, 183, 77, 0.1)",
+      borderColor: "rgba(255, 183, 77, 0.3)",
+      iconBg: "rgba(255, 183, 77, 0.15)",
       textColor: "#E65100"
     },
     {
@@ -90,147 +91,103 @@ export default function BalanceBar() {
         </svg>
       ),
       color: "#FFB300",
-      bgGradient: "linear-gradient(135deg, rgba(255, 179, 0, 0.2), rgba(255, 179, 0, 0.05))",
-      borderGradient: "linear-gradient(135deg, rgba(255, 179, 0, 0.5), rgba(255, 179, 0, 0.2))",
-      glowColor: "rgba(255, 179, 0, 0.3)",
+      bgColor: "rgba(255, 179, 0, 0.1)",
+      borderColor: "rgba(255, 179, 0, 0.3)",
+      iconBg: "rgba(255, 179, 0, 0.15)",
       textColor: "#E65100"
     },
   ];
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-30">
+    <div className="fixed top-0 left-0 right-0 z-30 bg-transparent">
       <motion.div
         className="township-resource-bar max-w-4xl mx-auto overflow-hidden my-2 px-3"
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, type: "spring" }}
+        style={{
+          background: "linear-gradient(to bottom, rgba(255, 165, 61, 0.95), rgba(255, 124, 46, 0.9))",
+          borderRadius: "16px",
+          boxShadow: "0 6px 12px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08)",
+          display: "flex",
+          padding: "10px 12px",
+          border: "2px solid rgba(255, 208, 91, 0.7)",
+          position: "relative",
+          overflow: "hidden"
+        }}
       >
-        <div className="relative p-2 rounded-2xl backdrop-blur-md"
-          style={{
-            background: "linear-gradient(135deg, rgba(255, 165, 61, 0.95), rgba(255, 124, 46, 0.9))",
-            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1), inset 0 2px 4px rgba(255, 255, 255, 0.1)",
-            border: "2px solid rgba(255, 208, 91, 0.7)",
-          }}
-        >
-          {/* Animated background particles */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="particle-container">
-              {[...Array(20)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="absolute w-1 h-1 rounded-full bg-white/20"
-                  animate={{
-                    x: ["0%", "100%"],
-                    y: ["0%", "100%"],
-                    opacity: [0, 1, 0],
-                  }}
-                  transition={{
-                    duration: Math.random() * 3 + 2,
-                    repeat: Infinity,
-                    delay: Math.random() * 2,
-                    ease: "linear",
-                  }}
-                  style={{
-                    left: `${Math.random() * 100}%`,
-                    top: `${Math.random() * 100}%`,
-                  }}
-                />
-              ))}
-            </div>
-          </div>
-
-          <div className="flex gap-2">
-            {items.map((item, index) => (
-              <motion.div
-                key={item.name}
-                className="flex-1 relative"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.1, duration: 0.3 }}
-              >
-                <div
-                  className="relative overflow-hidden rounded-xl p-3"
-                  style={{
-                    background: item.bgGradient,
-                    border: "1px solid transparent",
-                    borderImage: item.borderGradient,
-                    borderImageSlice: 1,
-                    boxShadow: `0 4px 12px ${item.glowColor}, inset 0 2px 4px rgba(255, 255, 255, 0.2)`,
-                  }}
-                >
-                  {/* Shimmer effect */}
-                  <motion.div
-                    className="absolute inset-0 w-full h-full"
-                    animate={{
-                      background: [
-                        "linear-gradient(45deg, transparent 0%, rgba(255,255,255,0) 0%, rgba(255,255,255,0.1) 50%, transparent 100%)",
-                        "linear-gradient(45deg, transparent 0%, rgba(255,255,255,0) 100%, rgba(255,255,255,0.1) 150%, transparent 200%)",
-                      ],
-                    }}
-                    transition={{
-                      duration: 1.5,
-                      repeat: Infinity,
-                      ease: "linear",
-                    }}
-                  />
-
-                  <div className="flex items-center gap-2">
-                    <motion.div
-                      className="p-2 rounded-lg"
-                      style={{
-                        background: `linear-gradient(135deg, ${item.glowColor}, transparent)`,
-                      }}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                    >
-                      {item.icon}
-                    </motion.div>
-
-                    <div className="flex-grow min-w-0">
-                      <div className="text-xs font-medium" style={{ color: item.textColor }}>
-                        {item.name}
-                      </div>
-                      <motion.div
-                        className="text-lg font-bold truncate"
-                        style={{ color: item.textColor }}
-                        animate={{
-                          textShadow: [
-                            `0 0 8px ${item.glowColor}`,
-                            `0 0 12px ${item.glowColor}`,
-                            `0 0 8px ${item.glowColor}`,
-                          ],
-                        }}
-                        transition={{
-                          duration: 2,
-                          repeat: Infinity,
-                          ease: "easeInOut",
-                        }}
-                      >
-                        {item.prefix}{item.value}
-                      </motion.div>
-                    </div>
-
-                    <motion.button
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-white"
-                      style={{
-                        background: `linear-gradient(to bottom right, ${item.color}, ${item.color}dd)`,
-                        boxShadow: `0 2px 8px ${item.glowColor}`,
-                      }}
-                      whileHover={{
-                        scale: 1.1,
-                        rotate: 5,
-                        boxShadow: `0 4px 12px ${item.glowColor}`,
-                      }}
-                      whileTap={{ scale: 0.9 }}
-                    >
-                      <span className="text-lg font-bold">+</span>
-                    </motion.button>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+        <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
+          <div className="absolute -right-2 -top-2 w-12 h-12 bg-white/10 rounded-full blur-md" />
+          <div className="absolute -left-2 -bottom-2 w-10 h-10 bg-white/10 rounded-full blur-md" />
+          <div className="absolute top-1/2 -translate-y-1/2 right-6 w-2 h-2 bg-white/30 rounded-full" />
+          <div className="absolute top-1/3 -translate-y-1/2 left-10 w-2 h-2 bg-white/20 rounded-full" />
         </div>
+
+        {items.map((item, index) => (
+          <motion.div
+            key={item.name}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: index * 0.1, duration: 0.3 }}
+            className="township-resource-item flex-1 mx-1 relative"
+            style={{
+              background: "rgba(255, 255, 255, 0.95)",
+              borderRadius: "10px",
+              padding: "6px 10px",
+              border: `1px solid ${item.borderColor}`,
+              boxShadow: "0 2px 4px rgba(0,0,0,0.08), inset 0 1px 2px rgba(255, 255, 255, 0.5)",
+              minWidth: 0,
+              zIndex: 1
+            }}
+          >
+            <div className="flex items-center">
+              <div
+                className="flex-shrink-0 mr-2 p-1.5 rounded-full"
+                style={{
+                  background: `linear-gradient(135deg, ${item.iconBg}, rgba(255,255,255,0.7))`,
+                  boxShadow: "inset 0 1px 2px rgba(0,0,0,0.05)"
+                }}
+              >
+                <div>{item.icon}</div>
+              </div>
+              <div className="min-w-0 flex-grow">
+                <div className="text-[10px] whitespace-nowrap font-semibold"
+                  style={{ color: item.textColor || "#555" }}
+                >
+                  {item.name}
+                </div>
+                <div className="text-sm font-bold truncate"
+                  style={{ color: item.textColor || "#333" }}
+                >
+                  {item.prefix}{item.value}
+                </div>
+              </div>
+              <motion.div
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                whileTap={{ scale: 0.9 }}
+                className="ml-1 w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center cursor-pointer"
+                style={{
+                  background: `linear-gradient(to bottom, ${item.color}, ${item.color}dd)`,
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.15)"
+                }}
+              >
+                <span className="text-white font-bold text-xs">+</span>
+              </motion.div>
+            </div>
+
+            <motion.div
+              className="absolute inset-0 rounded-lg opacity-50"
+              animate={{
+                boxShadow: ['0 0 0px rgba(255,255,255,0)', '0 0 5px rgba(255,255,255,0.5)', '0 0 0px rgba(255,255,255,0)']
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                delay: index * 0.7
+              }}
+            />
+          </motion.div>
+        ))}
       </motion.div>
     </div>
   );
