@@ -127,13 +127,13 @@ export default function LandingPage() {
                 whileTap={{ scale: 0.95 }}
               >
                 <Button
-                  variant="outline"
+                  variant="secondary"
                   size="lg"
                   onClick={() => {
                     const howItWorksSection = document.getElementById("how-it-works");
                     howItWorksSection?.scrollIntoView({ behavior: "smooth" });
                   }}
-                  className="border-amber-500 text-amber-500 hover:bg-amber-50 rounded-full shadow-md"
+                  className="bg-white text-amber-600 hover:bg-amber-50 rounded-full shadow-lg border-2 border-amber-300 hover:border-amber-400 transition-all duration-200"
                 >
                   <span className="flex items-center">
                     <span className="mr-2 text-xl">📘</span> Learn More
@@ -714,7 +714,7 @@ export default function LandingPage() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               viewport={{ once: true }}
-                        >
+            >
               <h2 className="text-3xl md:text-4xl font-bold mb-6">
                 Ready to Start Your Farming Journey?
               </h2>
