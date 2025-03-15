@@ -28,6 +28,7 @@ import { Users, ArrowDownToLine, ArrowUpFromLine, Settings } from "lucide-react"
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import React from 'react';
 
 interface AdminStats {
   todayLogins: number;
@@ -153,20 +154,60 @@ export default function AdminPage() {
   const priceForm = useForm<z.infer<typeof priceSchema>>({
     resolver: zodResolver(priceSchema),
     defaultValues: {
-      waterBucketPrice: 0,
-      wheatBagPrice: 0,
-      eggPrice: 0,
-      babyChickenPrice: 0,
-      regularChickenPrice: 0,
-      goldenChickenPrice: 0,
-      withdrawalTaxPercentage: 0,
+      waterBucketPrice: 0.5,
+      wheatBagPrice: 0.5,
+      eggPrice: 0.1,
+      babyChickenPrice: 90,
+      regularChickenPrice: 150,
+      goldenChickenPrice: 400,
+      withdrawalTaxPercentage: 5,
     },
-    values: pricesQuery.data || undefined,
   });
+
+  React.useEffect(() => {
+    if (pricesQuery.data) {
+      const priceMap: { [key: string]: number } = {};
+      pricesQuery.data.forEach(price => {
+        switch (price.itemType) {
+          case 'water_bucket':
+            priceMap.waterBucketPrice = parseFloat(price.price);
+            break;
+          case 'wheat_bag':
+            priceMap.wheatBagPrice = parseFloat(price.price);
+            break;
+          case 'egg':
+            priceMap.eggPrice = parseFloat(price.price);
+            break;
+          case 'baby_chicken':
+            priceMap.babyChickenPrice = parseFloat(price.price);
+            break;
+          case 'regular_chicken':
+            priceMap.regularChickenPrice = parseFloat(price.price);
+            break;
+          case 'golden_chicken':
+            priceMap.goldenChickenPrice = parseFloat(price.price);
+            break;
+        }
+      });
+      priceForm.reset(priceMap);
+    }
+  }, [pricesQuery.data]);
 
   const updatePricesMutation = useMutation({
     mutationFn: async (data: z.infer<typeof priceSchema>) => {
-      const res = await apiRequest("POST", "/api/admin/prices", data);
+      const priceUpdates = [
+        { itemType: 'water_bucket', price: data.waterBucketPrice.toString() },
+        { itemType: 'wheat_bag', price: data.wheatBagPrice.toString() },
+        { itemType: 'egg', price: data.eggPrice.toString() },
+        { itemType: 'baby_chicken', price: data.babyChickenPrice.toString() },
+        { itemType: 'regular_chicken', price: data.regularChickenPrice.toString() },
+        { itemType: 'golden_chicken', price: data.goldenChickenPrice.toString() }
+      ];
+
+      const res = await apiRequest("POST", "/api/admin/prices", {
+        prices: priceUpdates,
+        withdrawalTaxPercentage: data.withdrawalTaxPercentage
+      });
       return res.json();
     },
     onSuccess: () => {
@@ -528,8 +569,8 @@ export default function AdminPage() {
                               <Input
                                 type="number"
                                 step="0.01"
-                                {...field}
-                                onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                                value={field.value || ''}
+                                onChange={(e) => field.onChange(Number(e.target.value))}
                               />
                             </FormControl>
                             <FormMessage />
@@ -547,8 +588,8 @@ export default function AdminPage() {
                               <Input
                                 type="number"
                                 step="0.01"
-                                {...field}
-                                onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                                value={field.value || ''}
+                                onChange={(e) => field.onChange(Number(e.target.value))}
                               />
                             </FormControl>
                             <FormMessage />
@@ -566,8 +607,8 @@ export default function AdminPage() {
                               <Input
                                 type="number"
                                 step="0.01"
-                                {...field}
-                                onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                                value={field.value || ''}
+                                onChange={(e) => field.onChange(Number(e.target.value))}
                               />
                             </FormControl>
                             <FormMessage />
@@ -588,8 +629,8 @@ export default function AdminPage() {
                               <Input
                                 type="number"
                                 step="0.01"
-                                {...field}
-                                onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                                value={field.value || ''}
+                                onChange={(e) => field.onChange(Number(e.target.value))}
                               />
                             </FormControl>
                             <FormMessage />
@@ -607,8 +648,8 @@ export default function AdminPage() {
                               <Input
                                 type="number"
                                 step="0.01"
-                                {...field}
-                                onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                                value={field.value || ''}
+                                onChange={(e) => field.onChange(Number(e.target.value))}
                               />
                             </FormControl>
                             <FormMessage />
@@ -626,8 +667,8 @@ export default function AdminPage() {
                               <Input
                                 type="number"
                                 step="0.01"
-                                {...field}
-                                onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                                value={field.value || ''}
+                                onChange={(e) => field.onChange(Number(e.target.value))}
                               />
                             </FormControl>
                             <FormMessage />
@@ -649,8 +690,8 @@ export default function AdminPage() {
                             <Input
                               type="number"
                               step="0.01"
-                              {...field}
-                              onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                              value={field.value || ''}
+                              onChange={(e) => field.onChange(Number(e.target.value))}
                             />
                           </FormControl>
                           <FormMessage />
