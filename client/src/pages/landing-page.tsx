@@ -1,607 +1,645 @@
-import { useState, useEffect } from "react";
-import { Link } from "wouter";
+import { useLocation } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
-import { ArrowRight, Info, DollarSign, Users, Egg, HelpCircle, Send } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-
-const fadeIn = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { 
-    opacity: 1, 
-    y: 0,
-    transition: { duration: 0.6 }
-  }
-};
+import ScrollToTop from "@/components/scroll-to-top";
 
 export default function LandingPage() {
-  const [stats, setStats] = useState({
-    eggsHatched: 2347852,
-    activeUsers: 5293,
-    totalEarnings: 412539
-  });
+  const [location, setLocation] = useLocation();
+  const { user } = useAuth();
 
-  useEffect(() => {
-    // Animate stats counting up
-    const interval = setInterval(() => {
-      setStats(prevStats => ({
-        eggsHatched: prevStats.eggsHatched + Math.floor(Math.random() * 10),
-        activeUsers: prevStats.activeUsers + (Math.random() > 0.7 ? 1 : 0),
-        totalEarnings: prevStats.totalEarnings + Math.floor(Math.random() * 5)
-      }));
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  // Scroll to a section
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+  const handleGetStarted = () => {
+    if (user) {
+      setLocation("/home");
+    } else {
+      setLocation("/auth");
     }
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-amber-50 to-white">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden py-20 md:py-28 lg:py-32 px-4">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute bottom-0 left-0 w-full h-2/3 bg-gradient-to-t from-amber-100/30 to-transparent" />
-          <img 
-            src="/assets/farm-background.png" 
-            alt="Farm Background" 
-            className="absolute inset-0 w-full h-full object-cover opacity-20"
-          />
-        </div>
-        
-        <div className="container mx-auto max-w-6xl relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <motion.div 
-              className="space-y-6"
-              initial="hidden"
-              animate="visible"
-              variants={fadeIn}
-            >
-              <div className="inline-block bg-amber-400 text-amber-900 font-semibold px-3 py-1 rounded-full text-sm">
-                🚀 Play &amp; Earn with ChickFarms
-              </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-amber-900 leading-tight">
-                Farm, <span className="text-orange-600">Shoot</span>, Earn – The Ultimate Chicken Investment Game!
-              </h1>
-              <p className="text-lg text-amber-800 md:pr-12">
-                Raise chickens, collect eggs, and earn real USDT in this immersive farm simulation game with exciting shooting mechanics.
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <Button 
-                  size="lg" 
-                  className="bg-amber-500 hover:bg-amber-600 text-white"
-                  asChild
-                >
-                  <Link href="/auth">Join Now & Start Earning!</Link>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="lg"
-                  className="border-amber-500 text-amber-700"
-                  onClick={() => scrollToSection('how-it-works')}
-                >
-                  Learn More <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </div>
-            </motion.div>
-            
-            <motion.div
-              className="relative"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8 }}
-            >
-              <img 
-                src="/assets/chickfarms-hero.png" 
-                alt="ChickFarms Game" 
-                className="rounded-2xl shadow-2xl w-full"
-              />
-              <div className="absolute -bottom-4 -right-4 bg-white/80 backdrop-blur-sm p-4 rounded-xl shadow-lg border border-amber-200">
-                <div className="flex gap-1 items-center text-amber-700 font-semibold">
-                  <Egg className="h-5 w-5 text-amber-500" />
-                  <span className="text-sm">Already farming:</span>
-                </div>
-                <div className="text-xl font-bold text-amber-900">
-                  {stats.eggsHatched.toLocaleString()} Eggs Hatched
-                </div>
-              </div>
-            </motion.div>
+    <div className="min-h-screen bg-[#FEF3C7] flex flex-col overflow-x-hidden">
+      {/* Navbar */}
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-amber-100">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="flex items-center space-x-2">
+            <img src="/assets/chickfarms-logo.svg" alt="ChickFarms Logo" className="h-10" />
+            <span className="text-xl font-bold text-amber-900">ChickFarms</span>
           </div>
-          
-          <motion.div 
-            className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 text-center"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              onClick={() => setLocation(user ? "/home" : "/auth")}
+              className="text-amber-900 hover:text-amber-700 hover:bg-amber-50"
+            >
+              {user ? "Dashboard" : "Login"}
+            </Button>
+            {!user && (
+              <Button
+                variant="default"
+                onClick={() => setLocation("/auth")}
+                className="bg-amber-500 hover:bg-amber-600 text-white"
+              >
+                Sign Up
+              </Button>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section className="relative overflow-hidden py-20 md:py-32">
+        <div className="container mx-auto px-4 grid md:grid-cols-2 gap-8 items-center">
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+            className="max-w-xl"
           >
-            <div className="bg-white/70 backdrop-blur p-6 rounded-xl shadow-md border border-amber-100">
-              <Egg className="h-10 w-10 text-amber-500 mx-auto mb-3" />
-              <div className="text-2xl font-bold text-amber-900">
-                {stats.eggsHatched.toLocaleString()}
-              </div>
-              <p className="text-amber-700">Total Eggs Hatched</p>
+            <Badge className="mb-4 bg-amber-100 text-amber-800 hover:bg-amber-200">
+              Farming Game
+            </Badge>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-amber-900 mb-6">
+              Farm, Invest & Earn Real USDT
+            </h1>
+            <p className="text-lg text-amber-800 mb-8">
+              Join ChickFarms, the innovative farming simulation where you raise chickens, 
+              collect eggs, and earn real cryptocurrency through strategic gameplay.
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <Button
+                onClick={handleGetStarted}
+                size="lg"
+                className="bg-amber-500 hover:bg-amber-600 text-white px-8"
+              >
+                Start Playing
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => {
+                  const howItWorksSection = document.getElementById("how-it-works");
+                  howItWorksSection?.scrollIntoView({ behavior: "smooth" });
+                }}
+                className="border-amber-500 text-amber-500 hover:bg-amber-50"
+              >
+                Learn More
+              </Button>
             </div>
-            
-            <div className="bg-white/70 backdrop-blur p-6 rounded-xl shadow-md border border-amber-100">
-              <Users className="h-10 w-10 text-amber-500 mx-auto mb-3" />
-              <div className="text-2xl font-bold text-amber-900">
-                {stats.activeUsers.toLocaleString()}
-              </div>
-              <p className="text-amber-700">Active Farmers</p>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="relative"
+          >
+            <div className="relative rounded-lg overflow-hidden shadow-xl">
+              <img
+                src="/assets/chickfarms-hero.svg"
+                alt="ChickFarms Game Preview"
+                className="w-full h-auto"
+              />
             </div>
-            
-            <div className="bg-white/70 backdrop-blur p-6 rounded-xl shadow-md border border-amber-100">
-              <DollarSign className="h-10 w-10 text-amber-500 mx-auto mb-3" />
-              <div className="text-2xl font-bold text-amber-900">
-                ${stats.totalEarnings.toLocaleString()}
-              </div>
-              <p className="text-amber-700">Total USDT Earned</p>
-            </div>
+            <div className="absolute -z-10 -top-10 -right-10 w-64 h-64 bg-amber-300 rounded-full opacity-30 blur-3xl"></div>
+            <div className="absolute -z-10 -bottom-10 -left-10 w-64 h-64 bg-amber-500 rounded-full opacity-20 blur-3xl"></div>
           </motion.div>
         </div>
       </section>
-      
+
       {/* How It Works */}
-      <section id="how-it-works" className="py-16 md:py-24 px-4 bg-gradient-to-b from-amber-50/50 to-white">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-12">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-            >
-              <h2 className="text-3xl md:text-4xl font-bold text-amber-900 mb-4">How ChickFarms Works</h2>
-              <p className="text-amber-700 max-w-2xl mx-auto">
-                ChickFarms combines farming simulation with engaging gameplay to create a unique earning opportunity.
-              </p>
-            </motion.div>
+      <section id="how-it-works" className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-amber-100 text-amber-800 hover:bg-amber-200">
+              Game Mechanics
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-amber-900 mb-4">
+              How ChickFarms Works
+            </h2>
+            <p className="text-lg text-amber-700 max-w-2xl mx-auto">
+              A simple farming simulation game with real earnings potential
+            </p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+
+          <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                icon: "🐔",
                 title: "Buy Chickens",
-                description: "Purchase Baby, Regular, or Golden Chickens from the shop. Each type has different earning potential.",
+                desc: "Purchase different types of chickens with varying production rates and hatching times.",
+                icon: "🐔",
+                delay: 0
+              },
+              {
+                title: "Collect Eggs",
+                desc: "Regularly collect eggs from your chickens and sell them in the marketplace for USDT.",
+                icon: "🥚",
                 delay: 0.1
               },
               {
-                icon: "🥚",
-                title: "Hatch & Earn Eggs",
-                description: "Feed your chickens with wheat and water to produce eggs at different rates based on chicken type.",
+                title: "Upgrade Farm",
+                desc: "Expand your chicken collection and increase your earning potential over time.",
+                icon: "📈",
                 delay: 0.2
-              },
-              {
-                icon: "🔫",
-                title: "Shooting Arena",
-                description: "Buy guns & bullets. Enter the arena and shoot chickens for bonus eggs and special rewards!",
-                delay: 0.3
-              },
-              {
-                icon: "💰",
-                title: "Sell & Withdraw",
-                description: "Convert eggs to USDT in the marketplace. Withdraw your earnings to your crypto wallet.",
-                delay: 0.4
               }
-            ].map((step, index) => (
+            ].map((item, index) => (
               <motion.div
                 key={index}
-                className="bg-white p-6 rounded-xl shadow-md border border-amber-100 text-center"
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: item.delay }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: step.delay }}
               >
-                <div className="text-4xl mb-4">{step.icon}</div>
-                <h3 className="text-xl font-semibold text-amber-900 mb-2">
-                  Step {index + 1}: {step.title}
-                </h3>
-                <p className="text-amber-700">{step.description}</p>
+                <Card className="border-amber-100 hover:shadow-md transition-shadow">
+                  <CardHeader>
+                    <div className="w-14 h-14 flex items-center justify-center rounded-full bg-amber-100 text-3xl mb-4">
+                      {item.icon}
+                    </div>
+                    <CardTitle className="text-xl text-amber-900">{item.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-amber-700">{item.desc}</p>
+                  </CardContent>
+                </Card>
               </motion.div>
             ))}
           </div>
-          
-          <motion.div
-            className="mt-16 text-center"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-          >
-            <Button 
-              size="lg" 
-              className="bg-amber-500 hover:bg-amber-600 text-white"
-              asChild
-            >
-              <Link href="/auth">Start Playing Now</Link>
-            </Button>
-          </motion.div>
+
+          <div className="mt-20">
+            <div className="grid md:grid-cols-2 gap-8 items-center">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+              >
+                <img 
+                  src="/assets/chickens-screen.svg" 
+                  alt="Chicken Farm Interface" 
+                  className="w-full h-auto rounded-lg shadow-lg"
+                />
+              </motion.div>
+              <div>
+                <h3 className="text-2xl font-bold text-amber-900 mb-4">
+                  Meet Your Chickens
+                </h3>
+                <ul className="space-y-4">
+                  {[
+                    {
+                      title: "Baby Chicken",
+                      desc: "Produces 2 eggs every 4 hours. Perfect for beginners!",
+                      price: "$10"
+                    },
+                    {
+                      title: "Regular Chicken",
+                      desc: "Produces 5 eggs every 8 hours. Balanced investment.",
+                      price: "$30"
+                    },
+                    {
+                      title: "Golden Chicken",
+                      desc: "Produces 20 eggs every 24 hours. For serious farmers!",
+                      price: "$100"
+                    }
+                  ].map((chicken, index) => (
+                    <motion.li
+                      key={index}
+                      initial={{ opacity: 0, y: 10 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: index * 0.1 }}
+                      viewport={{ once: true }}
+                      className="flex items-start gap-4 p-4 rounded-lg border border-amber-100 hover:bg-amber-50 transition-colors"
+                    >
+                      <div className="mt-1 text-2xl">{index === 0 ? "🐥" : index === 1 ? "🐔" : "✨🐔"}</div>
+                      <div>
+                        <div className="flex justify-between">
+                          <h4 className="font-semibold text-amber-900">{chicken.title}</h4>
+                          <span className="font-semibold text-amber-600">{chicken.price}</span>
+                        </div>
+                        <p className="text-sm text-amber-700">{chicken.desc}</p>
+                      </div>
+                    </motion.li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
-      
-      {/* Features Tabs */}
-      <section className="py-16 md:py-24 px-4 bg-gradient-to-b from-white to-amber-50/50">
-        <div className="container mx-auto max-w-6xl">
-          <motion.div
-            className="text-center mb-12"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-amber-900 mb-4">Game Features</h2>
-            <p className="text-amber-700 max-w-2xl mx-auto">
-              Explore the various features that make ChickFarms both fun and profitable.
+
+      {/* Deposits & Withdrawals */}
+      <section className="py-20 bg-amber-50 relative overflow-hidden">
+        <div className="absolute -top-20 -right-20 w-64 h-64 bg-amber-300 rounded-full opacity-20 blur-3xl"></div>
+        <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-amber-400 rounded-full opacity-20 blur-3xl"></div>
+        
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-amber-200 text-amber-800 hover:bg-amber-300">
+              Transactions
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-amber-900 mb-4">
+              Easy Deposits & Withdrawals
+            </h2>
+            <p className="text-lg text-amber-700 max-w-2xl mx-auto">
+              Secure and straightforward transactions to fund your farm and withdraw your earnings
             </p>
-          </motion.div>
-          
-          <Tabs defaultValue="deposits" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-8">
-              <TabsTrigger value="deposits">Deposits & Withdrawals</TabsTrigger>
-              <TabsTrigger value="referral">Referral Program</TabsTrigger>
-              <TabsTrigger value="marketplace">Marketplace</TabsTrigger>
-              <TabsTrigger value="chickens">Chicken Types</TabsTrigger>
-            </TabsList>
-            
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-12 items-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
               transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+              className="order-2 md:order-1"
             >
-              <TabsContent value="deposits" className="p-6 bg-white rounded-xl shadow-md border border-amber-100">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                  <div>
-                    <h3 className="text-2xl font-bold text-amber-900 mb-4">Easy Deposits & Withdrawals</h3>
-                    <ul className="space-y-3">
-                      <li className="flex items-start">
-                        <div className="bg-amber-100 p-1 rounded-full mr-3 mt-1">
-                          <DollarSign className="h-4 w-4 text-amber-600" />
-                        </div>
-                        <div>
-                          <span className="font-semibold text-amber-900">Multi-Network Support</span>
-                          <p className="text-amber-700 text-sm">Deposit USDT via Ethereum, Tron, or BNB networks</p>
-                        </div>
-                      </li>
-                      <li className="flex items-start">
-                        <div className="bg-amber-100 p-1 rounded-full mr-3 mt-1">
-                          <DollarSign className="h-4 w-4 text-amber-600" />
-                        </div>
-                        <div>
-                          <span className="font-semibold text-amber-900">Secure Transactions</span>
-                          <p className="text-amber-700 text-sm">Your funds are handled with enterprise-grade security</p>
-                        </div>
-                      </li>
-                      <li className="flex items-start">
-                        <div className="bg-amber-100 p-1 rounded-full mr-3 mt-1">
-                          <DollarSign className="h-4 w-4 text-amber-600" />
-                        </div>
-                        <div>
-                          <span className="font-semibold text-amber-900">Efficient Withdrawals</span>
-                          <p className="text-amber-700 text-sm">Withdraw your earnings directly to your USDT wallet</p>
-                        </div>
-                      </li>
-                    </ul>
+              <h3 className="text-2xl font-bold text-amber-900 mb-6">
+                Cryptocurrency Transactions
+              </h3>
+              <div className="space-y-6">
+                <div className="flex gap-4">
+                  <div className="w-10 h-10 rounded-full bg-amber-200 flex items-center justify-center text-amber-800 flex-shrink-0">
+                    1
                   </div>
-                  <div className="relative">
-                    <img 
-                      src="/assets/wallet-screen.png" 
-                      alt="Deposits and Withdrawals" 
-                      className="rounded-xl shadow-lg w-full"
-                    />
+                  <div>
+                    <h4 className="font-semibold text-amber-900 mb-1">Deposit USDT</h4>
+                    <p className="text-amber-700">
+                      Deposit USDT (TRC20) to your game wallet to purchase chickens and resources.
+                    </p>
                   </div>
                 </div>
-              </TabsContent>
-              
-              <TabsContent value="referral" className="p-6 bg-white rounded-xl shadow-md border border-amber-100">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                  <div>
-                    <h3 className="text-2xl font-bold text-amber-900 mb-4">Lucrative Referral Program</h3>
-                    <ul className="space-y-3">
-                      <li className="flex items-start">
-                        <div className="bg-amber-100 p-1 rounded-full mr-3 mt-1">
-                          <Users className="h-4 w-4 text-amber-600" />
-                        </div>
-                        <div>
-                          <span className="font-semibold text-amber-900">10% Commission</span>
-                          <p className="text-amber-700 text-sm">Earn 10% of the deposits made by your referred players</p>
-                        </div>
-                      </li>
-                      <li className="flex items-start">
-                        <div className="bg-amber-100 p-1 rounded-full mr-3 mt-1">
-                          <Users className="h-4 w-4 text-amber-600" />
-                        </div>
-                        <div>
-                          <span className="font-semibold text-amber-900">Unlimited Referrals</span>
-                          <p className="text-amber-700 text-sm">There's no limit to how many friends you can refer</p>
-                        </div>
-                      </li>
-                      <li className="flex items-start">
-                        <div className="bg-amber-100 p-1 rounded-full mr-3 mt-1">
-                          <Users className="h-4 w-4 text-amber-600" />
-                        </div>
-                        <div>
-                          <span className="font-semibold text-amber-900">Leaderboard Rewards</span>
-                          <p className="text-amber-700 text-sm">Top referrers get special bonuses and recognition</p>
-                        </div>
-                      </li>
-                    </ul>
+                <div className="flex gap-4">
+                  <div className="w-10 h-10 rounded-full bg-amber-200 flex items-center justify-center text-amber-800 flex-shrink-0">
+                    2
                   </div>
-                  <div className="relative">
-                    <img 
-                      src="/assets/referral-screen.png" 
-                      alt="Referral Program" 
-                      className="rounded-xl shadow-lg w-full"
-                    />
+                  <div>
+                    <h4 className="font-semibold text-amber-900 mb-1">Play & Earn</h4>
+                    <p className="text-amber-700">
+                      Generate income by raising chickens, collecting eggs, and selling resources.
+                    </p>
                   </div>
                 </div>
-              </TabsContent>
-              
-              <TabsContent value="marketplace" className="p-6 bg-white rounded-xl shadow-md border border-amber-100">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                  <div>
-                    <h3 className="text-2xl font-bold text-amber-900 mb-4">Dynamic Marketplace</h3>
-                    <ul className="space-y-3">
-                      <li className="flex items-start">
-                        <div className="bg-amber-100 p-1 rounded-full mr-3 mt-1">
-                          <DollarSign className="h-4 w-4 text-amber-600" />
-                        </div>
-                        <div>
-                          <span className="font-semibold text-amber-900">Resource Trading</span>
-                          <p className="text-amber-700 text-sm">Buy and sell water, wheat, eggs, and more</p>
-                        </div>
-                      </li>
-                      <li className="flex items-start">
-                        <div className="bg-amber-100 p-1 rounded-full mr-3 mt-1">
-                          <DollarSign className="h-4 w-4 text-amber-600" />
-                        </div>
-                        <div>
-                          <span className="font-semibold text-amber-900">Live Price Updates</span>
-                          <p className="text-amber-700 text-sm">Market prices that reflect real-time supply and demand</p>
-                        </div>
-                      </li>
-                      <li className="flex items-start">
-                        <div className="bg-amber-100 p-1 rounded-full mr-3 mt-1">
-                          <DollarSign className="h-4 w-4 text-amber-600" />
-                        </div>
-                        <div>
-                          <span className="font-semibold text-amber-900">Strategic Trading</span>
-                          <p className="text-amber-700 text-sm">Buy low, sell high to maximize your earnings</p>
-                        </div>
-                      </li>
-                    </ul>
+                <div className="flex gap-4">
+                  <div className="w-10 h-10 rounded-full bg-amber-200 flex items-center justify-center text-amber-800 flex-shrink-0">
+                    3
                   </div>
-                  <div className="relative">
-                    <img 
-                      src="/assets/market-screen.png" 
-                      alt="Marketplace" 
-                      className="rounded-xl shadow-lg w-full"
-                    />
+                  <div>
+                    <h4 className="font-semibold text-amber-900 mb-1">Withdraw Profits</h4>
+                    <p className="text-amber-700">
+                      Withdraw your earnings to your personal USDT wallet anytime.
+                    </p>
                   </div>
                 </div>
-              </TabsContent>
-              
-              <TabsContent value="chickens" className="p-6 bg-white rounded-xl shadow-md border border-amber-100">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                  <div>
-                    <h3 className="text-2xl font-bold text-amber-900 mb-4">Chicken Varieties</h3>
-                    <ul className="space-y-3">
-                      <li className="flex items-start">
-                        <div className="bg-amber-100 p-1 rounded-full mr-3 mt-1">
-                          <span className="text-amber-600 font-bold text-sm">1</span>
-                        </div>
-                        <div>
-                          <span className="font-semibold text-amber-900">Baby Chicken</span>
-                          <p className="text-amber-700 text-sm">Low cost, short cooldown, small egg production</p>
-                        </div>
-                      </li>
-                      <li className="flex items-start">
-                        <div className="bg-amber-100 p-1 rounded-full mr-3 mt-1">
-                          <span className="text-amber-600 font-bold text-sm">2</span>
-                        </div>
-                        <div>
-                          <span className="font-semibold text-amber-900">Regular Chicken</span>
-                          <p className="text-amber-700 text-sm">Medium cost, balanced cooldown and egg production</p>
-                        </div>
-                      </li>
-                      <li className="flex items-start">
-                        <div className="bg-amber-100 p-1 rounded-full mr-3 mt-1">
-                          <span className="text-amber-600 font-bold text-sm">3</span>
-                        </div>
-                        <div>
-                          <span className="font-semibold text-amber-900">Golden Chicken</span>
-                          <p className="text-amber-700 text-sm">Premium cost, longer cooldown, massive egg production</p>
-                        </div>
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="relative">
-                    <img 
-                      src="/assets/chickens-screen.png" 
-                      alt="Chicken Types" 
-                      className="rounded-xl shadow-lg w-full"
-                    />
-                  </div>
-                </div>
-              </TabsContent>
+              </div>
             </motion.div>
-          </Tabs>
-        </div>
-      </section>
-      
-      {/* Call To Action */}
-      <section className="py-16 bg-amber-500">
-        <div className="container mx-auto max-w-6xl px-4">
-          <motion.div
-            className="text-center text-white"
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Start Earning?</h2>
-            <p className="max-w-2xl mx-auto mb-8 text-amber-50">
-              Join thousands of players already farming, playing, and earning with ChickFarms.
-            </p>
-            <Button 
-              size="lg" 
-              className="bg-white hover:bg-amber-100 text-amber-600"
-              asChild
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+              className="order-1 md:order-2"
             >
-              <Link href="/">Enter the Game</Link>
-            </Button>
-          </motion.div>
+              <img 
+                src="/assets/wallet-screen.svg" 
+                alt="Wallet Interface" 
+                className="w-full h-auto rounded-lg shadow-lg"
+              />
+            </motion.div>
+          </div>
         </div>
       </section>
-      
-      {/* FAQs */}
-      <section id="faqs" className="py-16 md:py-24 px-4 bg-gradient-to-b from-amber-50/50 to-white">
-        <div className="container mx-auto max-w-4xl">
-          <motion.div
-            className="text-center mb-12"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-amber-900 mb-4">Frequently Asked Questions</h2>
-            <p className="text-amber-700 max-w-2xl mx-auto">
-              Find answers to common questions about ChickFarms.
+
+      {/* Referral Program */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+            >
+              <img 
+                src="/assets/referral-screen.svg" 
+                alt="Referral Program Interface" 
+                className="w-full h-auto rounded-lg shadow-lg"
+              />
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+            >
+              <Badge className="mb-4 bg-amber-100 text-amber-800 hover:bg-amber-200">
+                Earn More
+              </Badge>
+              <h2 className="text-3xl font-bold text-amber-900 mb-6">
+                Referral Program
+              </h2>
+              <p className="text-lg text-amber-700 mb-8">
+                Invite friends to join ChickFarms and earn a commission on their deposits forever.
+              </p>
+              <div className="space-y-6">
+                <div className="p-6 rounded-lg bg-amber-50 border border-amber-100">
+                  <h4 className="text-xl font-semibold text-amber-900 mb-2">10% Commission</h4>
+                  <p className="text-amber-700">
+                    Earn 10% of every deposit your referrals make. The more active referrals you have, the more passive income you generate.
+                  </p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center text-2xl">
+                    🔗
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-amber-900">Share Your Link</h4>
+                    <p className="text-amber-700">
+                      Every account gets a unique referral link to share.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center text-2xl">
+                    📊
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-amber-900">Track Performance</h4>
+                    <p className="text-amber-700">
+                      Monitor your referrals and earnings in real-time.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Marketplace */}
+      <section className="py-20 bg-amber-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-amber-200 text-amber-800 hover:bg-amber-300">
+              Trading
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-amber-900 mb-4">
+              In-Game Marketplace
+            </h2>
+            <p className="text-lg text-amber-700 max-w-2xl mx-auto">
+              Buy and sell farm resources to maximize your profits
             </p>
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            <Accordion type="single" collapsible className="w-full">
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+              className="order-2 md:order-1"
+            >
+              <h3 className="text-2xl font-bold text-amber-900 mb-6">
+                Resource Trading
+              </h3>
+              <p className="text-amber-700 mb-6">
+                The marketplace is where you can buy essential resources for your farm 
+                and sell your products for USDT.
+              </p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-white rounded-lg border border-amber-100 hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-xl">
+                      💧
+                    </div>
+                    <h4 className="font-semibold text-amber-900">Water</h4>
+                  </div>
+                  <p className="text-sm text-amber-700">
+                    Essential for chicken health and egg production.
+                  </p>
+                </div>
+                <div className="p-4 bg-white rounded-lg border border-amber-100 hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center text-xl">
+                      🌾
+                    </div>
+                    <h4 className="font-semibold text-amber-900">Wheat</h4>
+                  </div>
+                  <p className="text-sm text-amber-700">
+                    Feed your chickens to maintain egg production.
+                  </p>
+                </div>
+                <div className="p-4 bg-white rounded-lg border border-amber-100 hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-xl">
+                      🥚
+                    </div>
+                    <h4 className="font-semibold text-amber-900">Eggs</h4>
+                  </div>
+                  <p className="text-sm text-amber-700">
+                    Sell eggs for profit or use them to expand your farm.
+                  </p>
+                </div>
+                <div className="p-4 bg-white rounded-lg border border-amber-100 hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-xl">
+                      🐣
+                    </div>
+                    <h4 className="font-semibold text-amber-900">Chicks</h4>
+                  </div>
+                  <p className="text-sm text-amber-700">
+                    Buy baby chickens to start or expand your farm.
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+              className="order-1 md:order-2"
+            >
+              <img 
+                src="/assets/market-screen.svg" 
+                alt="Marketplace Interface" 
+                className="w-full h-auto rounded-lg shadow-lg"
+              />
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-amber-100 text-amber-800 hover:bg-amber-200">
+              Questions
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-amber-900 mb-4">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-lg text-amber-700 max-w-2xl mx-auto">
+              Everything you need to know about ChickFarms
+            </p>
+          </div>
+
+          <div className="max-w-3xl mx-auto">
+            <Accordion type="single" collapsible className="space-y-4">
               {[
                 {
-                  question: "How do I start playing ChickFarms?",
-                  answer: "Sign up for an account, make a USDT deposit, purchase your first chicken from the shop, and start your farming journey!"
+                  question: "Is ChickFarms free to play?",
+                  answer: "ChickFarms is free to register, but you'll need to make a deposit to purchase chickens and start playing. Different chickens have different prices, with baby chickens being the most affordable option for beginners."
                 },
                 {
-                  question: "What are the different types of chickens?",
-                  answer: "ChickFarms offers three main chicken types: Baby (beginner-friendly), Regular (balanced), and Golden (high-yield premium)."
-                },
-                {
-                  question: "How do withdrawals work?",
-                  answer: "Submit a withdrawal request with your USDT wallet address. Our team reviews and processes withdrawals within 24 hours."
-                },
-                {
-                  question: "Is there a minimum deposit amount?",
-                  answer: "The minimum deposit is 10 USDT, allowing everyone to start with a reasonable investment."
-                },
-                {
-                  question: "How does the referral system work?",
-                  answer: "You earn 10% commission on deposits made by players you refer. This is an unlimited, lifetime commission on all their deposits."
+                  question: "How do I earn real money?",
+                  answer: "You earn by collecting eggs from your chickens and selling them in the marketplace. The more chickens you have and the better you manage your farm, the more you can earn. You can withdraw your earnings as USDT cryptocurrency."
                 },
                 {
                   question: "How often can chickens produce eggs?",
-                  answer: "Each chicken type has a different cooldown period: Baby (4 hours), Regular (8 hours), Golden (24 hours)."
+                  answer: "Each chicken type has a different cooldown period. Baby chickens produce eggs every 4 hours, regular chickens every 8 hours, and golden chickens every 24 hours. You need to ensure your chickens have water and feed to maintain production."
+                },
+                {
+                  question: "What payment methods do you accept?",
+                  answer: "Currently, we accept USDT (TRC20) for deposits. We're planning to add more cryptocurrency options in the future."
+                },
+                {
+                  question: "How long do withdrawals take?",
+                  answer: "Withdrawal requests are typically processed within 24 hours. Once approved, funds are transferred to your USDT wallet immediately."
+                },
+                {
+                  question: "Is there a minimum withdrawal amount?",
+                  answer: "Yes, the minimum withdrawal amount is 10 USDT. This helps minimize transaction fees and ensures efficient processing."
                 }
               ].map((faq, index) => (
-                <AccordionItem key={index} value={`faq-${index}`}>
-                  <AccordionTrigger className="text-amber-900 hover:text-amber-700">
+                <AccordionItem
+                  key={index}
+                  value={`item-${index}`}
+                  className="border border-amber-100 rounded-lg overflow-hidden"
+                >
+                  <AccordionTrigger className="px-6 py-4 hover:bg-amber-50 text-amber-900 font-semibold text-left">
                     {faq.question}
                   </AccordionTrigger>
-                  <AccordionContent className="text-amber-700">
+                  <AccordionContent className="px-6 py-4 text-amber-700">
                     {faq.answer}
                   </AccordionContent>
                 </AccordionItem>
               ))}
             </Accordion>
-          </motion.div>
-          
-          <motion.div
-            className="mt-12 bg-white p-6 rounded-xl shadow-md border border-amber-100"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <div className="flex flex-col md:flex-row items-center gap-6">
-              <div className="bg-amber-100 rounded-full p-4">
-                <HelpCircle className="h-8 w-8 text-amber-600" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-xl font-semibold text-amber-900 mb-2">Still have questions?</h3>
-                <p className="text-amber-700">Our support team is ready to help you with any questions you may have.</p>
-              </div>
-              <Button 
-                className="bg-amber-500 hover:bg-amber-600 text-white whitespace-nowrap"
-              >
-                Contact Support <Send className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
-          </motion.div>
+          </div>
         </div>
       </section>
-      
-      {/* Footer */}
-      <footer className="bg-amber-900 text-amber-200 py-12 px-4">
-        <div className="container mx-auto max-w-6xl">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <img 
-                src="/assets/chickfarms-logo-light.png" 
-                alt="ChickFarms" 
-                className="h-10 mb-4" 
-              />
-              <p className="text-sm">
-                ChickFarms combines farming simulation with play-to-earn mechanics to create a fun and profitable gaming experience.
+
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-br from-amber-400 to-amber-600 text-white relative overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-amber-300 rounded-full opacity-30 blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-amber-700 rounded-full opacity-20 blur-3xl"></div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-3xl mx-auto text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-3xl md:text-4xl font-bold mb-6">
+                Ready to Start Your Farming Journey?
+              </h2>
+              <p className="text-xl mb-8 text-amber-50">
+                Join thousands of players already earning from their virtual farms.
               </p>
+              <Button
+                onClick={handleGetStarted}
+                size="lg"
+                className="bg-white text-amber-600 hover:bg-amber-50 px-8 text-lg"
+              >
+                Start Playing Now
+              </Button>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-amber-900 text-amber-200 py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-4 gap-8">
+            <div>
+              <div className="flex items-center space-x-2 mb-4">
+                <img src="/assets/chickfarms-logo.svg" alt="ChickFarms Logo" className="h-8" />
+                <span className="text-lg font-bold text-white">ChickFarms</span>
+              </div>
+              <p className="text-amber-300 mb-4">
+                The fun farming game where you can earn real cryptocurrency.
+              </p>
+              <div className="flex space-x-4">
+                <a href="#" className="text-amber-300 hover:text-white transition-colors">
+                  <span className="sr-only">Twitter</span>
+                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"></path>
+                  </svg>
+                </a>
+                <a href="#" className="text-amber-300 hover:text-white transition-colors">
+                  <span className="sr-only">Telegram</span>
+                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.18-.04-.26-.02-.11.02-1.85 1.17-5.21 3.42-.49.33-.94.5-1.35.48-.44-.02-1.3-.25-1.93-.46-.78-.24-1.39-.38-1.33-.8.03-.21.32-.43.84-.66 3.31-1.43 5.52-2.39 6.63-2.86 3.16-1.35 3.81-1.58 4.24-1.59.09 0 .31.02.45.19.12.13.15.31.17.48z" />
+                  </svg>
+                </a>
+                <a href="#" className="text-amber-300 hover:text-white transition-colors">
+                  <span className="sr-only">Discord</span>
+                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3847-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z" />
+                  </svg>
+                </a>
+              </div>
             </div>
             
             <div>
-              <h4 className="font-semibold text-white mb-4">Quick Links</h4>
-              <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-white">Home</a></li>
-                <li><a href="#how-it-works" className="hover:text-white">How It Works</a></li>
-                <li><a href="#faqs" className="hover:text-white">FAQs</a></li>
-                <li><Link href="/auth" className="hover:text-white">Sign Up</Link></li>
+              <h3 className="text-white font-semibold mb-4">Game</h3>
+              <ul className="space-y-2">
+                <li><a href="#how-it-works" className="text-amber-300 hover:text-white transition-colors">How It Works</a></li>
+                <li><a href="#" className="text-amber-300 hover:text-white transition-colors">Chickens</a></li>
+                <li><a href="#" className="text-amber-300 hover:text-white transition-colors">Marketplace</a></li>
+                <li><a href="#" className="text-amber-300 hover:text-white transition-colors">Referral Program</a></li>
               </ul>
             </div>
             
             <div>
-              <h4 className="font-semibold text-white mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-white">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-white">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-white">Refund Policy</a></li>
+              <h3 className="text-white font-semibold mb-4">Support</h3>
+              <ul className="space-y-2">
+                <li><a href="#" className="text-amber-300 hover:text-white transition-colors">FAQ</a></li>
+                <li><a href="#" className="text-amber-300 hover:text-white transition-colors">Contact Us</a></li>
+                <li><a href="#" className="text-amber-300 hover:text-white transition-colors">Terms of Service</a></li>
+                <li><a href="#" className="text-amber-300 hover:text-white transition-colors">Privacy Policy</a></li>
               </ul>
             </div>
             
             <div>
-              <h4 className="font-semibold text-white mb-4">Connect</h4>
-              <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-white">Telegram</a></li>
-                <li><a href="#" className="hover:text-white">Discord</a></li>
-                <li><a href="#" className="hover:text-white">Twitter</a></li>
-              </ul>
+              <h3 className="text-white font-semibold mb-4">Newsletter</h3>
+              <p className="text-amber-300 mb-4">
+                Subscribe to get updates about game features and promotions.
+              </p>
+              <div className="flex">
+                <input
+                  type="email"
+                  placeholder="Your email"
+                  className="px-4 py-2 rounded-l-md text-amber-900 w-full"
+                />
+                <button className="bg-amber-500 text-white px-4 py-2 rounded-r-md hover:bg-amber-600 transition-colors">
+                  Subscribe
+                </button>
+              </div>
             </div>
           </div>
           
-          <div className="border-t border-amber-800 mt-8 pt-8 text-center text-sm">
-            <p>© {new Date().getFullYear()} ChickFarms. All rights reserved.</p>
+          <div className="mt-12 pt-8 border-t border-amber-800 text-center text-amber-400">
+            <p>&copy; {new Date().getFullYear()} ChickFarms. All rights reserved.</p>
           </div>
         </div>
       </footer>
+
+      <ScrollToTop />
     </div>
   );
 }

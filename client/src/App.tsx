@@ -18,6 +18,7 @@ import MarketPage from "@/pages/market-page";
 import WalletPage from "@/pages/wallet-page";
 import AccountPage from "@/pages/account-page";
 import AdminPage from "@/pages/admin-page";
+import LandingPage from "@/pages/landing-page";
 import NotFound from "@/pages/not-found";
 
 function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
