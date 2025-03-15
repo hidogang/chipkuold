@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <!-- Sky Background -->
+  <defs>
+    <linearGradient id="skyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#87CEEB"/>
+      <stop offset="100%" style="stop-color:#E0F7FA"/>
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="80%" cy="20%" r="50%">
+      <stop offset="0%" style="stop-color:#FFD700"/>
+      <stop offset="100%" style="stop-color:#FFA500" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="600" fill="url(#skyGradient)"/>
+  
+  <!-- Sun -->
+  <circle cx="700" cy="100" r="60" fill="url(#sunGlow)"/>
+  <circle cx="700" cy="100" r="40" fill="#FFD700"/>
+  
+  <!-- Clouds -->
+  <g fill="#FFFFFF" opacity="0.8">
+    <ellipse cx="200" cy="100" rx="60" ry="30"/>
+    <ellipse cx="500" cy="150" rx="70" ry="35"/>
+    <ellipse cx="100" cy="180" rx="50" ry="25"/>
+  </g>
+  
+  <!-- Ground -->
+  <rect x="0" y="400" width="800" height="200" fill="#90EE90"/>
+  
+  <!-- Farm Grid -->
+  <g transform="translate(50, 250)">
+    <!-- Grid plots -->
+    <g fill="#8B4513" stroke="#654321" stroke-width="2">
+      <rect x="0" y="200" width="100" height="100"/>
+      <rect x="120" y="200" width="100" height="100"/>
+      <rect x="240" y="200" width="100" height="100"/>
+      <rect x="360" y="200" width="100" height="100"/>
+    </g>
+    
+    <!-- Chickens -->
+    <use href="#chicken" x="20" y="220" width="60" height="60"/>
+    <use href="#chicken-golden" x="140" y="220" width="60" height="60"/>
+    <use href="#chicken-baby" x="260" y="220" width="60" height="60"/>
+  </g>
+  
+  <!-- UI Elements -->
+  <g transform="translate(600, 50)">
+    <!-- Resource counters -->
+    <rect x="0" y="0" width="150" height="200" rx="10" fill="#FFF3E0" stroke="#FFB74D" stroke-width="2"/>
+    <text x="20" y="40" font-family="Arial" font-size="16" fill="#F57C00">Resources</text>
+    <text x="20" y="80" font-family="Arial" font-size="14" fill="#795548">Water: 15</text>
+    <text x="20" y="110" font-family="Arial" font-size="14" fill="#795548">Wheat: 25</text>
+    <text x="20" y="140" font-family="Arial" font-size="14" fill="#795548">Eggs: 100</text>
+    <text x="20" y="170" font-family="Arial" font-size="14" fill="#795548">USDT: 500.00</text>
+  </g>
+  
+  <!-- Navigation Bar -->
+  <rect x="0" y="0" width="800" height="50" fill="#FFA726" opacity="0.9"/>
+  <text x="30" y="32" font-family="Arial" font-size="24" fill="#FFFFFF">ChickFarms</text>
+  
+  <!-- Menu Icons -->
+  <g transform="translate(600, 10)">
+    <circle cx="30" cy="15" r="15" fill="#FFFFFF" opacity="0.2"/>
+    <circle cx="80" cy="15" r="15" fill="#FFFFFF" opacity="0.2"/>
+    <circle cx="130" cy="15" r="15" fill="#FFFFFF" opacity="0.2"/>
+  </g>
+  
+  <!-- Animated Elements -->
+  <g>
+    <circle cx="150" cy="450" r="5" fill="#FFEB3B">
+      <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="300" cy="480" r="5" fill="#FFEB3B">
+      <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+    </circle>
+    <circle cx="450" cy="460" r="5" fill="#FFEB3B">
+      <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite" begin="1s"/>
+    </circle>
+  </g>
+</svg>

@@ -43,7 +43,7 @@ export default function LandingPage() {
                 </span>
               </Button>
             </motion.div>
-            
+
             {!user && (
               <motion.div
                 whileHover={{ scale: 1.05 }}
@@ -51,11 +51,11 @@ export default function LandingPage() {
                 className="relative"
               >
                 <motion.div
-                  animate={{ 
+                  animate={{
                     boxShadow: ["0px 0px 0px rgba(245, 158, 11, 0)", "0px 0px 15px rgba(245, 158, 11, 0.5)", "0px 0px 0px rgba(245, 158, 11, 0)"]
                   }}
-                  transition={{ 
-                    repeat: Infinity, 
+                  transition={{
+                    repeat: Infinity,
                     duration: 2
                   }}
                   className="absolute inset-0 rounded-md"
@@ -78,13 +78,13 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="relative overflow-hidden py-20 md:py-32">
         {/* Animated Chickens */}
-        <motion.div 
+        <motion.div
           className="absolute top-20 left-10 w-12 h-12 text-4xl z-10 hidden md:block"
-          animate={{ 
+          animate={{
             y: [0, -15, 0],
             rotate: [0, 10, 0, -10, 0]
           }}
-          transition={{ 
+          transition={{
             duration: 2,
             repeat: Infinity,
             ease: "easeInOut"
@@ -92,14 +92,14 @@ export default function LandingPage() {
         >
           🐔
         </motion.div>
-        
-        <motion.div 
+
+        <motion.div
           className="absolute top-40 right-20 w-12 h-12 text-4xl z-10 hidden md:block"
-          animate={{ 
+          animate={{
             y: [0, -10, 0],
             rotate: [0, -5, 0, 5, 0]
           }}
-          transition={{ 
+          transition={{
             duration: 1.5,
             repeat: Infinity,
             ease: "easeInOut",
@@ -108,15 +108,15 @@ export default function LandingPage() {
         >
           🐥
         </motion.div>
-        
-        <motion.div 
+
+        <motion.div
           className="absolute bottom-20 left-[30%] w-12 h-12 text-4xl z-10 hidden md:block"
-          animate={{ 
+          animate={{
             x: [0, 100, 0],
             y: [0, -20, 0],
             rotate: [0, 20, 0]
           }}
-          transition={{ 
+          transition={{
             duration: 8,
             repeat: Infinity,
             ease: "easeInOut"
@@ -124,7 +124,7 @@ export default function LandingPage() {
         >
           ✨🐔
         </motion.div>
-        
+
         <div className="container mx-auto px-4 grid md:grid-cols-2 gap-8 items-center">
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -139,7 +139,7 @@ export default function LandingPage() {
               Farm, Invest & Earn Real USDT
             </h1>
             <p className="text-lg text-amber-800 mb-8">
-              Join ChickFarms, the innovative farming simulation where you raise chickens, 
+              Join ChickFarms, the innovative farming simulation where you raise chickens,
               collect eggs, and earn real cryptocurrency through strategic gameplay.
             </p>
             <div className="flex flex-wrap gap-4">
@@ -149,11 +149,11 @@ export default function LandingPage() {
                 className="relative"
               >
                 <motion.div
-                  animate={{ 
+                  animate={{
                     boxShadow: ["0px 0px 0px rgba(245, 158, 11, 0)", "0px 0px 20px rgba(245, 158, 11, 0.5)", "0px 0px 0px rgba(245, 158, 11, 0)"]
                   }}
-                  transition={{ 
-                    repeat: Infinity, 
+                  transition={{
+                    repeat: Infinity,
                     duration: 2
                   }}
                   className="absolute inset-0 rounded-full"
@@ -168,7 +168,7 @@ export default function LandingPage() {
                   </span>
                 </Button>
               </motion.div>
-              
+
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -197,7 +197,7 @@ export default function LandingPage() {
           >
             <div className="relative rounded-lg overflow-hidden shadow-xl">
               <img
-                src={`/assets/mainscreenchickfarms.png?t=${new Date().getTime()}`}
+                src={`/assets/mainscreenchickfarms.svg?t=${new Date().getTime()}`}
                 alt="ChickFarms Game Preview"
                 className="w-full h-auto"
               />
@@ -211,14 +211,14 @@ export default function LandingPage() {
       {/* How It Works */}
       <section id="how-it-works" className="py-20 bg-white relative overflow-hidden">
         {/* More animated chickens */}
-        <motion.div 
+        <motion.div
           className="absolute top-20 right-[10%] w-12 h-12 text-4xl z-10 hidden md:block"
-          animate={{ 
+          animate={{
             y: [0, -10, 0],
             x: [0, 10, 0, -10, 0],
             rotate: [0, 5, 0, -5, 0]
           }}
-          transition={{ 
+          transition={{
             duration: 3,
             repeat: Infinity,
             ease: "easeInOut"
@@ -226,14 +226,14 @@ export default function LandingPage() {
         >
           🐓
         </motion.div>
-        
-        <motion.div 
+
+        <motion.div
           className="absolute bottom-40 left-[5%] w-12 h-12 text-3xl z-10 hidden md:block"
-          animate={{ 
+          animate={{
             scale: [1, 1.1, 1],
             rotate: [0, -10, 0, 10, 0]
           }}
-          transition={{ 
+          transition={{
             duration: 4,
             repeat: Infinity,
             ease: "easeInOut",
@@ -306,9 +306,9 @@ export default function LandingPage() {
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
               >
-                <img 
-                  src="/assets/chickens-screen.svg" 
-                  alt="Chicken Farm Interface" 
+                <img
+                  src="/assets/chickens-screen.svg"
+                  alt="Chicken Farm Interface"
                   className="w-full h-auto rounded-lg shadow-lg"
                 />
               </motion.div>
@@ -342,14 +342,14 @@ export default function LandingPage() {
                       viewport={{ once: true }}
                       className="flex items-start gap-4 p-4 rounded-lg border border-amber-100 hover:bg-amber-50 transition-colors"
                     >
-                      <motion.div 
+                      <motion.div
                         className="mt-1 text-2xl"
-                        animate={{ 
+                        animate={{
                           y: [0, -5, 0],
                           rotate: index === 0 ? [0, 10, 0] : index === 1 ? [0, -5, 0] : [0, 15, 0]
                         }}
-                        transition={{ 
-                          duration: 1.5 + index * 0.5, 
+                        transition={{
+                          duration: 1.5 + index * 0.5,
                           repeat: Infinity,
                           ease: "easeInOut"
                         }}
@@ -376,7 +376,7 @@ export default function LandingPage() {
       <section className="py-20 bg-amber-50 relative overflow-hidden">
         <div className="absolute -top-20 -right-20 w-64 h-64 bg-amber-300 rounded-full opacity-20 blur-3xl"></div>
         <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-amber-400 rounded-full opacity-20 blur-3xl"></div>
-        
+
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-amber-200 text-amber-800 hover:bg-amber-300">
@@ -444,9 +444,9 @@ export default function LandingPage() {
               viewport={{ once: true }}
               className="order-1 md:order-2"
             >
-              <img 
-                src="/assets/wallet-screen.svg" 
-                alt="Wallet Interface" 
+              <img
+                src="/assets/wallet-screen.svg"
+                alt="Wallet Interface"
                 className="w-full h-auto rounded-lg shadow-lg"
               />
             </motion.div>
@@ -464,9 +464,9 @@ export default function LandingPage() {
               transition={{ duration: 0.5 }}
               viewport={{ once: true }}
             >
-              <img 
-                src="/assets/referral-screen.svg" 
-                alt="Referral Program Interface" 
+              <img
+                src="/assets/referral-screen.svg"
+                alt="Referral Program Interface"
                 className="w-full h-auto rounded-lg shadow-lg"
               />
             </motion.div>
@@ -523,14 +523,14 @@ export default function LandingPage() {
       {/* Marketplace */}
       <section className="py-20 bg-amber-50 relative overflow-hidden">
         {/* More animated chickens */}
-        <motion.div 
+        <motion.div
           className="absolute top-40 right-[15%] w-12 h-12 text-3xl z-10 hidden md:block"
-          animate={{ 
+          animate={{
             y: [0, -15, 0],
             x: [0, -20, 0],
             rotate: [0, 10, 0]
           }}
-          transition={{ 
+          transition={{
             duration: 5,
             repeat: Infinity,
             ease: "easeInOut"
@@ -538,15 +538,15 @@ export default function LandingPage() {
         >
           🐔💰
         </motion.div>
-        
-        <motion.div 
+
+        <motion.div
           className="absolute bottom-20 left-[20%] w-12 h-12 text-3xl z-10 hidden md:block"
-          animate={{ 
+          animate={{
             scale: [1, 1.1, 1],
             y: [0, 10, 0],
             rotate: [0, -5, 0]
           }}
-          transition={{ 
+          transition={{
             duration: 3.5,
             repeat: Infinity,
             ease: "easeInOut",
@@ -580,19 +580,19 @@ export default function LandingPage() {
                 Resource Trading
               </h3>
               <p className="text-amber-700 mb-6">
-                The marketplace is where you can buy essential resources for your farm 
+                The marketplace is where you can buy essential resources for your farm
                 and sell your products for USDT.
               </p>
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 bg-white rounded-lg border border-amber-100 hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-3 mb-2">
-                    <motion.div 
+                    <motion.div
                       className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-xl"
-                      animate={{ 
+                      animate={{
                         scale: [1, 1.1, 1],
                         rotate: [0, 5, 0, -5, 0]
                       }}
-                      transition={{ 
+                      transition={{
                         duration: 2,
                         repeat: Infinity,
                         ease: "easeInOut"
@@ -608,13 +608,13 @@ export default function LandingPage() {
                 </div>
                 <div className="p-4 bg-white rounded-lg border border-amber-100 hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-3 mb-2">
-                    <motion.div 
+                    <motion.div
                       className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center text-xl"
-                      animate={{ 
+                      animate={{
                         scale: [1, 1.1, 1],
                         rotate: [0, -4, 0, 4, 0]
                       }}
-                      transition={{ 
+                      transition={{
                         duration: 2.5,
                         repeat: Infinity,
                         ease: "easeInOut",
@@ -631,13 +631,13 @@ export default function LandingPage() {
                 </div>
                 <div className="p-4 bg-white rounded-lg border border-amber-100 hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-3 mb-2">
-                    <motion.div 
+                    <motion.div
                       className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-xl"
-                      animate={{ 
+                      animate={{
                         scale: [1, 1.05, 1],
                         y: [0, -3, 0]
                       }}
-                      transition={{ 
+                      transition={{
                         duration: 1.8,
                         repeat: Infinity,
                         ease: "easeInOut",
@@ -654,13 +654,13 @@ export default function LandingPage() {
                 </div>
                 <div className="p-4 bg-white rounded-lg border border-amber-100 hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-3 mb-2">
-                    <motion.div 
+                    <motion.div
                       className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-xl"
-                      animate={{ 
+                      animate={{
                         scale: [1, 1.15, 1],
                         rotate: [0, 10, 0, -10, 0]
                       }}
-                      transition={{ 
+                      transition={{
                         duration: 3,
                         repeat: Infinity,
                         ease: "easeInOut",
@@ -684,9 +684,9 @@ export default function LandingPage() {
               viewport={{ once: true }}
               className="order-1 md:order-2"
             >
-              <img 
-                src="/assets/market-screen.svg" 
-                alt="Marketplace Interface" 
+              <img
+                src="/assets/market-screen.svg"
+                alt="Marketplace Interface"
                 className="w-full h-auto rounded-lg shadow-lg"
               />
             </motion.div>
@@ -759,16 +759,16 @@ export default function LandingPage() {
       <section className="py-20 bg-gradient-to-br from-amber-400 to-amber-600 text-white relative overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-amber-300 rounded-full opacity-30 blur-3xl"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-amber-700 rounded-full opacity-20 blur-3xl"></div>
-        
+
         {/* Township-style animated chicken */}
-        <motion.div 
+        <motion.div
           className="absolute top-10 left-[10%] w-16 h-16 text-5xl z-10 hidden md:block"
-          animate={{ 
+          animate={{
             y: [0, -20, 0],
             x: [0, 30, 0, -30, 0],
             rotate: [0, 15, 0, -15, 0]
           }}
-          transition={{ 
+          transition={{
             duration: 7,
             repeat: Infinity,
             ease: "easeInOut"
@@ -776,15 +776,15 @@ export default function LandingPage() {
         >
           ✨🐔✨
         </motion.div>
-        
-        <motion.div 
+
+        <motion.div
           className="absolute bottom-10 right-[15%] w-16 h-16 text-5xl z-10 hidden md:block"
-          animate={{ 
+          animate={{
             y: [0, -15, 0],
             x: [0, -40, 0],
             rotate: [0, -10, 0, 10, 0]
           }}
-          transition={{ 
+          transition={{
             duration: 8,
             repeat: Infinity,
             ease: "easeInOut",
@@ -793,7 +793,7 @@ export default function LandingPage() {
         >
           🐓💰
         </motion.div>
-        
+
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <motion.div
@@ -814,11 +814,11 @@ export default function LandingPage() {
                 className="relative inline-block"
               >
                 <motion.div
-                  animate={{ 
+                  animate={{
                     boxShadow: ["0px 0px 0px rgba(255, 255, 255, 0)", "0px 0px 25px rgba(255, 255, 255, 0.6)", "0px 0px 0px rgba(255, 255, 255, 0)"]
                   }}
-                  transition={{ 
-                    repeat: Infinity, 
+                  transition={{
+                    repeat: Infinity,
                     duration: 2
                   }}
                   className="absolute inset-0 rounded-full"
@@ -871,7 +871,7 @@ export default function LandingPage() {
                 </a>
               </div>
             </div>
-            
+
             <div>
               <h3 className="text-white font-semibold mb-4">Game</h3>
               <ul className="space-y-2">
@@ -881,7 +881,7 @@ export default function LandingPage() {
                 <li><a href="#" className="text-amber-300 hover:text-white transition-colors">Referral Program</a></li>
               </ul>
             </div>
-            
+
             <div>
               <h3 className="text-white font-semibold mb-4">Support</h3>
               <ul className="space-y-2">
@@ -891,7 +891,7 @@ export default function LandingPage() {
                 <li><a href="#" className="text-amber-300 hover:text-white transition-colors">Privacy Policy</a></li>
               </ul>
             </div>
-            
+
             <div>
               <h3 className="text-white font-semibold mb-4">Newsletter</h3>
               <p className="text-amber-300 mb-4">
@@ -909,7 +909,7 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="mt-12 pt-8 border-t border-amber-800 text-center text-amber-400">
             <p>&copy; {new Date().getFullYear()} ChickFarms. All rights reserved.</p>
           </div>
