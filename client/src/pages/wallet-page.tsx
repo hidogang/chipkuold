@@ -166,7 +166,15 @@ export default function WalletPage() {
           <h1 className="text-xl sm:text-2xl font-bold">Wallet</h1>
           <div className="text-right">
             <p className="text-xs sm:text-sm text-muted-foreground">USDT Balance</p>
-            <p className="text-lg sm:text-2xl font-bold">${user?.usdtBalance || 0}</p>
+            <p className="text-lg sm:text-2xl font-bold flex items-center justify-end gap-2">
+              <img 
+                src="/assets/tether-usdt-logo.png" 
+                alt="USDT" 
+                className="w-6 h-6"
+                style={{ objectFit: "contain" }} 
+              />
+              ${user?.usdtBalance || 0}
+            </p>
           </div>
         </div>
 

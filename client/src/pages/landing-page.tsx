@@ -19,6 +19,18 @@ export default function LandingPage() {
     }
   };
 
+  const PriceDisplay = ({ amount }: { amount: string }) => (
+    <span className="text-lg font-semibold text-amber-600 flex items-center gap-1">
+      <img 
+        src="/assets/tether-usdt-logo.png" 
+        alt="USDT" 
+        className="w-5 h-5 inline-block"
+        style={{ objectFit: "contain" }} 
+      />
+      {amount}
+    </span>
+  );
+
   return (
     <div className="min-h-screen bg-[#FEF3C7] flex flex-col overflow-x-hidden">
       {/* Navbar */}
@@ -286,7 +298,7 @@ export default function LandingPage() {
                               <p className="text-amber-700 text-sm">{chicken.production}</p>
                             </div>
                           </div>
-                          <span className="text-lg font-semibold text-amber-600">{chicken.price}</span>
+                          <PriceDisplay amount={chicken.price} />
                         </div>
                         <p className="mt-3 text-amber-700 text-sm">{chicken.desc}</p>
                         <div className="mt-4">
@@ -332,15 +344,39 @@ export default function LandingPage() {
                     Earning Potential
                   </h3>
                   <div className="space-y-2">
-                    <p className="text-amber-700">
-                      • Baby Chickens earn up to <span className="font-semibold">$80 USDT</span> in ROI period
-                    </p>
-                    <p className="text-amber-700">
-                      • Regular Chickens earn up to <span className="font-semibold">$172.8 USDT</span> in ROI period
-                    </p>
-                    <p className="text-amber-700">
-                      • Golden Chickens earn up to <span className="font-semibold">$560 USDT</span> in ROI period
-                    </p>
+                    <div className="text-amber-700">
+                      • Baby Chickens earn up to <span className="font-semibold flex items-center gap-1 inline-flex">
+                        <img 
+                          src="/assets/tether-usdt-logo.png" 
+                          alt="USDT" 
+                          className="w-4 h-4"
+                          style={{ objectFit: "contain" }} 
+                        />
+                        $80 USDT
+                      </span> in ROI period
+                    </div>
+                    <div className="text-amber-700">
+                      • Regular Chickens earn up to <span className="font-semibold flex items-center gap-1 inline-flex">
+                        <img 
+                          src="/assets/tether-usdt-logo.png" 
+                          alt="USDT" 
+                          className="w-4 h-4"
+                          style={{ objectFit: "contain" }} 
+                        />
+                        $172.8 USDT
+                      </span> in ROI period
+                    </div>
+                    <div className="text-amber-700">
+                      • Golden Chickens earn up to <span className="font-semibold flex items-center gap-1 inline-flex">
+                        <img 
+                          src="/assets/tether-usdt-logo.png" 
+                          alt="USDT" 
+                          className="w-4 h-4"
+                          style={{ objectFit: "contain" }} 
+                        />
+                        $560 USDT
+                      </span> in ROI period
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -423,7 +459,7 @@ export default function LandingPage() {
                           <p className="text-amber-700 text-sm mt-1">{box.rewards}</p>
                           <p className="text-amber-600 text-xs mt-1">{box.rarity}</p>
                         </div>
-                        <span className="text-lg font-semibold text-amber-600">{box.price}</span>
+                        <PriceDisplay amount={box.price} />
                       </div>
                     </motion.div>
                   ))}

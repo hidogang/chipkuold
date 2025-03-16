@@ -71,17 +71,13 @@ export default function BalanceBar() {
       value: user.usdtBalance,
       prefix: "$",
       icon: (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="12" cy="12" r="10" fill="#FFCA28" />
-          <circle cx="12" cy="12" r="8" fill="#FFD54F" />
-          <path d="M12 6V18M8 10H16M8 14H16" stroke="#FF6F00" strokeWidth="2" strokeLinecap="round" />
-        </svg>
+        <img src="/assets/tether-usdt-logo.png" alt="USDT" width="30" height="30" style={{ objectFit: "contain" }} />
       ),
-      color: "#FFB300",
-      bgColor: "rgba(255, 179, 0, 0.1)",
-      borderColor: "rgba(255, 179, 0, 0.3)",
-      iconBg: "rgba(255, 179, 0, 0.15)",
-      textColor: "#E65100"
+      color: "#26A17B",
+      bgColor: "rgba(38, 161, 123, 0.1)",
+      borderColor: "rgba(38, 161, 123, 0.3)",
+      iconBg: "rgba(38, 161, 123, 0.15)",
+      textColor: "#1A5E45"
     },
   ];
 
