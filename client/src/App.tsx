@@ -21,6 +21,9 @@ import AccountPage from "@/pages/account-page";
 import AdminPage from "@/pages/admin-page";
 import LandingPage from "@/pages/landing-page";
 import NotFound from "@/pages/not-found";
+import ContactUsPage from "@/pages/contact-us";
+import TermsOfServicePage from "@/pages/terms-of-service";
+import PrivacyPolicyPage from "@/pages/privacy-policy";
 
 function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
   const [progress, setProgress] = useState(0);
@@ -128,7 +131,7 @@ function Router() {
   const { isLoading, user } = useAuth();
 
   // Don't show loading state for public routes
-  const isPublicRoute = locationPath === "/landing" || locationPath === "/auth";
+  const isPublicRoute = ["/landing", "/auth", "/contact-us", "/terms-of-service", "/privacy-policy"].includes(locationPath);
   if (isLoading && !isPublicRoute) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -144,6 +147,14 @@ function Router() {
       </Route>
       <Route path="/landing" component={LandingPage} />
       <Route path="/auth" component={AuthPage} />
+      <Route path="/contact-us" component={ContactUsPage} />
+      <Route path="/terms-of-service" component={TermsOfServicePage} />
+      <Route path="/privacy-policy" component={PrivacyPolicyPage} />
+      <Route path="/chickens" component={ShopPage} />
+      <Route path="/marketplace" component={MarketPage} />
+      <Route path="/referral">
+        {() => <Redirect to={user ? "/account?tab=referral" : "/auth?redirect=/account?tab=referral"} />}
+      </Route>
       <ProtectedRoute path="/home" component={HomePage} />
       <ProtectedRoute path="/shop" component={ShopPage} />
       <ProtectedRoute path="/market" component={MarketPage} />
