@@ -15,21 +15,28 @@ export default function BalanceBar() {
     retry: 2, // Retry failed requests twice
   });
 
-  // Debug log for balance updates
-  console.log('[BalanceBar] Current user balance:', user?.usdtBalance);
-  console.log('[BalanceBar] Resources query data:', resourcesQuery.data);
-
   if (!user || resourcesQuery.isLoading) {
-    console.log('[BalanceBar] Loading state or no user');
     return null;
   }
 
   if (resourcesQuery.error) {
-    console.error('[BalanceBar] Resources query error:', resourcesQuery.error);
     return null;
   }
 
   const resources = resourcesQuery.data || { waterBuckets: 0, wheatBags: 0, eggs: 0 };
+
+  // Navigation handlers
+  const goToShop = () => {
+    window.location.href = "/shop";
+  };
+
+  const goToHome = () => {
+    window.location.href = "/home";
+  };
+
+  const goToWallet = () => {
+    window.location.href = "/wallet";
+  };
 
   return (
     <div className="fixed top-0 left-0 right-0 z-30 bg-transparent">
@@ -57,171 +64,189 @@ export default function BalanceBar() {
         </div>
 
         {/* Water */}
-        <ResourceItem 
-          name="Water"
-          value={resources.waterBuckets}
-          icon="/assets/waterbucket.png"
-          color="#29B6F6"
-          bgColor="rgba(3, 169, 244, 0.1)"
-          borderColor="rgba(3, 169, 244, 0.3)"
-          iconBg="rgba(41, 182, 246, 0.15)"
-          textColor="#01579B"
-          index={0}
-          onClick={() => {
-            console.log("Navigating to shop for water");
-            navigate("/shop");
+        <div className="township-resource-item flex-1 mx-1 relative"
+          style={{
+            background: "rgba(255, 255, 255, 0.95)",
+            borderRadius: "10px",
+            padding: "6px 10px",
+            border: "1px solid rgba(3, 169, 244, 0.3)",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.08), inset 0 1px 2px rgba(255, 255, 255, 0.5)",
+            minWidth: 0,
+            zIndex: 1
           }}
-        />
+        >
+          <div className="flex items-center">
+            <div
+              className="flex-shrink-0 mr-2 p-1.5 rounded-full"
+              style={{
+                background: "linear-gradient(135deg, rgba(41, 182, 246, 0.15), rgba(255,255,255,0.7))",
+                boxShadow: "inset 0 1px 2px rgba(0,0,0,0.05)"
+              }}
+            >
+              <div>
+                <img src="/assets/waterbucket.png" alt="Water" width="30" height="30" style={{ objectFit: "contain" }} />
+              </div>
+            </div>
+            <div className="min-w-0 flex-grow">
+              <div className="text-[10px] whitespace-nowrap font-semibold" style={{ color: "#01579B" }}>
+                Water
+              </div>
+              <div className="text-sm font-bold truncate" style={{ color: "#01579B" }}>
+                {resources.waterBuckets}
+              </div>
+            </div>
+            <button
+              onClick={goToShop}
+              className="ml-1 w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center cursor-pointer"
+              style={{
+                background: "linear-gradient(to bottom, #29B6F6, #29B6F6dd)",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
+                border: "none"
+              }}
+            >
+              <span className="text-white font-bold text-xs">+</span>
+            </button>
+          </div>
+        </div>
 
         {/* Wheat */}
-        <ResourceItem 
-          name="Wheat"
-          value={resources.wheatBags}
-          icon="/assets/wheatbag.png"
-          color="#FFC107"
-          bgColor="rgba(255, 193, 7, 0.1)"
-          borderColor="rgba(255, 193, 7, 0.3)"
-          iconBg="rgba(255, 193, 7, 0.15)"
-          textColor="#FF6F00"
-          index={1}
-          onClick={() => {
-            console.log("Navigating to shop for wheat");
-            navigate("/shop");
+        <div className="township-resource-item flex-1 mx-1 relative"
+          style={{
+            background: "rgba(255, 255, 255, 0.95)",
+            borderRadius: "10px",
+            padding: "6px 10px",
+            border: "1px solid rgba(255, 193, 7, 0.3)",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.08), inset 0 1px 2px rgba(255, 255, 255, 0.5)",
+            minWidth: 0,
+            zIndex: 1
           }}
-        />
+        >
+          <div className="flex items-center">
+            <div
+              className="flex-shrink-0 mr-2 p-1.5 rounded-full"
+              style={{
+                background: "linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255,255,255,0.7))",
+                boxShadow: "inset 0 1px 2px rgba(0,0,0,0.05)"
+              }}
+            >
+              <div>
+                <img src="/assets/wheatbag.png" alt="Wheat" width="30" height="30" style={{ objectFit: "contain" }} />
+              </div>
+            </div>
+            <div className="min-w-0 flex-grow">
+              <div className="text-[10px] whitespace-nowrap font-semibold" style={{ color: "#FF6F00" }}>
+                Wheat
+              </div>
+              <div className="text-sm font-bold truncate" style={{ color: "#FF6F00" }}>
+                {resources.wheatBags}
+              </div>
+            </div>
+            <button
+              onClick={goToShop}
+              className="ml-1 w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center cursor-pointer"
+              style={{
+                background: "linear-gradient(to bottom, #FFC107, #FFC107dd)",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
+                border: "none"
+              }}
+            >
+              <span className="text-white font-bold text-xs">+</span>
+            </button>
+          </div>
+        </div>
 
         {/* Eggs */}
-        <ResourceItem 
-          name="Eggs"
-          value={resources.eggs}
-          icon="/assets/egg.png"
-          color="#FFB74D"
-          bgColor="rgba(255, 183, 77, 0.1)"
-          borderColor="rgba(255, 183, 77, 0.3)"
-          iconBg="rgba(255, 183, 77, 0.15)"
-          textColor="#E65100"
-          index={2}
-          onClick={() => {
-            console.log("Navigating to home for eggs");
-            navigate("/home");
+        <div className="township-resource-item flex-1 mx-1 relative"
+          style={{
+            background: "rgba(255, 255, 255, 0.95)",
+            borderRadius: "10px",
+            padding: "6px 10px",
+            border: "1px solid rgba(255, 183, 77, 0.3)",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.08), inset 0 1px 2px rgba(255, 255, 255, 0.5)",
+            minWidth: 0,
+            zIndex: 1
           }}
-        />
+        >
+          <div className="flex items-center">
+            <div
+              className="flex-shrink-0 mr-2 p-1.5 rounded-full"
+              style={{
+                background: "linear-gradient(135deg, rgba(255, 183, 77, 0.15), rgba(255,255,255,0.7))",
+                boxShadow: "inset 0 1px 2px rgba(0,0,0,0.05)"
+              }}
+            >
+              <div>
+                <img src="/assets/egg.png" alt="Eggs" width="30" height="30" style={{ objectFit: "contain" }} />
+              </div>
+            </div>
+            <div className="min-w-0 flex-grow">
+              <div className="text-[10px] whitespace-nowrap font-semibold" style={{ color: "#E65100" }}>
+                Eggs
+              </div>
+              <div className="text-sm font-bold truncate" style={{ color: "#E65100" }}>
+                {resources.eggs}
+              </div>
+            </div>
+            <button
+              onClick={goToHome}
+              className="ml-1 w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center cursor-pointer"
+              style={{
+                background: "linear-gradient(to bottom, #FFB74D, #FFB74Ddd)",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
+                border: "none"
+              }}
+            >
+              <span className="text-white font-bold text-xs">+</span>
+            </button>
+          </div>
+        </div>
 
         {/* USDT */}
-        <ResourceItem 
-          name="USDT"
-          value={user.usdtBalance}
-          icon="/assets/tether-usdt-logo.png"
-          color="#26A17B"
-          bgColor="rgba(38, 161, 123, 0.1)"
-          borderColor="rgba(38, 161, 123, 0.3)"
-          iconBg="rgba(38, 161, 123, 0.15)"
-          textColor="#1A5E45"
-          prefix="$"
-          index={3}
-          onClick={() => {
-            console.log("Navigating to wallet for USDT");
-            navigate("/wallet");
+        <div className="township-resource-item flex-1 mx-1 relative"
+          style={{
+            background: "rgba(255, 255, 255, 0.95)",
+            borderRadius: "10px",
+            padding: "6px 10px",
+            border: "1px solid rgba(38, 161, 123, 0.3)",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.08), inset 0 1px 2px rgba(255, 255, 255, 0.5)",
+            minWidth: 0,
+            zIndex: 1
           }}
-        />
+        >
+          <div className="flex items-center">
+            <div
+              className="flex-shrink-0 mr-2 p-1.5 rounded-full"
+              style={{
+                background: "linear-gradient(135deg, rgba(38, 161, 123, 0.15), rgba(255,255,255,0.7))",
+                boxShadow: "inset 0 1px 2px rgba(0,0,0,0.05)"
+              }}
+            >
+              <div>
+                <img src="/assets/tether-usdt-logo.png" alt="USDT" width="30" height="30" style={{ objectFit: "contain" }} />
+              </div>
+            </div>
+            <div className="min-w-0 flex-grow">
+              <div className="text-[10px] whitespace-nowrap font-semibold" style={{ color: "#1A5E45" }}>
+                USDT
+              </div>
+              <div className="text-sm font-bold truncate" style={{ color: "#1A5E45" }}>
+                ${user.usdtBalance}
+              </div>
+            </div>
+            <button
+              onClick={goToWallet}
+              className="ml-1 w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center cursor-pointer"
+              style={{
+                background: "linear-gradient(to bottom, #26A17B, #26A17Bdd)",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
+                border: "none"
+              }}
+            >
+              <span className="text-white font-bold text-xs">+</span>
+            </button>
+          </div>
+        </div>
       </motion.div>
     </div>
-  );
-}
-
-interface ResourceItemProps {
-  name: string;
-  value: number;
-  icon: string;
-  color: string;
-  bgColor: string;
-  borderColor: string;
-  iconBg: string;
-  textColor: string;
-  index: number;
-  prefix?: string;
-  onClick: () => void;
-}
-
-function ResourceItem({ 
-  name, 
-  value, 
-  icon, 
-  color, 
-  bgColor, 
-  borderColor, 
-  iconBg, 
-  textColor, 
-  index, 
-  prefix, 
-  onClick 
-}: ResourceItemProps) {
-  return (
-    <motion.div
-      key={name}
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay: index * 0.1, duration: 0.3 }}
-      className="township-resource-item flex-1 mx-1 relative"
-      style={{
-        background: "rgba(255, 255, 255, 0.95)",
-        borderRadius: "10px",
-        padding: "6px 10px",
-        border: `1px solid ${borderColor}`,
-        boxShadow: "0 2px 4px rgba(0,0,0,0.08), inset 0 1px 2px rgba(255, 255, 255, 0.5)",
-        minWidth: 0,
-        zIndex: 1
-      }}
-    >
-      <div className="flex items-center">
-        <div
-          className="flex-shrink-0 mr-2 p-1.5 rounded-full"
-          style={{
-            background: `linear-gradient(135deg, ${iconBg}, rgba(255,255,255,0.7))`,
-            boxShadow: "inset 0 1px 2px rgba(0,0,0,0.05)"
-          }}
-        >
-          <div>
-            <img src={icon} alt={name} width="30" height="30" style={{ objectFit: "contain" }} />
-          </div>
-        </div>
-        <div className="min-w-0 flex-grow">
-          <div className="text-[10px] whitespace-nowrap font-semibold"
-            style={{ color: textColor || "#555" }}
-          >
-            {name}
-          </div>
-          <div className="text-sm font-bold truncate"
-            style={{ color: textColor || "#333" }}
-          >
-            {prefix}{value}
-          </div>
-        </div>
-        <motion.div
-          whileHover={{ scale: 1.1, rotate: 5 }}
-          whileTap={{ scale: 0.9 }}
-          className="ml-1 w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center cursor-pointer"
-          style={{
-            background: `linear-gradient(to bottom, ${color}, ${color}dd)`,
-            boxShadow: "0 2px 4px rgba(0,0,0,0.15)"
-          }}
-          onClick={onClick}
-        >
-          <span className="text-white font-bold text-xs">+</span>
-        </motion.div>
-      </div>
-
-      <motion.div
-        className="absolute inset-0 rounded-lg opacity-50"
-        animate={{
-          boxShadow: ['0 0 0px rgba(255,255,255,0)', '0 0 5px rgba(255,255,255,0.5)', '0 0 0px rgba(255,255,255,0)']
-        }}
-        transition={{
-          duration: 2,
-          repeat: Infinity,
-          delay: index * 0.7
-        }}
-      />
-    </motion.div>
   );
 }
