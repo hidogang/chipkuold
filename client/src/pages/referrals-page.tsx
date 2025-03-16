@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { User, ReferralEarning, MilestoneReward } from "@shared/schema";
+import QRCode from "react-qr-code";
 
 export default function ReferralsPage() {
   const { user } = useAuth();
@@ -163,8 +164,35 @@ export default function ReferralsPage() {
             <CardDescription>Share with friends to earn commissions</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="bg-muted p-3 rounded-md text-center font-mono font-bold text-lg">
-              {user?.referralCode}
+            <div className="flex flex-col items-center space-y-3">
+              <div className="bg-muted p-3 rounded-md text-center font-mono font-bold text-lg">
+                {user?.referralCode}
+              </div>
+              <div className="border p-3 rounded-md bg-white">
+                <QRCode 
+                  value={`https://chickfarms.replit.app/signup?ref=${user?.referralCode}`}
+                  style={{ width: "100%", maxWidth: "120px", height: "auto" }}
+                />
+              </div>
+              <div className="text-sm text-center text-muted-foreground mt-2">
+                Scan QR code or share your referral link:<br />
+                <span className="font-semibold break-all">
+                  https://chickfarms.replit.app/signup?ref={user?.referralCode}
+                </span>
+              </div>
+              <Button
+                size="sm"
+                className="mt-2"
+                onClick={() => {
+                  navigator.clipboard.writeText(`https://chickfarms.replit.app/signup?ref=${user?.referralCode}`);
+                  toast({
+                    title: "Copied!",
+                    description: "Referral link copied to clipboard."
+                  });
+                }}
+              >
+                Copy Link
+              </Button>
             </div>
           </CardContent>
         </Card>
