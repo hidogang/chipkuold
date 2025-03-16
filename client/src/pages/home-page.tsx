@@ -245,19 +245,27 @@ export default function HomePage() {
             >
               {/* Decorative clouds */}
               <motion.div
-                className="absolute top-5 left-0 w-20 h-20 opacity-20"
+                className="absolute top-5 left-0 w-28 h-20 opacity-70"
                 animate={{ x: [0, 30, 0] }}
                 transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
               >
-                <img src="/assets/cloud.svg" alt="Cloud" className="w-full h-full" />
+                <img src="/assets/orange-cloud.svg" alt="Orange Cloud" className="w-full h-full" />
               </motion.div>
 
               <motion.div
-                className="absolute top-10 right-0 w-14 h-14 opacity-10"
+                className="absolute top-10 right-0 w-20 h-16 opacity-60"
                 animate={{ x: [0, -20, 0] }}
                 transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
               >
-                <img src="/assets/cloud.svg" alt="Cloud" className="w-full h-full" />
+                <img src="/assets/orange-cloud.svg" alt="Orange Cloud" className="w-full h-full" />
+              </motion.div>
+              
+              <motion.div
+                className="absolute bottom-10 right-20 w-16 h-12 opacity-40"
+                animate={{ x: [0, 15, 0] }}
+                transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+              >
+                <img src="/assets/orange-cloud.svg" alt="Orange Cloud" className="w-full h-full" />
               </motion.div>
 
               <motion.img
@@ -327,8 +335,35 @@ export default function HomePage() {
 
   return (
     <div className={`h-full flex flex-col ${getBgStyle()}`}>
+      {/* Background Decorative Clouds */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+        <motion.div
+          className="absolute right-5 top-20 w-36 h-24 opacity-20"
+          animate={{ x: [0, -20, 0], y: [0, 5, 0] }}
+          transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+        >
+          <img src="/assets/orange-cloud.svg" alt="Orange Cloud" className="w-full h-full" />
+        </motion.div>
+        
+        <motion.div
+          className="absolute left-10 top-40 w-28 h-20 opacity-15"
+          animate={{ x: [0, 15, 0], y: [0, -5, 0] }}
+          transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
+        >
+          <img src="/assets/orange-cloud.svg" alt="Orange Cloud" className="w-full h-full" />
+        </motion.div>
+        
+        <motion.div
+          className="absolute right-20 bottom-32 w-24 h-16 opacity-10"
+          animate={{ x: [0, -10, 0], y: [0, 8, 0] }}
+          transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
+        >
+          <img src="/assets/orange-cloud.svg" alt="Orange Cloud" className="w-full h-full" />
+        </motion.div>
+      </div>
+      
       <BalanceBar />
-      <div className="flex-1 overflow-auto p-4 pt-6">
+      <div className="flex-1 overflow-auto p-4 pt-6 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
