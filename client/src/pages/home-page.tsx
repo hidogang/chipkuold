@@ -249,7 +249,7 @@ export default function HomePage() {
                 animate={{ x: [0, 30, 0] }}
                 transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
               >
-                <img src="/assets/orange-cloud.svg" alt="Orange Cloud" className="w-full h-full" />
+                <img src="/assets/orange-cloud.png" alt="Orange Cloud" className="w-full h-full" />
               </motion.div>
 
               <motion.div
@@ -257,7 +257,7 @@ export default function HomePage() {
                 animate={{ x: [0, -20, 0] }}
                 transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
               >
-                <img src="/assets/orange-cloud.svg" alt="Orange Cloud" className="w-full h-full" />
+                <img src="/assets/orange-cloud.png" alt="Orange Cloud" className="w-full h-full" />
               </motion.div>
               
               <motion.div
@@ -265,7 +265,7 @@ export default function HomePage() {
                 animate={{ x: [0, 15, 0] }}
                 transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
               >
-                <img src="/assets/orange-cloud.svg" alt="Orange Cloud" className="w-full h-full" />
+                <img src="/assets/orange-cloud.png" alt="Orange Cloud" className="w-full h-full" />
               </motion.div>
 
               <motion.img
@@ -342,7 +342,7 @@ export default function HomePage() {
           animate={{ x: [0, -20, 0], y: [0, 5, 0] }}
           transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
         >
-          <img src="/assets/orange-cloud.svg" alt="Orange Cloud" className="w-full h-full" />
+          <img src="/assets/orange-cloud.png" alt="Orange Cloud" className="w-full h-full" />
         </motion.div>
         
         <motion.div
@@ -350,7 +350,7 @@ export default function HomePage() {
           animate={{ x: [0, 15, 0], y: [0, -5, 0] }}
           transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
         >
-          <img src="/assets/orange-cloud.svg" alt="Orange Cloud" className="w-full h-full" />
+          <img src="/assets/orange-cloud.png" alt="Orange Cloud" className="w-full h-full" />
         </motion.div>
         
         <motion.div
@@ -358,7 +358,7 @@ export default function HomePage() {
           animate={{ x: [0, -10, 0], y: [0, 8, 0] }}
           transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
         >
-          <img src="/assets/orange-cloud.svg" alt="Orange Cloud" className="w-full h-full" />
+          <img src="/assets/orange-cloud.png" alt="Orange Cloud" className="w-full h-full" />
         </motion.div>
       </div>
       
