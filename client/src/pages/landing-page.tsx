@@ -31,6 +31,40 @@ export default function LandingPage() {
     </span>
   );
 
+  const ChickenDisplay = ({ type }: { type: string }) => {
+    const chickenImages = {
+      baby: "/assets/baby-chick.png",
+      regular: "/assets/chicken.png",
+      golden: "/assets/golden-chicken.png"
+    };
+
+    return (
+      <img 
+        src={chickenImages[type as keyof typeof chickenImages]} 
+        alt={`${type} Chicken`} 
+        className="w-16 h-16"
+        style={{ objectFit: "contain" }} 
+      />
+    );
+  };
+
+  const ResourceIcon = ({ type }: { type: string }) => {
+    const resourceImages = {
+      water: "/assets/waterbucket.png",
+      wheat: "/assets/wheatbag.png",
+      egg: "/assets/egg.png"
+    };
+
+    return (
+      <img 
+        src={resourceImages[type as keyof typeof resourceImages]} 
+        alt={type} 
+        className="w-12 h-12"
+        style={{ objectFit: "contain" }} 
+      />
+    );
+  };
+
   return (
     <div className="min-h-screen bg-[#FEF3C7] flex flex-col overflow-x-hidden">
       {/* Navbar */}
@@ -89,7 +123,6 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <section className="relative overflow-hidden py-20 md:py-32">
-
         <div className="container mx-auto px-4 grid md:grid-cols-2 gap-8 items-center">
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -175,7 +208,6 @@ export default function LandingPage() {
 
       {/* How It Works */}
       <section id="how-it-works" className="py-20 bg-white relative overflow-hidden">
-
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-amber-100 text-amber-800 hover:bg-amber-200">
@@ -251,21 +283,21 @@ export default function LandingPage() {
                         title: "Baby Chicken",
                         desc: "Produces 2 eggs every 6 hours. Perfect for beginners!",
                         price: "$90 USDT",
-                        emoji: "🐥",
+                        type: "baby",
                         production: "8 eggs per day"
                       },
                       {
                         title: "Regular Chicken",
                         desc: "Produces 5 eggs every 5 hours. Balanced investment.",
                         price: "$150 USDT",
-                        emoji: "🐔",
+                        type: "regular",
                         production: "24 eggs per day"
                       },
                       {
                         title: "Golden Chicken",
                         desc: "Produces 20 eggs every 3 hours. For serious farmers!",
                         price: "$400 USDT",
-                        emoji: "✨🐔",
+                        type: "golden",
                         production: "160 eggs per day"
                       }
                     ].map((chicken, index) => (
@@ -280,7 +312,6 @@ export default function LandingPage() {
                         <div className="flex justify-between items-start">
                           <div className="flex items-center gap-3">
                             <motion.div
-                              className="text-3xl"
                               animate={{
                                 y: [0, -5, 0],
                                 rotate: index === 0 ? [0, 10, 0] : index === 1 ? [0, -5, 0] : [0, 15, 0]
@@ -291,7 +322,7 @@ export default function LandingPage() {
                                 ease: "easeInOut"
                               }}
                             >
-                              {chicken.emoji}
+                              <ChickenDisplay type={chicken.type} />
                             </motion.div>
                             <div>
                               <h4 className="font-bold text-lg text-amber-900">{chicken.title}</h4>
@@ -324,14 +355,14 @@ export default function LandingPage() {
                   </h3>
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl">💧</span>
+                      <ResourceIcon type="water" />
                       <div>
                         <h4 className="font-semibold text-amber-900">Water Needs</h4>
                         <p className="text-sm text-amber-700">Essential for egg production</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl">🌾</span>
+                      <ResourceIcon type="wheat" />
                       <div>
                         <h4 className="font-semibold text-amber-900">Wheat Feed</h4>
                         <p className="text-sm text-amber-700">Required for healthy chickens</p>
@@ -669,7 +700,6 @@ export default function LandingPage() {
 
       {/* Marketplace */}
       <section className="py-20 bg-amber-50 relative overflow-hidden">
-
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-amber-200 text-amber-800 hover:bg-amber-300">
@@ -713,12 +743,12 @@ export default function LandingPage() {
                         ease: "easeInOut"
                       }}
                     >
-                      💧
+                      <ResourceIcon type="water"/>
                     </motion.div>
                     <h4 className="font-semibold text-amber-900">Water</h4>
                   </div>
-                <p className="text-sm text-amber-700">
-                    Essential                    for chicken health and egg production.
+                  <p className="text-sm text-amber-700">
+                    Essential for chicken health and egg production.
                   </p>
                 </div>
                 <div className="p-4 bg-white rounded-lg border border-amber-100 hover:shadow-md transition-shadow">
@@ -736,7 +766,7 @@ export default function LandingPage() {
                         delay: 0.3
                       }}
                     >
-                      🌾
+                      <ResourceIcon type="wheat"/>
                     </motion.div>
                     <h4 className="font-semibold text-amber-900">Wheat</h4>
                   </div>
@@ -759,7 +789,7 @@ export default function LandingPage() {
                         delay: 0.6
                       }}
                     >
-                      🥚
+                      <ResourceIcon type="egg"/>
                     </motion.div>
                     <h4 className="font-semibold text-amber-900">Eggs</h4>
                   </div>
@@ -782,7 +812,7 @@ export default function LandingPage() {
                         delay: 0.9
                       }}
                     >
-                      🐣
+                      <ChickenDisplay type="baby"/>
                     </motion.div>
                     <h4 className="font-semibold text-amber-900">Chicks</h4>
                   </div>
