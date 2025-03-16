@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { Resource } from "@shared/schema";
 import { motion } from "framer-motion";
+import React from "react";
 
 export default function BalanceBar() {
   const { user } = useAuth();
@@ -33,11 +34,7 @@ export default function BalanceBar() {
       name: "Water",
       value: resources.waterBuckets,
       icon: (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2C6.5 8 3 12.5 3 16.5C3 20.5 7 24 12 24C17 24 21 20.5 21 16.5C21 12.5 17.5 8 12 2Z" fill="#4FC3F7" />
-          <path d="M12 22C8.13 22 5 19.5 5 16.5C5 13.87 7.61 10.44 12 6.25C16.39 10.44 19 13.87 19 16.5C19 19.5 15.87 22 12 22Z" fill="#81D4FA" />
-          <path d="M12 19C10.35 19 9 17.65 9 16C9 14.35 10.35 13 12 13C13.65 13 15 14.35 15 16C15 17.65 13.65 19 12 19Z" fill="#E1F5FE" />
-        </svg>
+        <img src="/assets/waterbucket.png" alt="Water Bucket" width="20" height="20" style={{ objectFit: "contain" }} />
       ),
       color: "#29B6F6",
       bgColor: "rgba(3, 169, 244, 0.1)",

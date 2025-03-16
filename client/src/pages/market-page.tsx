@@ -156,7 +156,7 @@ export default function MarketPage() {
                   animate={{ y: [0, -5, 0] }}
                   transition={{ repeat: Infinity, duration: 2, repeatType: "reverse" }}
                 >
-                  <Droplet size={40} className="text-blue-500" />
+                  <img src="/assets/waterbucket.png" alt="Water Bucket" width="40" height="40" style={{ objectFit: "contain" }} />
                 </motion.div>
 
                 <h3 className="text-lg font-bold mb-1 text-center text-blue-700">

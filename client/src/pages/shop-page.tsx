@@ -244,7 +244,7 @@ export default function ShopPage() {
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <div className="flex items-center cursor-help">
-                              <Droplets size={16} className="text-blue-500 mr-1" />
+                              <img src="/assets/waterbucket.png" alt="Water Bucket" width="16" height="16" className="mr-1" style={{ objectFit: "contain" }} />
                               <span className="text-sm font-semibold">{chicken.requirements.water}</span>
                             </div>
                           </TooltipTrigger>
