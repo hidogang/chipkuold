@@ -1,0 +1,14 @@
+[
+  {
+    "id": 3,
+    "user_id": 1,
+    "type": "baby",
+    "last_hatch_time": "2025-03-16T18:17:58.425Z"
+  },
+  {
+    "id": 4,
+    "user_id": 1,
+    "type": "regular",
+    "last_hatch_time": "2025-03-16T18:18:01.819Z"
+  }
+]

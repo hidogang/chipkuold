@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "setting_key": "withdrawal_tax",
+    "setting_value": "5",
+    "updated_at": "2025-03-16T14:38:55.606Z"
+  },
+  {
+    "id": 2,
+    "setting_key": "payment_address",
+    "setting_value": "TRX8nHHo2Jd7H9ZwKhh6h8h",
+    "updated_at": "2025-03-16T14:38:56.075Z"
+  }
+]

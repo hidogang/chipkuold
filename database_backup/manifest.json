@@ -1,0 +1,13 @@
+{
+  "timestamp": "2025-03-16T18:30:58.742Z",
+  "tables": [
+    "users",
+    "chickens",
+    "resources",
+    "transactions",
+    "game_settings",
+    "prices",
+    "user_profiles"
+  ],
+  "version": "1.0.0"
+}

@@ -1,0 +1,35 @@
+[
+  {
+    "id": 1,
+    "user_id": 1,
+    "type": "recharge",
+    "amount": "500.00",
+    "status": "completed",
+    "transaction_id": "foenvioevq",
+    "referral_commission": null,
+    "created_at": "2025-03-16T17:30:08.837Z",
+    "bank_details": null
+  },
+  {
+    "id": 2,
+    "user_id": 1,
+    "type": "sale",
+    "amount": "67.50",
+    "status": "pending",
+    "transaction_id": "f1fa34de0cec05ea6a390b0fd962a21e",
+    "referral_commission": null,
+    "created_at": "2025-03-16T17:31:50.257Z",
+    "bank_details": "{\"itemType\":\"baby_chicken\",\"action\":\"sell\"}"
+  },
+  {
+    "id": 3,
+    "user_id": 1,
+    "type": "sale",
+    "amount": "112.50",
+    "status": "pending",
+    "transaction_id": "ff4858f340bdd66aef694b359e409e3a",
+    "referral_commission": null,
+    "created_at": "2025-03-16T17:32:05.758Z",
+    "bank_details": "{\"itemType\":\"regular_chicken\",\"action\":\"sell\"}"
+  }
+]
