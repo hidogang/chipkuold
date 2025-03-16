@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, decimal, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, decimal, jsonb, date } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -11,6 +11,11 @@ export const users = pgTable("users", {
   referredBy: text("referred_by"),
   isAdmin: boolean("is_admin").notNull().default(false),
   lastLoginAt: timestamp("last_login_at"),
+  totalReferralEarnings: decimal("total_referral_earnings", { precision: 10, scale: 2 }).notNull().default("0"),
+  totalTeamEarnings: decimal("total_team_earnings", { precision: 10, scale: 2 }).notNull().default("0"),
+  lastSalaryPaidAt: timestamp("last_salary_paid_at"),
+  lastDailyRewardAt: date("last_daily_reward_at"),
+  currentStreak: integer("current_streak").notNull().default(0),
 });
 
 export const chickens = pgTable("chickens", {
@@ -73,6 +78,53 @@ export const userProfiles = pgTable("user_profiles", {
   lastUpdated: timestamp("last_updated").notNull().defaultNow(),
 });
 
+export const referralEarnings = pgTable("referral_earnings", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  referredUserId: integer("referred_user_id").notNull(),
+  level: integer("level").notNull(), // 1-6 levels
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  claimed: boolean("claimed").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const milestoneRewards = pgTable("milestone_rewards", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  milestone: decimal("milestone", { precision: 10, scale: 2 }).notNull(), // $1000, $10000, etc.
+  reward: decimal("reward", { precision: 10, scale: 2 }).notNull(),
+  claimed: boolean("claimed").notNull().default(false),
+  claimedAt: timestamp("claimed_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const salaryPayments = pgTable("salary_payments", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  period: text("period").notNull(), // e.g., "2023-01"
+  paidAt: timestamp("paid_at").notNull().defaultNow(),
+});
+
+export const dailyRewards = pgTable("daily_rewards", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  day: integer("day").notNull(), // 1-7 for the streak day
+  eggs: integer("eggs").notNull().default(0),
+  usdt: decimal("usdt", { precision: 10, scale: 2 }).default("0"),
+  claimed: boolean("claimed").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const activeBoosts = pgTable("active_boosts", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  type: text("type").notNull(), // egg_production, etc.
+  multiplier: decimal("multiplier", { precision: 4, scale: 2 }).notNull(), // 1.5, 2.0, etc.
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(users)
   .pick({
     username: true,
@@ -115,6 +167,32 @@ export const insertMysteryBoxRewardSchema = createInsertSchema(mysteryBoxRewards
   createdAt: true,
 });
 
+export const insertReferralEarningSchema = createInsertSchema(referralEarnings).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertMilestoneRewardSchema = createInsertSchema(milestoneRewards).omit({
+  id: true,
+  claimedAt: true,
+  createdAt: true,
+});
+
+export const insertSalaryPaymentSchema = createInsertSchema(salaryPayments).omit({
+  id: true,
+  paidAt: true,
+});
+
+export const insertDailyRewardSchema = createInsertSchema(dailyRewards).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertActiveBoostSchema = createInsertSchema(activeBoosts).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type Chicken = typeof chickens.$inferSelect;
@@ -126,6 +204,17 @@ export type InsertUserProfile = z.infer<typeof insertUserProfileSchema>;
 export type GameSetting = typeof gameSettings.$inferSelect;
 export type MysteryBoxReward = typeof mysteryBoxRewards.$inferSelect;
 export type InsertMysteryBoxReward = z.infer<typeof insertMysteryBoxRewardSchema>;
+export type ReferralEarning = typeof referralEarnings.$inferSelect;
+export type MilestoneReward = typeof milestoneRewards.$inferSelect;
+export type SalaryPayment = typeof salaryPayments.$inferSelect;
+export type DailyReward = typeof dailyRewards.$inferSelect;
+export type ActiveBoost = typeof activeBoosts.$inferSelect;
+
+export type InsertReferralEarning = z.infer<typeof insertReferralEarningSchema>;
+export type InsertMilestoneReward = z.infer<typeof insertMilestoneRewardSchema>;
+export type InsertSalaryPayment = z.infer<typeof insertSalaryPaymentSchema>;
+export type InsertDailyReward = z.infer<typeof insertDailyRewardSchema>;
+export type InsertActiveBoost = z.infer<typeof insertActiveBoostSchema>;
 
 
 // Admin types
@@ -175,4 +264,54 @@ export const possibleMysteryBoxRewards = [
     { type: "water_buckets", min: 5, max: 20 },
     { type: "wheat_bags", min: 5, max: 20 }
   ]}
+];
+
+// Multi-level referral commission rates
+export const referralCommissionRates = {
+  level1: 0.10,  // 10% for direct referrals
+  level2: 0.05,  // 5% for second level
+  level3: 0.03,  // 3% for third level
+  level4: 0.02,  // 2% for fourth level
+  level5: 0.01,  // 1% for fifth level
+  level6: 0.005  // 0.5% for sixth level
+};
+
+// Team milestone thresholds and rewards
+export const milestoneThresholds = [
+  { threshold: 1000, reward: 50 },      // $1,000 total referral earnings -> $50 bonus
+  { threshold: 10000, reward: 500 },    // $10,000 -> $500 bonus
+  { threshold: 50000, reward: 2500 },   // $50,000 -> $2,500 bonus
+  { threshold: 100000, reward: 5000 }   // $100,000 -> $5,000 bonus
+];
+
+// Monthly salary thresholds
+export const salaryThresholds = [
+  { threshold: 10000, salary: 100 },   // $10,000 total team earnings -> $100/month
+  { threshold: 50000, salary: 500 },   // $50,000 -> $500/month
+  { threshold: 100000, salary: 1000 }  // $100,000 -> $1,000/month
+];
+
+// Daily rewards by streak day
+export const dailyRewardsByDay = [
+  { day: 1, eggs: 2, usdt: 0 },
+  { day: 2, eggs: 4, usdt: 0 },
+  { day: 3, eggs: 6, usdt: 0 },
+  { day: 4, eggs: 8, usdt: 0 },
+  { day: 5, eggs: 10, usdt: 0.5 },
+  { day: 6, eggs: 15, usdt: 0.75 },
+  { day: 7, eggs: 20, usdt: 1 }        // Weekly bonus
+];
+
+// Mystery box types and prices
+export const mysteryBoxTypes = {
+  basic: { price: 5, name: "Basic Mystery Box" },
+  advanced: { price: 10, name: "Advanced Mystery Box" },
+  legendary: { price: 25, name: "Legendary Mystery Box" }
+};
+
+// Boost types, prices, and durations
+export const boostTypes = [
+  { id: "2x_1h", name: "2x Egg Production (1 Hour)", multiplier: 2.0, hours: 1, price: 10 },
+  { id: "1.5x_6h", name: "1.5x Egg Production (6 Hours)", multiplier: 1.5, hours: 6, price: 20 },
+  { id: "1.2x_24h", name: "1.2x Egg Production (24 Hours)", multiplier: 1.2, hours: 24, price: 30 }
 ];
