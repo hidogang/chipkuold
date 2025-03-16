@@ -191,7 +191,8 @@ export default function AdminPage() {
         { itemType: 'egg', price: data.eggPrice },
         { itemType: 'baby_chicken', price: data.babyChickenPrice },
         { itemType: 'regular_chicken', price: data.regularChickenPrice },
-        { itemType: 'golden_chicken', price: data.goldenChickenPrice }
+        { itemType: 'golden_chicken', price: data.goldenChickenPrice },
+        { itemType: 'mystery_box', price: data.mysteryBoxPrice }
       ];
 
       console.log('Sending price updates:', priceUpdates);
@@ -687,6 +688,28 @@ export default function AdminPage() {
                         )}
                       />
                     </div>
+                  </div>
+
+                  <div className="pt-4 border-t mb-4">
+                    <h3 className="text-lg font-semibold mb-4">Mystery Box Settings</h3>
+                    <FormField
+                      control={priceForm.control}
+                      name="mysteryBoxPrice"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Mystery Box Price (USDT)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              value={field.value || ''}
+                              onChange={(e) => field.onChange(Number(e.target.value))}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
 
                   <div className="pt-4 border-t">
