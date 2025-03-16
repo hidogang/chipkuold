@@ -588,6 +588,104 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Mystery Box endpoints
+  app.get("/api/mystery-boxes", async (req, res) => {
+    if (!req.user) return res.sendStatus(401);
+    try {
+      const resources = await storage.getResourcesByUserId(req.user.id);
+      res.json({ count: resources.mysteryBoxes || 0 });
+    } catch (err) {
+      console.error('Error fetching mystery boxes:', err);
+      res.status(500).json({ error: 'Failed to fetch mystery boxes' });
+    }
+  });
+
+  app.post("/api/mystery-boxes/buy", async (req, res) => {
+    if (!req.user) return res.sendStatus(401);
+    
+    const schema = z.object({
+      quantity: z.number().positive().default(1)
+    });
+
+    const result = schema.safeParse(req.body);
+    if (!result.success) return res.status(400).json(result.error);
+
+    try {
+      for (let i = 0; i < result.data.quantity; i++) {
+        await storage.purchaseMysteryBox(req.user.id);
+      }
+      
+      const resources = await storage.getResourcesByUserId(req.user.id);
+      res.json({ 
+        success: true, 
+        mysteryBoxes: resources.mysteryBoxes || 0
+      });
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(400).send(err.message);
+      } else {
+        res.status(400).send("Failed to purchase mystery box");
+      }
+    }
+  });
+
+  app.post("/api/mystery-boxes/open", async (req, res) => {
+    if (!req.user) return res.sendStatus(401);
+    
+    try {
+      const reward = await storage.openMysteryBox(req.user.id);
+      if (!reward) {
+        return res.status(400).send("Failed to open mystery box");
+      }
+      
+      res.json({
+        success: true,
+        reward
+      });
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(400).send(err.message);
+      } else {
+        res.status(400).send("Failed to open mystery box");
+      }
+    }
+  });
+
+  app.get("/api/mystery-boxes/rewards", async (req, res) => {
+    if (!req.user) return res.sendStatus(401);
+    
+    try {
+      const rewards = await storage.getMysteryBoxRewardsByUserId(req.user.id);
+      res.json(rewards);
+    } catch (err) {
+      console.error('Error fetching mystery box rewards:', err);
+      res.status(500).json({ error: 'Failed to fetch mystery box rewards' });
+    }
+  });
+
+  app.post("/api/mystery-boxes/claim/:id", async (req, res) => {
+    if (!req.user) return res.sendStatus(401);
+    
+    try {
+      const rewardId = parseInt(req.params.id);
+      if (isNaN(rewardId)) {
+        return res.status(400).send("Invalid reward ID");
+      }
+      
+      const claimedReward = await storage.claimMysteryBoxReward(rewardId);
+      res.json({
+        success: true,
+        reward: claimedReward
+      });
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(400).send(err.message);
+      } else {
+        res.status(400).send("Failed to claim reward");
+      }
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -59,6 +59,7 @@ const priceSchema = z.object({
   babyChickenPrice: z.number().min(0, "Price cannot be negative"),
   regularChickenPrice: z.number().min(0, "Price cannot be negative"),
   goldenChickenPrice: z.number().min(0, "Price cannot be negative"),
+  mysteryBoxPrice: z.number().min(0, "Price cannot be negative"),
   withdrawalTaxPercentage: z.number().min(0, "Tax cannot be negative").max(100, "Tax cannot exceed 100%"),
 });
 
@@ -162,6 +163,7 @@ export default function AdminPage() {
       babyChickenPrice: 90,
       regularChickenPrice: 150,
       goldenChickenPrice: 400,
+      mysteryBoxPrice: 50,
       withdrawalTaxPercentage: 5,
     },
   });
@@ -175,6 +177,7 @@ export default function AdminPage() {
         babyChickenPrice: pricesQuery.data.babyChickenPrice,
         regularChickenPrice: pricesQuery.data.regularChickenPrice,
         goldenChickenPrice: pricesQuery.data.goldenChickenPrice,
+        mysteryBoxPrice: pricesQuery.data.mysteryBoxPrice || 50,
         withdrawalTaxPercentage: pricesQuery.data.withdrawalTaxPercentage
       });
     }
