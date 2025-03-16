@@ -2,7 +2,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Price, Chicken, MysteryBoxReward } from "@shared/schema";
+import { Price, Chicken, MysteryBoxReward, MysteryBoxContent } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import BalanceBar from "@/components/balance-bar";
 import { motion } from "framer-motion";

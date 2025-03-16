@@ -283,9 +283,27 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getResourcesByUserId(userId: number): Promise<Resource> {
-    const [resource] = await db.select().from(resources).where(eq(resources.userId, userId));
-    if (!resource) throw new Error("Resources not found");
-    return resource;
+    try {
+      const [resource] = await db.select().from(resources).where(eq(resources.userId, userId));
+      
+      if (!resource) {
+        // Create resources for this user if they don't exist
+        const [newResource] = await db.insert(resources).values({
+          userId,
+          waterBuckets: 0,
+          wheatBags: 0,
+          eggs: 0,
+          mysteryBoxes: 0
+        }).returning();
+        
+        return newResource;
+      }
+      
+      return resource;
+    } catch (error) {
+      console.error("Error fetching or creating resources:", error);
+      throw new Error("Failed to create resources");
+    }
   }
 
   async updateResources(userId: number, updates: Partial<Resource>): Promise<Resource> {
