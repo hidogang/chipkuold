@@ -1,5 +1,5 @@
 import { drizzle } from 'drizzle-orm/neon-serverless';
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and, desc, sql } from 'drizzle-orm';
 import { db } from './db';
 import { User, Chicken, Resource, Transaction, Price, InsertUser, UserProfile, InsertUserProfile, gameSettings } from "@shared/schema";
 import { users, chickens, resources, transactions, prices, userProfiles, gameSettings as gameSettingsTable } from "@shared/schema";
@@ -24,6 +24,8 @@ export interface IStorage {
   getChickensByUserId(userId: number): Promise<Chicken[]>;
   createChicken(userId: number, type: string): Promise<Chicken>;
   updateChickenHatchTime(chickenId: number): Promise<void>;
+  deleteChicken(chickenId: number): Promise<void>;
+  getChickenCountsByType(): Promise<{ type: string, count: number }[]>;
 
   // Resource operations
   getResourcesByUserId(userId: number): Promise<Resource>;
@@ -238,6 +240,26 @@ export class DatabaseStorage implements IStorage {
     await db.update(chickens)
       .set({ lastHatchTime: new Date() })
       .where(eq(chickens.id, chickenId));
+  }
+
+  async deleteChicken(chickenId: number): Promise<void> {
+    await db.delete(chickens)
+      .where(eq(chickens.id, chickenId));
+  }
+
+  async getChickenCountsByType(): Promise<{ type: string, count: number }[]> {
+    const result = await db
+      .select({
+        type: chickens.type,
+        count: sql`COUNT(*)::int`,
+      })
+      .from(chickens)
+      .groupBy(chickens.type);
+    
+    return result.map(item => ({ 
+      type: item.type, 
+      count: item.count
+    }));
   }
 
   async getResourcesByUserId(userId: number): Promise<Resource> {

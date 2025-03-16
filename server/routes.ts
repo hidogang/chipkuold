@@ -290,6 +290,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
     await storage.updateChickenHatchTime(chickenId);
     res.json({ success: true });
   });
+  
+  app.post("/api/chickens/sell/:id", async (req, res) => {
+    if (!req.user) return res.sendStatus(401);
+
+    try {
+      const chickenId = parseInt(req.params.id);
+      
+      // Verify the chicken exists and belongs to the user
+      const chickens = await storage.getChickensByUserId(req.user.id);
+      const chicken = chickens.find(c => c.id === chickenId);
+      
+      if (!chicken) {
+        return res.status(404).send("Chicken not found");
+      }
+      
+      // Get the sell price (use 75% of purchase price)
+      const prices = await storage.getPrices();
+      const price = prices.find(p => p.itemType === `${chicken.type}_chicken`);
+      
+      if (!price) {
+        return res.status(400).send("Invalid chicken type");
+      }
+      
+      const sellPrice = parseFloat(price.price) * 0.75; // 75% of purchase price
+      
+      // Delete the chicken
+      await storage.deleteChicken(chickenId);
+      
+      // Add funds to user's balance
+      await storage.updateUserBalance(req.user.id, sellPrice);
+      
+      // Create a transaction record
+      await storage.createTransaction(
+        req.user.id,
+        "sale",
+        sellPrice,
+        undefined,
+        undefined,
+        JSON.stringify({ itemType: `${chicken.type}_chicken`, action: "sell" })
+      );
+      
+      res.json({ 
+        success: true, 
+        amount: sellPrice
+      });
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(400).send(err.message);
+      } else {
+        res.status(400).send("Failed to sell chicken");
+      }
+    }
+  });
+  
+  // Get chicken counts by type
+  app.get("/api/chickens/counts", async (req, res) => {
+    try {
+      const counts = await storage.getChickenCountsByType();
+      res.json(counts);
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(500).send(err.message);
+      } else {
+        res.status(500).send("Failed to get chicken counts");
+      }
+    }
+  });
 
   // Resources
   app.get("/api/resources", async (req, res) => {
