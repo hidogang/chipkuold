@@ -6,6 +6,7 @@ import { users, chickens, resources, transactions, prices, userProfiles, gameSet
 import session from "express-session";
 import createMemoryStore from "memorystore";
 import { randomBytes } from "crypto";
+import { hashPassword } from './auth-utils';
 
 const MemoryStore = createMemoryStore(session);
 
@@ -75,7 +76,7 @@ export class DatabaseStorage implements IStorage {
   private async initializeDefaults() {
     try {
       await this.initializePrices();
-      await this.initializeAdminUser();
+      await this.initializeAdminUser(); // Make sure admin is initialized
       await this.initializeGameSettings();
     } catch (error) {
       console.error("Error in initializeDefaults:", error);
@@ -113,42 +114,56 @@ export class DatabaseStorage implements IStorage {
   }
 
   private async initializeAdminUser() {
-    const adminExists = await this.getUserByUsername("adminraja");
-    if (!adminExists) {
-      await db.insert(users).values({
-        username: "adminraja",
-        password: "admin8751",
-        usdtBalance: "0",
-        referralCode: "ADMIN",
-        isAdmin: true
-      });
+    try {
+      const adminExists = await this.getUserByUsername("adminraja");
+      if (!adminExists) {
+        const hashedPassword = await hashPassword("admin8751");
+        await db.insert(users).values({
+          username: "adminraja",
+          password: hashedPassword,
+          usdtBalance: "0",
+          referralCode: "ADMIN",
+          isAdmin: true
+        });
 
-      const [admin] = await db.select().from(users).where(eq(users.username, "adminraja"));
+        const [admin] = await db.select().from(users).where(eq(users.username, "adminraja"));
 
-      await db.insert(resources).values({
-        userId: admin.id,
-        waterBuckets: 0,
-        wheatBags: 0,
-        eggs: 0
-      });
+        await db.insert(resources).values({
+          userId: admin.id,
+          waterBuckets: 0,
+          wheatBags: 0,
+          eggs: 0
+        });
+
+        console.log("[Storage] Admin user created successfully");
+      }
+    } catch (error) {
+      console.error("[Storage] Error initializing admin user:", error);
+      throw error;
     }
   }
 
   private async initializePrices() {
-    const defaultPrices = [
-      { itemType: "baby_chicken", price: "90" },
-      { itemType: "regular_chicken", price: "150" },
-      { itemType: "golden_chicken", price: "400" },
-      { itemType: "water_bucket", price: "0.5" },
-      { itemType: "wheat_bag", price: "0.5" },
-      { itemType: "egg", price: "0.1" }
-    ];
+    try {
+      const defaultPrices = [
+        { itemType: "baby_chicken", price: "90" },
+        { itemType: "regular_chicken", price: "150" },
+        { itemType: "golden_chicken", price: "400" },
+        { itemType: "water_bucket", price: "0.5" },
+        { itemType: "wheat_bag", price: "0.5" },
+        { itemType: "egg", price: "0.1" }
+      ];
 
-    for (const price of defaultPrices) {
-      const [existing] = await db.select().from(prices).where(eq(prices.itemType, price.itemType));
-      if (!existing) {
-        await db.insert(prices).values(price);
+      for (const price of defaultPrices) {
+        const [existing] = await db.select().from(prices).where(eq(prices.itemType, price.itemType));
+        if (!existing) {
+          await db.insert(prices).values(price);
+        }
       }
+      console.log("[Storage] Prices initialized successfully");
+    } catch (error) {
+      console.error("[Storage] Error initializing prices:", error);
+      throw error;
     }
   }
 

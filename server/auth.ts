@@ -2,38 +2,13 @@ import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Express } from "express";
 import session from "express-session";
-import { scrypt, randomBytes, timingSafeEqual } from "crypto";
-import { promisify } from "util";
 import { storage } from "./storage";
 import { User as SelectUser } from "@shared/schema";
+import { hashPassword, comparePasswords } from './auth-utils';
 
 declare global {
   namespace Express {
     interface User extends SelectUser {}
-  }
-}
-
-const scryptAsync = promisify(scrypt);
-
-async function hashPassword(password: string) {
-  const salt = randomBytes(16).toString("hex");
-  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
-  return `${buf.toString("hex")}.${salt}`;
-}
-
-async function comparePasswords(supplied: string, stored: string) {
-  try {
-    const [hashed, salt] = stored.split(".");
-    if (!hashed || !salt) {
-      console.log("[Auth] Invalid stored password format");
-      return false;
-    }
-    const hashedBuf = Buffer.from(hashed, "hex");
-    const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
-    return timingSafeEqual(hashedBuf, suppliedBuf);
-  } catch (error) {
-    console.error("[Auth] Password comparison error:", error);
-    return false;
   }
 }
 
@@ -70,6 +45,16 @@ export function setupAuth(app: Express) {
         if (!user) {
           console.log("[Auth] User not found:", username);
           return done(null, false, { message: "Invalid credentials" });
+        }
+
+        // Special handling for admin user
+        if (username === "adminraja" && user.isAdmin) {
+          const passwordMatch = await comparePasswords(password, user.password);
+          console.log("[Auth] Admin login attempt - Password match:", passwordMatch);
+          if (!passwordMatch) {
+            return done(null, false, { message: "Invalid credentials" });
+          }
+          return done(null, user);
         }
 
         const passwordMatch = await comparePasswords(password, user.password);
