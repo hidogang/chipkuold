@@ -400,30 +400,53 @@ export default function MarketPage() {
                   </Tooltip>
                 </TooltipProvider>
 
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="number"
-                    min="1"
-                    max={resourcesQuery.data?.eggs || 0}
-                    className="h-10 text-center font-medium"
-                    value={inputActive.eggs ? quantities.eggs : quantities.eggs || ""}
-                    onFocus={() => setInputActive({...inputActive, eggs: true})}
-                    onBlur={() => {
-                      setInputActive({...inputActive, eggs: false});
-                      if (!quantities.eggs) {
-                        setQuantities({...quantities, eggs: 1});
-                      }
-                    }}
-                    onChange={(e) => {
-                      const value = e.target.value === "" ? 0 : parseInt(e.target.value);
-                      setQuantities({
-                        ...quantities,
-                        eggs: value
-                      });
-                    }}
-                  />
-                  <div className="bg-green-50 px-3 py-2 rounded font-bold text-green-700">
-                    ${(getPrice("egg") * (quantities.eggs || 0)).toFixed(2)}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <Input
+                        type="number"
+                        min="1"
+                        max={resourcesQuery.data?.eggs || 0}
+                        className="h-10 text-center font-medium pr-16"
+                        value={inputActive.eggs ? quantities.eggs : quantities.eggs || ""}
+                        onFocus={() => setInputActive({...inputActive, eggs: true})}
+                        onBlur={() => {
+                          setInputActive({...inputActive, eggs: false});
+                          if (!quantities.eggs) {
+                            setQuantities({...quantities, eggs: 1});
+                          }
+                        }}
+                        onChange={(e) => {
+                          const value = e.target.value === "" ? 0 : parseInt(e.target.value);
+                          setQuantities({
+                            ...quantities,
+                            eggs: value
+                          });
+                        }}
+                      />
+                      <Button 
+                        className="absolute right-0 top-0 h-full px-2 rounded-l-none bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-bold"
+                        onClick={() => {
+                          const maxEggs = resourcesQuery.data?.eggs || 0;
+                          setQuantities({
+                            ...quantities,
+                            eggs: maxEggs
+                          });
+                        }}
+                      >
+                        MAX
+                      </Button>
+                    </div>
+                    <div className="bg-green-50 px-3 py-2 rounded font-bold text-green-700 whitespace-nowrap">
+                      ${(getPrice("egg") * (quantities.eggs || 0)).toFixed(2)}
+                    </div>
+                  </div>
+                  
+                  <div className="text-xs text-gray-500 text-center">
+                    {resourcesQuery.data?.eggs ? 
+                      `Selling ${quantities.eggs || 0} of ${resourcesQuery.data?.eggs} eggs (${Math.round(((quantities.eggs || 0) / resourcesQuery.data?.eggs) * 100)}%)` : 
+                      'No eggs available to sell'
+                    }
                   </div>
                 </div>
 
