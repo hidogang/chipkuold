@@ -33,9 +33,9 @@ export default function LandingPage() {
 
   const ChickenDisplay = ({ type }: { type: string }) => {
     const chickenImages = {
-      baby: "/assets/baby-chick.png",
-      regular: "/assets/chicken.png",
-      golden: "/assets/golden-chicken.png"
+      baby: "/assets/babychicken.png",
+      regular: "/assets/regularchicken.png",
+      golden: "/assets/goldenchicken.png"
     };
 
     return (
