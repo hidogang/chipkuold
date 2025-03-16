@@ -1,8 +1,16 @@
 import { drizzle } from 'drizzle-orm/neon-serverless';
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { db } from './db';
-import { User, Chicken, Resource, Transaction, Price, InsertUser, UserProfile, InsertUserProfile, gameSettings } from "@shared/schema";
-import { users, chickens, resources, transactions, prices, userProfiles, gameSettings as gameSettingsTable } from "@shared/schema";
+import { 
+  User, Chicken, Resource, Transaction, Price, InsertUser, 
+  UserProfile, InsertUserProfile, gameSettings, 
+  MysteryBoxReward, InsertMysteryBoxReward, MysteryBoxContent 
+} from "@shared/schema";
+import { 
+  users, chickens, resources, transactions, prices, 
+  userProfiles, gameSettings as gameSettingsTable,
+  mysteryBoxRewards 
+} from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
 import { randomBytes } from "crypto";
@@ -52,6 +60,13 @@ export interface IStorage {
   createUserProfile(profile: InsertUserProfile): Promise<UserProfile>;
   updateUserProfile(userId: number, updates: Partial<InsertUserProfile>): Promise<UserProfile>;
 
+  // Mystery Box operations
+  purchaseMysteryBox(userId: number): Promise<void>;
+  openMysteryBox(userId: number): Promise<MysteryBoxReward | null>;
+  getMysteryBoxRewardsByUserId(userId: number): Promise<MysteryBoxReward[]>;
+  createMysteryBoxReward(reward: InsertMysteryBoxReward): Promise<MysteryBoxReward>;
+  claimMysteryBoxReward(rewardId: number): Promise<MysteryBoxReward>;
+  
   // Admin methods
   getTransactions(): Promise<Transaction[]>;
   getTransactionByTransactionId(transactionId: string): Promise<Transaction | undefined>;
@@ -158,7 +173,8 @@ export class DatabaseStorage implements IStorage {
         { itemType: "golden_chicken", price: "400" },
         { itemType: "water_bucket", price: "0.5" },
         { itemType: "wheat_bag", price: "0.5" },
-        { itemType: "egg", price: "0.1" }
+        { itemType: "egg", price: "0.1" },
+        { itemType: "mystery_box", price: "50" }
       ];
 
       for (const price of defaultPrices) {
@@ -202,7 +218,8 @@ export class DatabaseStorage implements IStorage {
       userId: user.id,
       waterBuckets: 0,
       wheatBags: 0,
-      eggs: 0
+      eggs: 0,
+      mysteryBoxes: 0
     });
 
     return user;
@@ -402,6 +419,196 @@ export class DatabaseStorage implements IStorage {
       .returning();
 
     return updatedProfile;
+  }
+
+  // Mystery Box operations
+  async purchaseMysteryBox(userId: number): Promise<void> {
+    try {
+      // Get the mystery box price
+      const [mysteryBoxPrice] = await db.select()
+        .from(prices)
+        .where(eq(prices.itemType, "mystery_box"));
+      
+      if (!mysteryBoxPrice) {
+        throw new Error("Mystery box price not configured");
+      }
+
+      const price = parseFloat(mysteryBoxPrice.price);
+      
+      // Check if user has enough balance
+      const user = await this.getUser(userId);
+      if (!user) {
+        throw new Error("User not found");
+      }
+      
+      const userBalance = parseFloat(user.usdtBalance);
+      if (userBalance < price) {
+        throw new Error("Insufficient USDT balance");
+      }
+      
+      // Deduct user balance
+      await this.updateUserBalance(userId, -price);
+      
+      // Update user's mystery box count
+      const resource = await this.getResourcesByUserId(userId);
+      await this.updateResources(userId, {
+        mysteryBoxes: (resource.mysteryBoxes || 0) + 1
+      });
+      
+      // Create transaction record
+      await this.createTransaction(
+        userId,
+        "mystery_box",
+        price,
+        undefined,
+        undefined,
+        JSON.stringify({ action: "purchase" })
+      );
+    } catch (error) {
+      console.error("Error purchasing mystery box:", error);
+      throw error;
+    }
+  }
+
+  async openMysteryBox(userId: number): Promise<MysteryBoxReward | null> {
+    try {
+      // Check if user has a mystery box to open
+      const resource = await this.getResourcesByUserId(userId);
+      if (!resource.mysteryBoxes || resource.mysteryBoxes <= 0) {
+        throw new Error("No mystery boxes available");
+      }
+      
+      // Reduce the mystery box count
+      await this.updateResources(userId, {
+        mysteryBoxes: resource.mysteryBoxes - 1
+      });
+      
+      // Generate a random reward
+      const rewardType = this.getRandomRewardType();
+      let rewardValue: MysteryBoxContent;
+      
+      switch (rewardType) {
+        case "usdt":
+          // Random USDT amount between 1 and 50
+          const amount = Math.floor(Math.random() * 50) + 1;
+          rewardValue = { rewardType, amount };
+          break;
+        case "chicken":
+          // Random chicken type
+          const chickenTypes = ["baby", "regular", "golden"];
+          const chickenType = chickenTypes[Math.floor(Math.random() * chickenTypes.length)];
+          rewardValue = { rewardType, chickenType };
+          break;
+        case "resources":
+          // Random resource type and amount
+          const resourceTypes = ["water_buckets", "wheat_bags"];
+          const resourceType = resourceTypes[Math.floor(Math.random() * resourceTypes.length)];
+          const resourceAmount = Math.floor(Math.random() * 15) + 5; // 5-20
+          rewardValue = { rewardType, resourceType, resourceAmount };
+          break;
+        default:
+          throw new Error("Invalid reward type");
+      }
+      
+      // Create a mystery box reward record
+      const reward = await this.createMysteryBoxReward({
+        userId,
+        rewardType,
+        rewardValue: JSON.stringify(rewardValue),
+        opened: false
+      });
+      
+      return reward;
+    } catch (error) {
+      console.error("Error opening mystery box:", error);
+      throw error;
+    }
+  }
+  
+  private getRandomRewardType(): "usdt" | "chicken" | "resources" {
+    // Probabilities:
+    // 10% chance for USDT
+    // 20% chance for chicken
+    // 70% chance for resources
+    const rand = Math.random() * 100;
+    if (rand < 10) {
+      return "usdt";
+    } else if (rand < 30) {
+      return "chicken";
+    } else {
+      return "resources";
+    }
+  }
+
+  async getMysteryBoxRewardsByUserId(userId: number): Promise<MysteryBoxReward[]> {
+    return db.select()
+      .from(mysteryBoxRewards)
+      .where(eq(mysteryBoxRewards.userId, userId))
+      .orderBy(desc(mysteryBoxRewards.createdAt));
+  }
+
+  async createMysteryBoxReward(reward: InsertMysteryBoxReward): Promise<MysteryBoxReward> {
+    const [newReward] = await db.insert(mysteryBoxRewards)
+      .values(reward)
+      .returning();
+    return newReward;
+  }
+
+  async claimMysteryBoxReward(rewardId: number): Promise<MysteryBoxReward> {
+    try {
+      const [reward] = await db.select()
+        .from(mysteryBoxRewards)
+        .where(eq(mysteryBoxRewards.id, rewardId));
+      
+      if (!reward) {
+        throw new Error("Reward not found");
+      }
+      
+      if (reward.opened) {
+        throw new Error("Reward already claimed");
+      }
+      
+      const rewardValue = JSON.parse(reward.rewardValue) as MysteryBoxContent;
+      const userId = reward.userId;
+      
+      switch (rewardValue.rewardType) {
+        case "usdt":
+          if (rewardValue.amount) {
+            await this.updateUserBalance(userId, rewardValue.amount);
+          }
+          break;
+        case "chicken":
+          if (rewardValue.chickenType) {
+            await this.createChicken(userId, rewardValue.chickenType);
+          }
+          break;
+        case "resources":
+          if (rewardValue.resourceType && rewardValue.resourceAmount) {
+            const resource = await this.getResourcesByUserId(userId);
+            const updates: Partial<Resource> = {};
+            
+            if (rewardValue.resourceType === "water_buckets") {
+              updates.waterBuckets = resource.waterBuckets + rewardValue.resourceAmount;
+            } else if (rewardValue.resourceType === "wheat_bags") {
+              updates.wheatBags = resource.wheatBags + rewardValue.resourceAmount;
+            }
+            
+            await this.updateResources(userId, updates);
+          }
+          break;
+      }
+      
+      // Mark reward as claimed
+      const [updatedReward] = await db.update(mysteryBoxRewards)
+        .set({ opened: true })
+        .where(eq(mysteryBoxRewards.id, rewardId))
+        .returning();
+      
+      return updatedReward;
+    } catch (error) {
+      console.error("Error claiming mystery box reward:", error);
+      throw error;
+    }
   }
 }
 

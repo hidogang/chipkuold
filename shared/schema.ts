@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, decimal } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, decimal, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -26,12 +26,13 @@ export const resources = pgTable("resources", {
   waterBuckets: integer("water_buckets").notNull().default(0),
   wheatBags: integer("wheat_bags").notNull().default(0),
   eggs: integer("eggs").notNull().default(0),
+  mysteryBoxes: integer("mystery_boxes").notNull().default(0),
 });
 
 export const transactions = pgTable("transactions", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),
-  type: text("type").notNull(), // recharge, withdrawal, purchase, commission
+  type: text("type").notNull(), // recharge, withdrawal, purchase, commission, mystery_box
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
   status: text("status").notNull(), // pending, completed, rejected
   transactionId: text("transaction_id"),
@@ -49,8 +50,17 @@ export const gameSettings = pgTable("game_settings", {
 
 export const prices = pgTable("prices", {
   id: serial("id").primaryKey(),
-  itemType: text("item_type").notNull().unique(), // chicken types, resources, eggs
+  itemType: text("item_type").notNull().unique(), // chicken types, resources, eggs, mystery_box
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+});
+
+export const mysteryBoxRewards = pgTable("mystery_box_rewards", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  rewardType: text("reward_type").notNull(), // usdt, chicken, resources
+  rewardValue: text("reward_value").notNull(), // JSON string with details
+  opened: boolean("opened").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 export const userProfiles = pgTable("user_profiles", {
@@ -85,7 +95,7 @@ export const insertTransactionSchema = createInsertSchema(transactions)
     amount: z.number()
       .min(0.01, "Amount must be greater than 0")
       .max(1000000, "Amount cannot exceed 1,000,000"),
-    type: z.enum(["recharge", "withdrawal", "purchase", "commission"]),
+    type: z.enum(["recharge", "withdrawal", "purchase", "commission", "mystery_box"]),
     status: z.enum(["pending", "completed", "rejected"]),
     bankDetails: z.string().nullish(),
   });
@@ -100,6 +110,11 @@ export const insertGameSettingSchema = createInsertSchema(gameSettings).omit({
   updatedAt: true,
 });
 
+export const insertMysteryBoxRewardSchema = createInsertSchema(mysteryBoxRewards).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type Chicken = typeof chickens.$inferSelect;
@@ -109,6 +124,8 @@ export type Price = typeof prices.$inferSelect;
 export type UserProfile = typeof userProfiles.$inferSelect;
 export type InsertUserProfile = z.infer<typeof insertUserProfileSchema>;
 export type GameSetting = typeof gameSettings.$inferSelect;
+export type MysteryBoxReward = typeof mysteryBoxRewards.$inferSelect;
+export type InsertMysteryBoxReward = z.infer<typeof insertMysteryBoxRewardSchema>;
 
 
 // Admin types
@@ -139,5 +156,23 @@ export interface GamePrices {
   babyChickenPrice: number;
   regularChickenPrice: number;
   goldenChickenPrice: number;
+  mysteryBoxPrice: number;
   withdrawalTaxPercentage: number;
 }
+
+export interface MysteryBoxContent {
+  rewardType: "usdt" | "chicken" | "resources"; 
+  amount?: number;         // For USDT rewards
+  chickenType?: string;    // For chicken rewards
+  resourceType?: string;   // For resource rewards
+  resourceAmount?: number; // For resource rewards
+}
+
+export const possibleMysteryBoxRewards = [
+  { rewardType: "usdt", min: 1, max: 50 },
+  { rewardType: "chicken", types: ["baby", "regular", "golden"] },
+  { rewardType: "resources", types: [
+    { type: "water_buckets", min: 5, max: 20 },
+    { type: "wheat_bags", min: 5, max: 20 }
+  ]}
+];
