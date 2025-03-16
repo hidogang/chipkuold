@@ -477,6 +477,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (!result.success) return res.status(400).json(result.error);
 
     try {
+      // Get user's transactions to check if this is first deposit
+      const userTransactions = await storage.getTransactionsByUserId(req.user.id);
+      const previousDeposits = userTransactions.filter(t => t.type === "recharge" && t.status === "approved");
+      const isFirstDeposit = previousDeposits.length === 0;
+      
+      // Calculate deposit amount with potential bonus
+      let finalAmount = result.data.amount;
+      let bonusAmount = 0;
+      
+      // Apply 10% first deposit bonus
+      if (isFirstDeposit) {
+        bonusAmount = result.data.amount * 0.1; // 10% bonus
+        finalAmount += bonusAmount;
+      }
+      
       // If user was referred, calculate commission
       let referralCommission = null;
       if (req.user.referredBy) {
@@ -494,15 +509,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
+      // Create the main deposit transaction
       const transaction = await storage.createTransaction(
         req.user.id,
         "recharge",
-        result.data.amount,
+        result.data.amount, // Store original amount
         result.data.transactionId,
-        referralCommission || undefined
+        referralCommission || undefined,
+        isFirstDeposit ? JSON.stringify({ firstDepositBonus: bonusAmount }) : undefined
       );
+      
+      // If first deposit, create a bonus transaction
+      if (isFirstDeposit && bonusAmount > 0) {
+        await storage.createTransaction(
+          req.user.id,
+          "bonus",
+          bonusAmount,
+          `bonus-${transaction.transactionId}`,
+          undefined,
+          JSON.stringify({ reason: "First deposit bonus" })
+        );
+        
+        // Immediately approve the bonus
+        await storage.updateTransactionStatus(`bonus-${transaction.transactionId}`, "approved");
+        await storage.updateUserBalance(req.user.id, bonusAmount);
+      }
 
-      res.json(transaction);
+      // Return the transaction with bonus info if applicable
+      res.json({
+        ...transaction,
+        isFirstDeposit,
+        bonusAmount: isFirstDeposit ? bonusAmount : 0
+      });
     } catch (err) {
       if (err instanceof Error) {
         res.status(400).send(err.message);

@@ -96,12 +96,24 @@ export default function WalletPage() {
       const res = await apiRequest("POST", "/api/wallet/recharge", data);
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
-      toast({
-        title: "Recharge Requested",
-        description: "Your USDT recharge request has been submitted for verification.",
-      });
+      queryClient.invalidateQueries({ queryKey: ["/api/transactions"] });
+      
+      if (data.isFirstDeposit && data.bonusAmount > 0) {
+        toast({
+          title: "🎉 First Deposit Bonus!",
+          description: `Your deposit request has been submitted AND you received a ${data.bonusAmount.toFixed(2)} USDT bonus as a first-time depositor!`,
+          variant: "default",
+          duration: 6000,
+        });
+      } else {
+        toast({
+          title: "Recharge Requested",
+          description: "Your USDT recharge request has been submitted for verification.",
+        });
+      }
+      
       rechargeForm.reset();
     },
     onError: (error: Error) => {
@@ -175,6 +187,21 @@ export default function WalletPage() {
               />
               ${user?.usdtBalance || 0}
             </p>
+          </div>
+        </div>
+        
+        {/* First Deposit Bonus Banner */}
+        <div className="bg-gradient-to-r from-amber-100 to-yellow-50 border border-amber-200 rounded-lg p-3 shadow-sm">
+          <div className="flex items-start gap-3">
+            <div className="bg-amber-500 text-white p-2 rounded-full shrink-0">
+              <div className="text-xl font-bold">10%</div>
+            </div>
+            <div>
+              <h3 className="font-bold text-amber-800 text-lg">First Deposit Bonus!</h3>
+              <p className="text-sm text-amber-700">
+                New users get an extra 10% bonus on their first deposit. Bonus is credited instantly to your account!
+              </p>
+            </div>
           </div>
         </div>
 
