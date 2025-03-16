@@ -522,7 +522,7 @@ export default function HomePage() {
                     <h4 className="text-xs font-medium text-amber-800 mb-2">Resources Required:</h4>
                     <div className="flex justify-center space-x-4">
                       <div className="flex items-center">
-                        <Droplets className="h-4 w-4 text-blue-500 mr-1" />
+                        <img src="/assets/waterbucket.png" alt="Water Bucket" className="h-4 w-4 mr-1" style={{ objectFit: "contain" }} />
                         <span className="text-sm">
                           {chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1}
                           <span className={resources.waterBuckets < (chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1) ? 'text-red-500 ml-1' : 'text-green-500 ml-1'}>
@@ -585,7 +585,7 @@ export default function HomePage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <Droplets size={16} />
+            <img src="/assets/waterbucket.png" alt="Water Bucket" width="16" height="16" style={{ objectFit: "contain" }} />
             <span>Buy Water</span>
           </motion.button>
 
