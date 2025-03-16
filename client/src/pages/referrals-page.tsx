@@ -494,64 +494,43 @@ export default function ReferralsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Monthly Team Salary</CardTitle>
-              <CardDescription>Regular income based on your team's total earnings</CardDescription>
+              <CardDescription>Regular income based on your active referrals</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
                 <div>
-                  <h3 className="font-bold mb-2">Salary Tiers</h3>
+                  <h3 className="font-bold mb-4">How Monthly Salary Works</h3>
+                  
+                  <div className="p-4 bg-muted rounded-lg mb-4">
+                    <p className="mb-2">Your monthly salary is directly proportional to the number of your referrals who have made their first deposit:</p>
+                    <ul className="list-disc pl-6 space-y-1">
+                      <li><strong>100 referrals with deposits = $100 monthly salary</strong></li>
+                      <li><strong>500 referrals with deposits = $500 monthly salary</strong></li>
+                      <li>And so on (1 referral = $1 in monthly salary)</li>
+                    </ul>
+                    <p className="mt-2 text-sm text-muted-foreground">Salary is paid automatically at the beginning of each month if you qualify.</p>
+                  </div>
+                  
+                  <h3 className="font-bold mb-2">Examples</h3>
                   <div className="space-y-2">
                     <div className="p-3 border rounded-lg flex justify-between">
                       <div>
-                        <p className="font-medium">$100 Monthly</p>
-                        <p className="text-sm text-muted-foreground">When team earnings reach $10,000</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-medium">
-                          Progress: {Math.min(100, Math.round((totalTeamEarnings / 10000) * 100))}%
-                        </p>
-                        <div className="w-24 h-2 bg-gray-200 rounded mt-1">
-                          <div 
-                            className="h-full bg-primary rounded" 
-                            style={{ width: `${Math.min(100, Math.round((totalTeamEarnings / 10000) * 100))}%` }}
-                          ></div>
-                        </div>
+                        <p className="font-medium">$100 Monthly Salary</p>
+                        <p className="text-sm text-muted-foreground">When you have 100 active referrals with deposits</p>
                       </div>
                     </div>
                     
                     <div className="p-3 border rounded-lg flex justify-between">
                       <div>
-                        <p className="font-medium">$500 Monthly</p>
-                        <p className="text-sm text-muted-foreground">When team earnings reach $50,000</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-medium">
-                          Progress: {Math.min(100, Math.round((totalTeamEarnings / 50000) * 100))}%
-                        </p>
-                        <div className="w-24 h-2 bg-gray-200 rounded mt-1">
-                          <div 
-                            className="h-full bg-primary rounded" 
-                            style={{ width: `${Math.min(100, Math.round((totalTeamEarnings / 50000) * 100))}%` }}
-                          ></div>
-                        </div>
+                        <p className="font-medium">$500 Monthly Salary</p>
+                        <p className="text-sm text-muted-foreground">When you have 500 active referrals with deposits</p>
                       </div>
                     </div>
                     
                     <div className="p-3 border rounded-lg flex justify-between">
                       <div>
-                        <p className="font-medium">$1,000 Monthly</p>
-                        <p className="text-sm text-muted-foreground">When team earnings reach $100,000</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-medium">
-                          Progress: {Math.min(100, Math.round((totalTeamEarnings / 100000) * 100))}%
-                        </p>
-                        <div className="w-24 h-2 bg-gray-200 rounded mt-1">
-                          <div 
-                            className="h-full bg-primary rounded" 
-                            style={{ width: `${Math.min(100, Math.round((totalTeamEarnings / 100000) * 100))}%` }}
-                          ></div>
-                        </div>
+                        <p className="font-medium">$1,000 Monthly Salary</p>
+                        <p className="text-sm text-muted-foreground">When you have 1,000 active referrals with deposits</p>
                       </div>
                     </div>
                   </div>

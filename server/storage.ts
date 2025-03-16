@@ -8,7 +8,7 @@ import {
   ReferralEarning, InsertReferralEarning, MilestoneReward,
   InsertMilestoneReward, SalaryPayment, InsertSalaryPayment,
   DailyReward, InsertDailyReward, ActiveBoost, InsertActiveBoost,
-  milestoneThresholds, salaryThresholds, referralCommissionRates,
+  milestoneThresholds, referralCommissionRates,
   dailyRewardsByDay, boostTypes
 } from "@shared/schema";
 import { 
@@ -17,6 +17,13 @@ import {
   mysteryBoxRewards, referralEarnings, milestoneRewards,
   salaryPayments, dailyRewards, activeBoosts
 } from "@shared/schema";
+import session from "express-session";
+import createMemoryStore from "memorystore";
+import { randomBytes } from "crypto";
+import { hashPassword } from './auth-utils';
+
+// Declare salary value per referral
+const SALARY_PER_REFERRAL = 1; // $1 per referral with deposit
 import session from "express-session";
 import createMemoryStore from "memorystore";
 import { randomBytes } from "crypto";
@@ -359,18 +366,31 @@ export class DatabaseStorage implements IStorage {
   
   private async checkAndProcessMonthlySalary(userId: number, totalTeamEarnings: number): Promise<void> {
     try {
-      // Find the highest salary threshold the user has reached
-      let eligibleSalary = 0;
-      for (const salaryLevel of salaryThresholds) {
-        if (totalTeamEarnings >= salaryLevel.threshold) {
-          eligibleSalary = salaryLevel.salary;
+      const user = await this.getUser(userId);
+      if (!user) return;
+      
+      // Get all direct referrals of this user
+      const directReferrals = await this.getUserReferrals(userId);
+      
+      // Count referrals who have made at least one deposit
+      let referralsWithDeposits = 0;
+      
+      for (const referral of directReferrals) {
+        // Check if this referral has made any deposits
+        const referralTransactions = await this.getTransactionsByUserId(referral.id);
+        const hasDeposit = referralTransactions.some(
+          transaction => transaction.type === 'recharge' && transaction.status === 'completed'
+        );
+        
+        if (hasDeposit) {
+          referralsWithDeposits++;
         }
       }
       
+      // Calculate salary (direct proportion: 100 referrals = $100)
+      const eligibleSalary = referralsWithDeposits * SALARY_PER_REFERRAL;
+      
       if (eligibleSalary > 0) {
-        const user = await this.getUser(userId);
-        if (!user) return;
-        
         // Check if a payment for the current month already exists
         const currentDate = new Date();
         const currentMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;

@@ -284,12 +284,10 @@ export const milestoneThresholds = [
   { threshold: 100000, reward: 5000 }   // $100,000 -> $5,000 bonus
 ];
 
-// Monthly salary thresholds
-export const salaryThresholds = [
-  { threshold: 10000, salary: 100 },   // $10,000 total team earnings -> $100/month
-  { threshold: 50000, salary: 500 },   // $50,000 -> $500/month
-  { threshold: 100000, salary: 1000 }  // $100,000 -> $1,000/month
-];
+// Monthly salary calculation
+// Each referral who made their first deposit counts as $1 in monthly salary
+// For example: 100 referrals = $100/month, 500 referrals = $500/month
+export const SALARY_PER_REFERRAL = 1; // $1 per referral with deposit
 
 // Daily rewards by streak day
 export const dailyRewardsByDay = [
