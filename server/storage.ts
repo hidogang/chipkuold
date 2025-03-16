@@ -1045,8 +1045,9 @@ export class DatabaseStorage implements IStorage {
       }
       
       // Add USDT to user's balance
-      if (parseFloat(reward.usdt.toString()) > 0) {
-        await this.updateUserBalance(userId, parseFloat(reward.usdt.toString()));
+      const usdtAmount = reward.usdt ? parseFloat(reward.usdt.toString()) : 0;
+      if (usdtAmount > 0) {
+        await this.updateUserBalance(userId, usdtAmount);
       }
       
       // Mark as claimed

@@ -686,6 +686,270 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Referral System Routes
+  app.get("/api/referrals", async (req, res) => {
+    if (!req.user) return res.sendStatus(401);
+    try {
+      const directReferrals = await storage.getUserReferrals(req.user.id);
+      res.json(directReferrals);
+    } catch (err) {
+      console.error("Error getting referrals:", err);
+      res.status(500).json({ error: "Failed to get referrals" });
+    }
+  });
+
+  app.get("/api/referrals/earnings", async (req, res) => {
+    if (!req.user) return res.sendStatus(401);
+    try {
+      const earnings = await storage.getReferralEarningsByUserId(req.user.id);
+      res.json(earnings);
+    } catch (err) {
+      console.error("Error getting referral earnings:", err);
+      res.status(500).json({ error: "Failed to get referral earnings" });
+    }
+  });
+
+  app.get("/api/referrals/earnings/unclaimed", async (req, res) => {
+    if (!req.user) return res.sendStatus(401);
+    try {
+      const unclaimedEarnings = await storage.getUnclaimedReferralEarnings(req.user.id);
+      res.json(unclaimedEarnings);
+    } catch (err) {
+      console.error("Error getting unclaimed referral earnings:", err);
+      res.status(500).json({ error: "Failed to get unclaimed referral earnings" });
+    }
+  });
+
+  app.post("/api/referrals/earnings/:id/claim", async (req, res) => {
+    if (!req.user) return res.sendStatus(401);
+    try {
+      const earningId = parseInt(req.params.id);
+      const claimed = await storage.claimReferralEarning(earningId);
+      res.json({
+        success: true,
+        claimed
+      });
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(400).send(err.message);
+      } else {
+        res.status(400).send("Failed to claim referral earning");
+      }
+    }
+  });
+
+  // Team milestone routes
+  app.get("/api/milestones", async (req, res) => {
+    if (!req.user) return res.sendStatus(401);
+    try {
+      const milestones = await storage.getMilestoneRewardsByUserId(req.user.id);
+      res.json(milestones);
+    } catch (err) {
+      console.error("Error getting milestone rewards:", err);
+      res.status(500).json({ error: "Failed to get milestone rewards" });
+    }
+  });
+
+  app.get("/api/milestones/unclaimed", async (req, res) => {
+    if (!req.user) return res.sendStatus(401);
+    try {
+      const unclaimedMilestones = await storage.getUnclaimedMilestoneRewards(req.user.id);
+      res.json(unclaimedMilestones);
+    } catch (err) {
+      console.error("Error getting unclaimed milestone rewards:", err);
+      res.status(500).json({ error: "Failed to get unclaimed milestone rewards" });
+    }
+  });
+
+  app.post("/api/milestones/:id/claim", async (req, res) => {
+    if (!req.user) return res.sendStatus(401);
+    try {
+      const milestoneId = parseInt(req.params.id);
+      const claimed = await storage.claimMilestoneReward(milestoneId);
+      res.json({
+        success: true,
+        claimed
+      });
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(400).send(err.message);
+      } else {
+        res.status(400).send("Failed to claim milestone reward");
+      }
+    }
+  });
+
+  // Salary system routes
+  app.get("/api/salary/payments", async (req, res) => {
+    if (!req.user) return res.sendStatus(401);
+    try {
+      const payments = await storage.getSalaryPaymentsByUserId(req.user.id);
+      res.json(payments);
+    } catch (err) {
+      console.error("Error getting salary payments:", err);
+      res.status(500).json({ error: "Failed to get salary payments" });
+    }
+  });
+
+  // Daily rewards system
+  app.get("/api/rewards/daily", async (req, res) => {
+    if (!req.user) return res.sendStatus(401);
+    try {
+      const reward = await storage.getCurrentDailyReward(req.user.id);
+      res.json(reward);
+    } catch (err) {
+      console.error("Error getting daily reward:", err);
+      res.status(500).json({ error: "Failed to get daily reward" });
+    }
+  });
+
+  app.get("/api/rewards/daily/history", async (req, res) => {
+    if (!req.user) return res.sendStatus(401);
+    try {
+      const rewards = await storage.getDailyRewardsByUserId(req.user.id);
+      res.json(rewards);
+    } catch (err) {
+      console.error("Error getting daily rewards history:", err);
+      res.status(500).json({ error: "Failed to get daily rewards history" });
+    }
+  });
+
+  app.post("/api/rewards/daily/:id/claim", async (req, res) => {
+    if (!req.user) return res.sendStatus(401);
+    try {
+      const rewardId = parseInt(req.params.id);
+      const claimed = await storage.claimDailyReward(rewardId);
+      res.json({
+        success: true,
+        claimed
+      });
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(400).send(err.message);
+      } else {
+        res.status(400).send("Failed to claim daily reward");
+      }
+    }
+  });
+
+  // Active boosts
+  app.get("/api/boosts", async (req, res) => {
+    if (!req.user) return res.sendStatus(401);
+    try {
+      const boosts = await storage.getActiveBoostsByUserId(req.user.id);
+      const eggMultiplier = await storage.getActiveEggBoost(req.user.id);
+      res.json({
+        boosts,
+        eggMultiplier
+      });
+    } catch (err) {
+      console.error("Error getting active boosts:", err);
+      res.status(500).json({ error: "Failed to get active boosts" });
+    }
+  });
+
+  // Update existing recharge endpoint to handle referral commissions
+  app.post("/api/wallet/recharge/complete", async (req, res) => {
+    if (!req.user) return res.sendStatus(401);
+    
+    const schema = z.object({
+      transactionId: z.string(),
+    });
+    
+    const result = schema.safeParse(req.body);
+    if (!result.success) return res.status(400).json(result.error);
+    
+    try {
+      const transaction = await storage.getTransactionByTransactionId(result.data.transactionId);
+      if (!transaction) {
+        return res.status(404).send("Transaction not found");
+      }
+      
+      // Update transaction status
+      await storage.updateTransactionStatus(result.data.transactionId, "completed");
+      
+      // Update user's balance
+      await storage.updateUserBalance(req.user.id, parseFloat(transaction.amount));
+      
+      // Process referral commissions if user was referred
+      const user = await storage.getUser(req.user.id);
+      if (user && user.referredBy) {
+        try {
+          // Find the referrer
+          const referrer = await storage.getUserByReferralCode(user.referredBy);
+          if (referrer) {
+            // Calculate level 1 commission (10% of deposit)
+            const level1Amount = parseFloat(transaction.amount) * 0.1;
+            
+            // Create earnings record
+            await storage.createReferralEarning({
+              userId: referrer.id,
+              referredUserId: req.user.id,
+              level: 1,
+              amount: level1Amount.toFixed(2),
+              claimed: false
+            });
+            
+            // Update referrer's total earnings
+            await storage.updateUserReferralEarnings(referrer.id, level1Amount);
+            await storage.updateUserTeamEarnings(referrer.id, level1Amount);
+            
+            // Process higher level referrals (up to 6 levels)
+            let currentReferrer = referrer;
+            
+            for (let level = 2; level <= 6; level++) {
+              if (!currentReferrer.referredBy) break;
+              
+              // Find the next level referrer
+              const nextReferrer = await storage.getUserByReferralCode(currentReferrer.referredBy);
+              if (!nextReferrer) break;
+              
+              // Get commission rate for this level
+              let commissionRate = 0;
+              switch (level) {
+                case 2: commissionRate = 0.05; break; // 5% for level 2
+                case 3: commissionRate = 0.03; break; // 3% for level 3
+                case 4: commissionRate = 0.02; break; // 2% for level 4
+                case 5: commissionRate = 0.01; break; // 1% for level 5
+                case 6: commissionRate = 0.005; break; // 0.5% for level 6
+              }
+              
+              // Calculate commission amount
+              const commissionAmount = parseFloat(transaction.amount) * commissionRate;
+              
+              // Create earnings record
+              await storage.createReferralEarning({
+                userId: nextReferrer.id,
+                referredUserId: req.user.id,
+                level,
+                amount: commissionAmount.toFixed(2),
+                claimed: false
+              });
+              
+              // Update referrer's total earnings
+              await storage.updateUserReferralEarnings(nextReferrer.id, commissionAmount);
+              await storage.updateUserTeamEarnings(nextReferrer.id, commissionAmount);
+              
+              // Move to next level referrer
+              currentReferrer = nextReferrer;
+            }
+          }
+        } catch (referralError) {
+          console.error("Error processing referral commissions:", referralError);
+          // Continue execution - don't fail the deposit because of referral issues
+        }
+      }
+      
+      res.json({ success: true });
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(400).send(err.message);
+      } else {
+        res.status(400).send("Failed to complete recharge");
+      }
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
