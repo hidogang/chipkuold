@@ -338,7 +338,7 @@ export default function HomePage() {
       {/* Background Decorative Clouds */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
         <motion.div
-          className="absolute right-5 top-20 w-36 h-24 opacity-20"
+          className="absolute right-5 top-20 w-36 h-24 opacity-50"
           animate={{ x: [0, -20, 0], y: [0, 5, 0] }}
           transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
         >
@@ -346,7 +346,7 @@ export default function HomePage() {
         </motion.div>
         
         <motion.div
-          className="absolute left-10 top-40 w-28 h-20 opacity-15"
+          className="absolute left-10 top-40 w-28 h-20 opacity-40"
           animate={{ x: [0, 15, 0], y: [0, -5, 0] }}
           transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
         >
@@ -354,7 +354,7 @@ export default function HomePage() {
         </motion.div>
         
         <motion.div
-          className="absolute right-20 bottom-32 w-24 h-16 opacity-10"
+          className="absolute right-20 bottom-32 w-24 h-16 opacity-30"
           animate={{ x: [0, -10, 0], y: [0, 8, 0] }}
           transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
         >
