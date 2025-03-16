@@ -22,12 +22,8 @@ import createMemoryStore from "memorystore";
 import { randomBytes } from "crypto";
 import { hashPassword } from './auth-utils';
 
-// Declare salary value per referral
-const SALARY_PER_REFERRAL = 1; // $1 per referral with deposit
-import session from "express-session";
-import createMemoryStore from "memorystore";
-import { randomBytes } from "crypto";
-import { hashPassword } from './auth-utils';
+// Declare salary value per referral - $1 per referral with deposit
+const SALARY_PER_REFERRAL = 1;
 
 const MemoryStore = createMemoryStore(session);
 
