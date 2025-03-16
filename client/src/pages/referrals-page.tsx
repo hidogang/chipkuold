@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { apiRequest, getQueryFn } from "@/lib/queryClient";
+import { apiRequest, getQueryFn, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -69,7 +69,9 @@ export default function ReferralsPage() {
 
   const handleClaimReferralEarning = async (earningId: number) => {
     try {
-      await apiRequest(`/api/referrals/earnings/${earningId}/claim`, { method: "POST" });
+      await apiRequest(`/api/referrals/earnings/${earningId}/claim`, {
+        method: "POST"
+      });
       toast({
         title: "Success!",
         description: "Referral earnings claimed and added to your balance."
@@ -88,7 +90,9 @@ export default function ReferralsPage() {
 
   const handleClaimMilestoneReward = async (milestoneId: number) => {
     try {
-      await apiRequest(`/api/milestones/${milestoneId}/claim`, { method: "POST" });
+      await apiRequest(`/api/milestones/${milestoneId}/claim`, {
+        method: "POST"
+      });
       toast({
         title: "Success!",
         description: "Milestone reward claimed and added to your balance."
@@ -139,12 +143,12 @@ export default function ReferralsPage() {
     );
   }
 
-  const directReferrals = referralsQuery.data || [];
-  const referralEarnings = earningsQuery.data || [];
-  const unclaimedEarnings = unclaimedEarningsQuery.data || [];
-  const milestones = milestonesQuery.data || [];
-  const unclaimedMilestones = unclaimedMilestonesQuery.data || [];
-  const salaryPayments = salaryQuery.data || [];
+  const directReferrals = referralsQuery.data || [] as User[];
+  const referralEarnings = earningsQuery.data || [] as ReferralEarning[];
+  const unclaimedEarnings = unclaimedEarningsQuery.data || [] as ReferralEarning[];
+  const milestones = milestonesQuery.data || [] as MilestoneReward[];
+  const unclaimedMilestones = unclaimedMilestonesQuery.data || [] as MilestoneReward[];
+  const salaryPayments = salaryQuery.data || [] as any[];
 
   const totalDirectReferrals = directReferrals.length;
   const totalReferralEarnings = user?.totalReferralEarnings ? parseFloat(user.totalReferralEarnings.toString()) : 0;

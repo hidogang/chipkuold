@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Settings } from "lucide-react";
+import { Settings, Users } from "lucide-react";
 
 // Logo component
 function Logo() {
@@ -97,6 +97,16 @@ export default function Navigation() {
                   >
                     <WalletIcon />
                     <span>Wallet</span>
+                  </Button>
+                </Link>
+                <Link href="/referrals">
+                  <Button 
+                    variant={location === "/referrals" ? "default" : "ghost"}
+                    className="flex items-center h-10 gap-2 font-medium" 
+                    size="sm"
+                  >
+                    <Users className="h-5 w-5" />
+                    <span>Referrals</span>
                   </Button>
                 </Link>
               </div>
@@ -188,6 +198,16 @@ export default function Navigation() {
               >
                 <WalletIcon />
                 <span className="text-xs font-medium">Wallet</span>
+              </Button>
+            </Link>
+
+            <Link href="/referrals">
+              <Button 
+                variant={location === "/referrals" ? "default" : "ghost"}
+                className="flex flex-col items-center space-y-1 h-auto py-1 px-2"
+              >
+                <Users className="h-5 w-5" />
+                <span className="text-xs font-medium">Team</span>
               </Button>
             </Link>
 

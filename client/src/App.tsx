@@ -18,6 +18,7 @@ import ShopPage from "@/pages/shop-page";
 import MarketPage from "@/pages/market-page";
 import WalletPage from "@/pages/wallet-page";
 import AccountPage from "@/pages/account-page";
+import ReferralsPage from "@/pages/referrals-page";
 import AdminPage from "@/pages/admin-page";
 import LandingPage from "@/pages/landing-page";
 import NotFound from "@/pages/not-found";
@@ -159,6 +160,7 @@ function Router() {
       <ProtectedRoute path="/shop" component={ShopPage} />
       <ProtectedRoute path="/market" component={MarketPage} />
       <ProtectedRoute path="/wallet" component={WalletPage} />
+      <ProtectedRoute path="/referrals" component={ReferralsPage} />
       <ProtectedRoute path="/account" component={AccountPage} />
       <ProtectedRoute path="/admin" component={AdminPage} />
       <Route component={NotFound} />
