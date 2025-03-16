@@ -23,7 +23,16 @@ import { Droplets, Wheat } from "lucide-react";
 
 // Utility functions at the top level
 const getChickenImage = (type: string) => {
-  const imagePath = `/assets/chickens/${type}.svg`;
+  let imagePath;
+  if (type === 'golden') {
+    imagePath = '/assets/goldenchicken.png';
+  } else if (type === 'regular') {
+    imagePath = '/assets/regularchicken.png';
+  } else if (type === 'baby') {
+    imagePath = '/assets/babychicken.png';
+  } else {
+    imagePath = `/assets/chickens/${type}.svg`;
+  }
   const fallbackPath = '/assets/chickens/baby.svg';
 
   return (
