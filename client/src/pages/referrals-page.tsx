@@ -69,16 +69,15 @@ export default function ReferralsPage() {
 
   const handleClaimReferralEarning = async (earningId: number) => {
     try {
-      await apiRequest(`/api/referrals/earnings/${earningId}/claim`, {
-        method: "POST"
-      });
+      await apiRequest("POST", `/api/referrals/earnings/${earningId}/claim`);
       toast({
         title: "Success!",
         description: "Referral earnings claimed and added to your balance."
       });
       // Invalidate queries to refresh data
-      unclaimedEarningsQuery.refetch();
-      earningsQuery.refetch();
+      queryClient.invalidateQueries({ queryKey: ["/api/referrals/earnings"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/referrals/earnings/unclaimed"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
     } catch (error) {
       toast({
         title: "Error",
@@ -90,16 +89,15 @@ export default function ReferralsPage() {
 
   const handleClaimMilestoneReward = async (milestoneId: number) => {
     try {
-      await apiRequest(`/api/milestones/${milestoneId}/claim`, {
-        method: "POST"
-      });
+      await apiRequest("POST", `/api/milestones/${milestoneId}/claim`);
       toast({
         title: "Success!",
         description: "Milestone reward claimed and added to your balance."
       });
       // Invalidate queries to refresh data
-      unclaimedMilestonesQuery.refetch();
-      milestonesQuery.refetch();
+      queryClient.invalidateQueries({ queryKey: ["/api/milestones"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/milestones/unclaimed"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
     } catch (error) {
       toast({
         title: "Error",

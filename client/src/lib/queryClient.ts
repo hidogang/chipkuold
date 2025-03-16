@@ -8,24 +8,51 @@ async function throwIfResNotOk(res: Response) {
 }
 
 export async function apiRequest(
-  method: string,
-  url: string,
+  methodOrUrl: string,
+  urlOrData?: string | RequestInit,
   data?: unknown | undefined,
 ): Promise<Response> {
-  console.log(`[API Request] ${method} ${url}`);
-  const res = await fetch(url, {
-    method,
-    headers: {
-      ...(data ? { "Content-Type": "application/json" } : {}),
-      "Accept": "application/json",
-    },
-    body: data ? JSON.stringify(data) : undefined,
-    credentials: "include", // Important: Include credentials for all requests
-  });
+  // Check if first parameter is a method or a URL
+  if (methodOrUrl === 'GET' || methodOrUrl === 'POST' || methodOrUrl === 'PUT' || methodOrUrl === 'DELETE' || methodOrUrl === 'PATCH') {
+    // First param is method, second is URL, third is data
+    const method = methodOrUrl;
+    const url = urlOrData as string;
+    
+    console.log(`[API Request] ${method} ${url}`);
+    const res = await fetch(url, {
+      method,
+      headers: {
+        ...(data ? { "Content-Type": "application/json" } : {}),
+        "Accept": "application/json",
+      },
+      body: data ? JSON.stringify(data) : undefined,
+      credentials: "include", // Important: Include credentials for all requests
+    });
 
-  console.log(`[API Response] ${method} ${url} - Status:`, res.status);
-  await throwIfResNotOk(res);
-  return res;
+    console.log(`[API Response] ${method} ${url} - Status:`, res.status);
+    await throwIfResNotOk(res);
+    return res;
+  } else {
+    // First param is URL, second is options
+    const url = methodOrUrl;
+    const options = urlOrData as RequestInit;
+    
+    console.log(`[API Request] ${options?.method || 'GET'} ${url}`);
+    const res = await fetch(url, {
+      method: options?.method || 'GET',
+      headers: {
+        ...(options?.body ? { "Content-Type": "application/json" } : {}),
+        "Accept": "application/json",
+        ...(options?.headers || {}),
+      },
+      body: options?.body ? JSON.stringify(options.body) : undefined,
+      credentials: "include", // Important: Include credentials for all requests
+    });
+
+    console.log(`[API Response] ${options?.method || 'GET'} ${url} - Status:`, res.status);
+    await throwIfResNotOk(res);
+    return res;
+  }
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
