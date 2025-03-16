@@ -8,7 +8,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useState, useEffect } from "react";
 import BalanceBar from "@/components/balance-bar";
 import { motion } from "framer-motion";
-import { ShoppingCart, Info, Droplet, Wheat, Egg } from "lucide-react";
+import { ShoppingCart, Info } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -260,7 +260,7 @@ export default function MarketPage() {
                   animate={{ y: [0, -5, 0] }}
                   transition={{ repeat: Infinity, duration: 2.3, repeatType: "reverse" }}
                 >
-                  <Wheat size={40} className="text-amber-600" />
+                  <img src="/assets/wheatbag.png" alt="Wheat Bag" width="40" height="40" style={{ objectFit: "contain" }} />
                 </motion.div>
 
                 <h3 className="text-lg font-bold mb-1 text-center text-amber-700">
@@ -364,7 +364,7 @@ export default function MarketPage() {
                   animate={{ y: [0, -5, 0] }}
                   transition={{ repeat: Infinity, duration: 1.8, repeatType: "reverse" }}
                 >
-                  <Egg size={40} className="text-yellow-600" />
+                  <img src="/assets/egg.png" alt="Egg" width="40" height="40" style={{ objectFit: "contain" }} />
                 </motion.div>
 
                 <h3 className="text-lg font-bold mb-1 text-center text-yellow-700">
