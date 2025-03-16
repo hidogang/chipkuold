@@ -4,12 +4,18 @@ import { db } from './db';
 import { 
   User, Chicken, Resource, Transaction, Price, InsertUser, 
   UserProfile, InsertUserProfile, gameSettings, 
-  MysteryBoxReward, InsertMysteryBoxReward, MysteryBoxContent 
+  MysteryBoxReward, InsertMysteryBoxReward, MysteryBoxContent,
+  ReferralEarning, InsertReferralEarning, MilestoneReward,
+  InsertMilestoneReward, SalaryPayment, InsertSalaryPayment,
+  DailyReward, InsertDailyReward, ActiveBoost, InsertActiveBoost,
+  milestoneThresholds, salaryThresholds, referralCommissionRates,
+  dailyRewardsByDay, boostTypes
 } from "@shared/schema";
 import { 
   users, chickens, resources, transactions, prices, 
   userProfiles, gameSettings as gameSettingsTable,
-  mysteryBoxRewards 
+  mysteryBoxRewards, referralEarnings, milestoneRewards,
+  salaryPayments, dailyRewards, activeBoosts
 } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
@@ -27,6 +33,12 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   updateUserBalance(userId: number, amount: number): Promise<void>;
   getUserByReferralCode(referralCode: string): Promise<User | undefined>;
+  getUserReferrals(userId: number): Promise<User[]>;
+  updateUserReferralEarnings(userId: number, amount: number): Promise<void>;
+  updateUserTeamEarnings(userId: number, amount: number): Promise<void>;
+  updateUserStreak(userId: number, streak: number): Promise<void>;
+  updateLastDailyReward(userId: number, date: Date): Promise<void>;
+  updateLastSalaryPaid(userId: number, date: Date): Promise<void>;
 
   // Chicken operations
   getChickensByUserId(userId: number): Promise<Chicken[]>;
@@ -66,6 +78,33 @@ export interface IStorage {
   getMysteryBoxRewardsByUserId(userId: number): Promise<MysteryBoxReward[]>;
   createMysteryBoxReward(reward: InsertMysteryBoxReward): Promise<MysteryBoxReward>;
   claimMysteryBoxReward(rewardId: number): Promise<MysteryBoxReward>;
+  
+  // Referral operations
+  createReferralEarning(earning: InsertReferralEarning): Promise<ReferralEarning>;
+  getReferralEarningsByUserId(userId: number): Promise<ReferralEarning[]>;
+  getUnclaimedReferralEarnings(userId: number): Promise<ReferralEarning[]>;
+  claimReferralEarning(earningId: number): Promise<ReferralEarning>;
+  
+  // Milestone operations
+  createMilestoneReward(milestone: InsertMilestoneReward): Promise<MilestoneReward>;
+  getMilestoneRewardsByUserId(userId: number): Promise<MilestoneReward[]>;
+  getUnclaimedMilestoneRewards(userId: number): Promise<MilestoneReward[]>;
+  claimMilestoneReward(milestoneId: number): Promise<MilestoneReward>;
+  
+  // Salary operations
+  createSalaryPayment(salary: InsertSalaryPayment): Promise<SalaryPayment>;
+  getSalaryPaymentsByUserId(userId: number): Promise<SalaryPayment[]>;
+  
+  // Daily reward operations
+  createDailyReward(reward: InsertDailyReward): Promise<DailyReward>;
+  getDailyRewardsByUserId(userId: number): Promise<DailyReward[]>;
+  claimDailyReward(rewardId: number): Promise<DailyReward>;
+  getCurrentDailyReward(userId: number): Promise<DailyReward | undefined>;
+  
+  // Boost operations
+  createBoost(boost: InsertActiveBoost): Promise<ActiveBoost>;
+  getActiveBoostsByUserId(userId: number): Promise<ActiveBoost[]>;
+  getActiveEggBoost(userId: number): Promise<number>; // Returns current multiplier
   
   // Admin methods
   getTransactions(): Promise<Transaction[]>;
@@ -238,6 +277,163 @@ export class DatabaseStorage implements IStorage {
         .where(eq(users.id, userId));
     } catch (error) {
       console.error("Error updating user balance:", error);
+      throw error;
+    }
+  }
+
+  async getUserReferrals(userId: number): Promise<User[]> {
+    try {
+      const user = await this.getUser(userId);
+      if (!user) throw new Error("User not found");
+      
+      return db.select().from(users).where(eq(users.referredBy, user.referralCode));
+    } catch (error) {
+      console.error("Error getting user referrals:", error);
+      throw error;
+    }
+  }
+
+  async updateUserReferralEarnings(userId: number, amount: number): Promise<void> {
+    try {
+      const [user] = await db.select().from(users).where(eq(users.id, userId));
+      if (!user) throw new Error("User not found");
+
+      const newEarnings = parseFloat(user.totalReferralEarnings || "0") + amount;
+      
+      await db.update(users)
+        .set({ totalReferralEarnings: newEarnings.toFixed(2) })
+        .where(eq(users.id, userId));
+      
+      // Check if user has reached any milestones
+      await this.checkAndCreateMilestoneRewards(userId, newEarnings);
+    } catch (error) {
+      console.error("Error updating user referral earnings:", error);
+      throw error;
+    }
+  }
+
+  private async checkAndCreateMilestoneRewards(userId: number, totalEarnings: number): Promise<void> {
+    try {
+      for (const milestone of milestoneThresholds) {
+        if (totalEarnings >= milestone.threshold) {
+          // Check if milestone already exists
+          const existingMilestones = await this.getMilestoneRewardsByUserId(userId);
+          const alreadyAwarded = existingMilestones.some(m => 
+            parseFloat(m.milestone.toString()) === milestone.threshold
+          );
+          
+          if (!alreadyAwarded) {
+            // Create new milestone reward
+            await this.createMilestoneReward({
+              userId,
+              milestone: milestone.threshold.toString(),
+              reward: milestone.reward.toString(),
+              claimed: false
+            });
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error checking and creating milestone rewards:", error);
+    }
+  }
+
+  async updateUserTeamEarnings(userId: number, amount: number): Promise<void> {
+    try {
+      const [user] = await db.select().from(users).where(eq(users.id, userId));
+      if (!user) throw new Error("User not found");
+
+      const newEarnings = parseFloat(user.totalTeamEarnings || "0") + amount;
+      
+      await db.update(users)
+        .set({ totalTeamEarnings: newEarnings.toFixed(2) })
+        .where(eq(users.id, userId));
+      
+      // Check if user has reached any salary thresholds
+      await this.checkAndProcessMonthlySalary(userId, newEarnings);
+    } catch (error) {
+      console.error("Error updating user team earnings:", error);
+      throw error;
+    }
+  }
+  
+  private async checkAndProcessMonthlySalary(userId: number, totalTeamEarnings: number): Promise<void> {
+    try {
+      // Find the highest salary threshold the user has reached
+      let eligibleSalary = 0;
+      for (const salaryLevel of salaryThresholds) {
+        if (totalTeamEarnings >= salaryLevel.threshold) {
+          eligibleSalary = salaryLevel.salary;
+        }
+      }
+      
+      if (eligibleSalary > 0) {
+        const user = await this.getUser(userId);
+        if (!user) return;
+        
+        // Check if a payment for the current month already exists
+        const currentDate = new Date();
+        const currentMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+        
+        const salaryPayments = await this.getSalaryPaymentsByUserId(userId);
+        const alreadyPaid = salaryPayments.some(payment => payment.period === currentMonth);
+        
+        if (!alreadyPaid) {
+          // Only pay if last payment was at least a month ago
+          const lastPaidAt = user.lastSalaryPaidAt;
+          const shouldPay = !lastPaidAt || 
+                           (currentDate.getTime() - new Date(lastPaidAt).getTime() >= 28 * 24 * 60 * 60 * 1000);
+          
+          if (shouldPay) {
+            // Create a new salary payment
+            await this.createSalaryPayment({
+              userId,
+              amount: eligibleSalary.toString(),
+              period: currentMonth
+            });
+            
+            // Update user balance
+            await this.updateUserBalance(userId, eligibleSalary);
+            
+            // Update last salary paid date
+            await this.updateLastSalaryPaid(userId, currentDate);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error checking and processing monthly salary:", error);
+    }
+  }
+
+  async updateUserStreak(userId: number, streak: number): Promise<void> {
+    try {
+      await db.update(users)
+        .set({ currentStreak: streak })
+        .where(eq(users.id, userId));
+    } catch (error) {
+      console.error("Error updating user streak:", error);
+      throw error;
+    }
+  }
+
+  async updateLastDailyReward(userId: number, date: Date): Promise<void> {
+    try {
+      await db.update(users)
+        .set({ lastDailyRewardAt: date.toISOString().split('T')[0] }) // Convert to YYYY-MM-DD string
+        .where(eq(users.id, userId));
+    } catch (error) {
+      console.error("Error updating last daily reward:", error);
+      throw error;
+    }
+  }
+
+  async updateLastSalaryPaid(userId: number, date: Date): Promise<void> {
+    try {
+      await db.update(users)
+        .set({ lastSalaryPaidAt: date }) // This works because timestamp column can take Date objects
+        .where(eq(users.id, userId));
+    } catch (error) {
+      console.error("Error updating last salary paid date:", error);
       throw error;
     }
   }
@@ -626,6 +822,362 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error("Error claiming mystery box reward:", error);
       throw error;
+    }
+  }
+
+  // Referral operations
+  async createReferralEarning(earning: InsertReferralEarning): Promise<ReferralEarning> {
+    try {
+      const [newEarning] = await db.insert(referralEarnings)
+        .values(earning)
+        .returning();
+      return newEarning;
+    } catch (error) {
+      console.error("Error creating referral earning:", error);
+      throw error;
+    }
+  }
+
+  async getReferralEarningsByUserId(userId: number): Promise<ReferralEarning[]> {
+    try {
+      return db.select()
+        .from(referralEarnings)
+        .where(eq(referralEarnings.userId, userId))
+        .orderBy(desc(referralEarnings.createdAt));
+    } catch (error) {
+      console.error("Error getting referral earnings by user ID:", error);
+      throw error;
+    }
+  }
+
+  async getUnclaimedReferralEarnings(userId: number): Promise<ReferralEarning[]> {
+    try {
+      return db.select()
+        .from(referralEarnings)
+        .where(and(
+          eq(referralEarnings.userId, userId),
+          eq(referralEarnings.claimed, false)
+        ))
+        .orderBy(desc(referralEarnings.createdAt));
+    } catch (error) {
+      console.error("Error getting unclaimed referral earnings:", error);
+      throw error;
+    }
+  }
+
+  async claimReferralEarning(earningId: number): Promise<ReferralEarning> {
+    try {
+      const [earning] = await db.select()
+        .from(referralEarnings)
+        .where(eq(referralEarnings.id, earningId));
+      
+      if (!earning) {
+        throw new Error("Referral earning not found");
+      }
+      
+      if (earning.claimed) {
+        throw new Error("Referral earning already claimed");
+      }
+      
+      // Add to user balance
+      await this.updateUserBalance(earning.userId, parseFloat(earning.amount.toString()));
+      
+      // Mark as claimed
+      const [updated] = await db.update(referralEarnings)
+        .set({ claimed: true })
+        .where(eq(referralEarnings.id, earningId))
+        .returning();
+      
+      return updated;
+    } catch (error) {
+      console.error("Error claiming referral earning:", error);
+      throw error;
+    }
+  }
+  
+  // Milestone operations
+  async createMilestoneReward(milestone: InsertMilestoneReward): Promise<MilestoneReward> {
+    try {
+      const [newMilestone] = await db.insert(milestoneRewards)
+        .values(milestone)
+        .returning();
+      return newMilestone;
+    } catch (error) {
+      console.error("Error creating milestone reward:", error);
+      throw error;
+    }
+  }
+
+  async getMilestoneRewardsByUserId(userId: number): Promise<MilestoneReward[]> {
+    try {
+      return db.select()
+        .from(milestoneRewards)
+        .where(eq(milestoneRewards.userId, userId))
+        .orderBy(desc(milestoneRewards.createdAt));
+    } catch (error) {
+      console.error("Error getting milestone rewards by user ID:", error);
+      throw error;
+    }
+  }
+
+  async getUnclaimedMilestoneRewards(userId: number): Promise<MilestoneReward[]> {
+    try {
+      return db.select()
+        .from(milestoneRewards)
+        .where(and(
+          eq(milestoneRewards.userId, userId),
+          eq(milestoneRewards.claimed, false)
+        ))
+        .orderBy(desc(milestoneRewards.createdAt));
+    } catch (error) {
+      console.error("Error getting unclaimed milestone rewards:", error);
+      throw error;
+    }
+  }
+
+  async claimMilestoneReward(milestoneId: number): Promise<MilestoneReward> {
+    try {
+      const [milestone] = await db.select()
+        .from(milestoneRewards)
+        .where(eq(milestoneRewards.id, milestoneId));
+      
+      if (!milestone) {
+        throw new Error("Milestone reward not found");
+      }
+      
+      if (milestone.claimed) {
+        throw new Error("Milestone reward already claimed");
+      }
+      
+      // Add to user balance
+      await this.updateUserBalance(milestone.userId, parseFloat(milestone.reward.toString()));
+      
+      // Mark as claimed
+      const now = new Date();
+      const [updated] = await db.update(milestoneRewards)
+        .set({ 
+          claimed: true,
+          claimedAt: now
+        })
+        .where(eq(milestoneRewards.id, milestoneId))
+        .returning();
+      
+      return updated;
+    } catch (error) {
+      console.error("Error claiming milestone reward:", error);
+      throw error;
+    }
+  }
+  
+  // Salary operations
+  async createSalaryPayment(salary: InsertSalaryPayment): Promise<SalaryPayment> {
+    try {
+      const [newSalary] = await db.insert(salaryPayments)
+        .values(salary)
+        .returning();
+      return newSalary;
+    } catch (error) {
+      console.error("Error creating salary payment:", error);
+      throw error;
+    }
+  }
+
+  async getSalaryPaymentsByUserId(userId: number): Promise<SalaryPayment[]> {
+    try {
+      return db.select()
+        .from(salaryPayments)
+        .where(eq(salaryPayments.userId, userId))
+        .orderBy(desc(salaryPayments.paidAt));
+    } catch (error) {
+      console.error("Error getting salary payments by user ID:", error);
+      throw error;
+    }
+  }
+  
+  // Daily reward operations
+  async createDailyReward(reward: InsertDailyReward): Promise<DailyReward> {
+    try {
+      const [newReward] = await db.insert(dailyRewards)
+        .values(reward)
+        .returning();
+      return newReward;
+    } catch (error) {
+      console.error("Error creating daily reward:", error);
+      throw error;
+    }
+  }
+
+  async getDailyRewardsByUserId(userId: number): Promise<DailyReward[]> {
+    try {
+      return db.select()
+        .from(dailyRewards)
+        .where(eq(dailyRewards.userId, userId))
+        .orderBy(desc(dailyRewards.createdAt));
+    } catch (error) {
+      console.error("Error getting daily rewards by user ID:", error);
+      throw error;
+    }
+  }
+
+  async claimDailyReward(rewardId: number): Promise<DailyReward> {
+    try {
+      const [reward] = await db.select()
+        .from(dailyRewards)
+        .where(eq(dailyRewards.id, rewardId));
+      
+      if (!reward) {
+        throw new Error("Daily reward not found");
+      }
+      
+      if (reward.claimed) {
+        throw new Error("Daily reward already claimed");
+      }
+      
+      // Provide rewards to user
+      const userId = reward.userId;
+      
+      // Add eggs to user's resources
+      if (reward.eggs > 0) {
+        const resource = await this.getResourcesByUserId(userId);
+        await this.updateResources(userId, {
+          eggs: resource.eggs + reward.eggs
+        });
+      }
+      
+      // Add USDT to user's balance
+      if (parseFloat(reward.usdt.toString()) > 0) {
+        await this.updateUserBalance(userId, parseFloat(reward.usdt.toString()));
+      }
+      
+      // Mark as claimed
+      const [updated] = await db.update(dailyRewards)
+        .set({ claimed: true })
+        .where(eq(dailyRewards.id, rewardId))
+        .returning();
+      
+      return updated;
+    } catch (error) {
+      console.error("Error claiming daily reward:", error);
+      throw error;
+    }
+  }
+
+  async getCurrentDailyReward(userId: number): Promise<DailyReward | undefined> {
+    try {
+      const user = await this.getUser(userId);
+      if (!user) {
+        throw new Error("User not found");
+      }
+      
+      // Check if user already claimed today's reward
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const [existingReward] = await db.select()
+        .from(dailyRewards)
+        .where(and(
+          eq(dailyRewards.userId, userId),
+          sql`DATE(${dailyRewards.createdAt}) = CURRENT_DATE`
+        ))
+        .orderBy(desc(dailyRewards.createdAt));
+      
+      if (existingReward) {
+        return existingReward;
+      }
+      
+      // Calculate streak
+      let streak = user.currentStreak || 0;
+      const lastRewardDate = user.lastDailyRewardAt;
+      
+      if (lastRewardDate) {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        yesterday.setHours(0, 0, 0, 0);
+        
+        const lastRewardDay = new Date(lastRewardDate);
+        lastRewardDay.setHours(0, 0, 0, 0);
+        
+        if (lastRewardDay.getTime() >= yesterday.getTime()) {
+          // User claimed reward yesterday, continue streak
+          streak += 1;
+          if (streak > 7) streak = 1; // Reset after 7-day cycle
+        } else {
+          // Streak broken
+          streak = 1;
+        }
+      } else {
+        // First day
+        streak = 1;
+      }
+      
+      // Get reward for current streak day
+      const rewardData = dailyRewardsByDay.find(r => r.day === streak) || dailyRewardsByDay[0];
+      
+      // Create new daily reward
+      const reward = await this.createDailyReward({
+        userId,
+        day: streak,
+        eggs: rewardData.eggs,
+        usdt: rewardData.usdt.toString(),
+        claimed: false
+      });
+      
+      // Update user streak
+      await this.updateUserStreak(userId, streak);
+      await this.updateLastDailyReward(userId, new Date());
+      
+      return reward;
+    } catch (error) {
+      console.error("Error getting current daily reward:", error);
+      throw error;
+    }
+  }
+  
+  // Boost operations
+  async createBoost(boost: InsertActiveBoost): Promise<ActiveBoost> {
+    try {
+      const [newBoost] = await db.insert(activeBoosts)
+        .values(boost)
+        .returning();
+      return newBoost;
+    } catch (error) {
+      console.error("Error creating boost:", error);
+      throw error;
+    }
+  }
+
+  async getActiveBoostsByUserId(userId: number): Promise<ActiveBoost[]> {
+    try {
+      return db.select()
+        .from(activeBoosts)
+        .where(and(
+          eq(activeBoosts.userId, userId),
+          sql`${activeBoosts.expiresAt} > NOW()`
+        ))
+        .orderBy(desc(activeBoosts.expiresAt));
+    } catch (error) {
+      console.error("Error getting active boosts by user ID:", error);
+      throw error;
+    }
+  }
+
+  async getActiveEggBoost(userId: number): Promise<number> {
+    try {
+      const activeBoosts = await this.getActiveBoostsByUserId(userId);
+      
+      // Find highest egg production boost
+      let highestMultiplier = 1; // Default (no boost)
+      
+      for (const boost of activeBoosts) {
+        if (boost.type === "egg_production" && parseFloat(boost.multiplier.toString()) > highestMultiplier) {
+          highestMultiplier = parseFloat(boost.multiplier.toString());
+        }
+      }
+      
+      return highestMultiplier;
+    } catch (error) {
+      console.error("Error getting active egg boost:", error);
+      return 1; // Default in case of error
     }
   }
 }
