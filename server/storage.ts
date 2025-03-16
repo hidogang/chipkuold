@@ -8,7 +8,7 @@ import {
   ReferralEarning, InsertReferralEarning, MilestoneReward,
   InsertMilestoneReward, SalaryPayment, InsertSalaryPayment,
   DailyReward, InsertDailyReward, ActiveBoost, InsertActiveBoost,
-  milestoneThresholds, referralCommissionRates,
+  milestoneThresholds, referralCommissionRates, SALARY_PER_REFERRAL,
   dailyRewardsByDay, boostTypes
 } from "@shared/schema";
 import { 
@@ -22,8 +22,7 @@ import createMemoryStore from "memorystore";
 import { randomBytes } from "crypto";
 import { hashPassword } from './auth-utils';
 
-// Declare salary value per referral - $1 per referral with deposit
-const SALARY_PER_REFERRAL = 1;
+// Import the salary value per referral from shared schema
 
 const MemoryStore = createMemoryStore(session);
 
