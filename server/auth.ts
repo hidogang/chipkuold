@@ -138,10 +138,12 @@ export function setupAuth(app: Express) {
           console.error("[Auth] Session creation error:", err);
           return next(err);
         }
-        console.log("[Auth] Login successful for:", user.username);
+        console.log("[Auth] Login successful for:", user.username, "isAdmin:", user.isAdmin);
         res.json({
           id: user.id,
-          username: user.username
+          username: user.username,
+          isAdmin: user.isAdmin,
+          usdtBalance: user.usdtBalance
         });
       });
     })(req, res, next);
@@ -175,7 +177,9 @@ export function setupAuth(app: Express) {
     const user = req.user;
     res.json({
       id: user.id,
-      username: user.username
+      username: user.username,
+      isAdmin: user.isAdmin,
+      usdtBalance: user.usdtBalance
     });
   });
 }
