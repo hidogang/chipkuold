@@ -14,7 +14,7 @@ export default function ReferralsPage() {
   const { toast } = useToast();
 
   // Get direct referrals
-  const referralsQuery = useQuery({
+  const referralsQuery = useQuery<User[]>({
     queryKey: ["/api/referrals"],
     queryFn: getQueryFn({
       on401: "throw",
@@ -23,7 +23,7 @@ export default function ReferralsPage() {
   });
 
   // Get referral earnings
-  const earningsQuery = useQuery({
+  const earningsQuery = useQuery<ReferralEarning[]>({
     queryKey: ["/api/referrals/earnings"],
     queryFn: getQueryFn({
       on401: "throw",
@@ -32,7 +32,7 @@ export default function ReferralsPage() {
   });
 
   // Get unclaimed earnings
-  const unclaimedEarningsQuery = useQuery({
+  const unclaimedEarningsQuery = useQuery<ReferralEarning[]>({
     queryKey: ["/api/referrals/earnings/unclaimed"],
     queryFn: getQueryFn({
       on401: "throw",
@@ -41,7 +41,7 @@ export default function ReferralsPage() {
   });
 
   // Get milestone rewards
-  const milestonesQuery = useQuery({
+  const milestonesQuery = useQuery<MilestoneReward[]>({
     queryKey: ["/api/milestones"],
     queryFn: getQueryFn({
       on401: "throw",
@@ -50,7 +50,7 @@ export default function ReferralsPage() {
   });
 
   // Get unclaimed milestone rewards
-  const unclaimedMilestonesQuery = useQuery({
+  const unclaimedMilestonesQuery = useQuery<MilestoneReward[]>({
     queryKey: ["/api/milestones/unclaimed"],
     queryFn: getQueryFn({
       on401: "throw",
@@ -59,7 +59,7 @@ export default function ReferralsPage() {
   });
 
   // Get salary payments
-  const salaryQuery = useQuery({
+  const salaryQuery = useQuery<any[]>({
     queryKey: ["/api/salary/payments"],
     queryFn: getQueryFn({
       on401: "throw",
@@ -141,12 +141,12 @@ export default function ReferralsPage() {
     );
   }
 
-  const directReferrals = referralsQuery.data || [] as User[];
-  const referralEarnings = earningsQuery.data || [] as ReferralEarning[];
-  const unclaimedEarnings = unclaimedEarningsQuery.data || [] as ReferralEarning[];
-  const milestones = milestonesQuery.data || [] as MilestoneReward[];
-  const unclaimedMilestones = unclaimedMilestonesQuery.data || [] as MilestoneReward[];
-  const salaryPayments = salaryQuery.data || [] as any[];
+  const directReferrals: User[] = referralsQuery.data || [];
+  const referralEarnings: ReferralEarning[] = earningsQuery.data || [];
+  const unclaimedEarnings: ReferralEarning[] = unclaimedEarningsQuery.data || [];
+  const milestones: MilestoneReward[] = milestonesQuery.data || [];
+  const unclaimedMilestones: MilestoneReward[] = unclaimedMilestonesQuery.data || [];
+  const salaryPayments: any[] = salaryQuery.data || [];
 
   const totalDirectReferrals = directReferrals.length;
   const totalReferralEarnings = user?.totalReferralEarnings ? parseFloat(user.totalReferralEarnings.toString()) : 0;
@@ -202,13 +202,13 @@ export default function ReferralsPage() {
               <div className="flex justify-between">
                 <span>Referral Earnings:</span>
                 <span className="font-bold">
-                  ${unclaimedEarnings.reduce((sum, earning) => sum + parseFloat(earning.amount.toString()), 0).toFixed(2)}
+                  ${unclaimedEarnings.reduce((sum: number, earning: ReferralEarning) => sum + parseFloat(earning.amount.toString()), 0).toFixed(2)}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span>Milestone Rewards:</span>
                 <span className="font-bold">
-                  ${unclaimedMilestones.reduce((sum, milestone) => sum + parseFloat(milestone.reward.toString()), 0).toFixed(2)}
+                  ${unclaimedMilestones.reduce((sum: number, milestone: MilestoneReward) => sum + parseFloat(milestone.reward.toString()), 0).toFixed(2)}
                 </span>
               </div>
             </div>
