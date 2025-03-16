@@ -115,8 +115,10 @@ export class DatabaseStorage implements IStorage {
 
   private async initializeAdminUser() {
     try {
+      console.log("[Storage] Checking for admin user existence...");
       const adminExists = await this.getUserByUsername("adminraja");
       if (!adminExists) {
+        console.log("[Storage] Admin user not found, creating new admin account...");
         const hashedPassword = await hashPassword("admin8751");
         await db.insert(users).values({
           username: "adminraja",
@@ -127,6 +129,7 @@ export class DatabaseStorage implements IStorage {
         });
 
         const [admin] = await db.select().from(users).where(eq(users.username, "adminraja"));
+        console.log("[Storage] Created admin user with ID:", admin.id);
 
         await db.insert(resources).values({
           userId: admin.id,
@@ -135,7 +138,9 @@ export class DatabaseStorage implements IStorage {
           eggs: 0
         });
 
-        console.log("[Storage] Admin user created successfully");
+        console.log("[Storage] Admin user created successfully with resources initialized");
+      } else {
+        console.log("[Storage] Admin user already exists with ID:", adminExists.id);
       }
     } catch (error) {
       console.error("[Storage] Error initializing admin user:", error);
