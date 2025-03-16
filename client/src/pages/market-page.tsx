@@ -154,20 +154,20 @@ export default function MarketPage() {
               <div className="absolute top-0 left-0 right-0 h-28 z-0 bg-gradient-to-r from-blue-100 to-blue-50" />
 
               {/* Resource title & image */}
-              <div className="relative pt-4 pb-2 px-4 flex flex-col items-center z-10">
+              <div className="relative pt-6 pb-4 px-4 flex flex-col items-center z-10">
                 <motion.div
-                  className="w-20 h-20 mb-2 bg-blue-100 rounded-full flex items-center justify-center"
+                  className="w-24 h-24 mb-3 bg-blue-100 rounded-full flex items-center justify-center shadow-inner"
                   animate={{ y: [0, -5, 0] }}
                   transition={{ repeat: Infinity, duration: 2, repeatType: "reverse" }}
                 >
-                  <img src="/assets/waterbucket.png" alt="Water Bucket" width="40" height="40" style={{ objectFit: "contain" }} />
+                  <img src="/assets/waterbucket.png" alt="Water Bucket" width="60" height="60" style={{ objectFit: "contain" }} />
                 </motion.div>
 
-                <h3 className="text-lg font-bold mb-1 text-center text-blue-700">
+                <h3 className="text-xl font-bold mb-2 text-center text-blue-700">
                   Water Buckets
                 </h3>
 
-                <div className="text-xs px-3 py-1 rounded-full mb-1 font-semibold bg-blue-100 text-blue-800">
+                <div className="text-sm px-4 py-1.5 rounded-full mb-1 font-semibold bg-blue-100 text-blue-800">
                   Essential for your chickens
                 </div>
               </div>
@@ -258,20 +258,20 @@ export default function MarketPage() {
               <div className="absolute top-0 left-0 right-0 h-28 z-0 bg-gradient-to-r from-amber-100 to-amber-50" />
 
               {/* Resource title & image */}
-              <div className="relative pt-4 pb-2 px-4 flex flex-col items-center z-10">
+              <div className="relative pt-6 pb-4 px-4 flex flex-col items-center z-10">
                 <motion.div
-                  className="w-20 h-20 mb-2 bg-amber-100 rounded-full flex items-center justify-center"
+                  className="w-24 h-24 mb-3 bg-amber-100 rounded-full flex items-center justify-center shadow-inner"
                   animate={{ y: [0, -5, 0] }}
                   transition={{ repeat: Infinity, duration: 2.3, repeatType: "reverse" }}
                 >
-                  <img src="/assets/wheatbag.png" alt="Wheat Bag" width="40" height="40" style={{ objectFit: "contain" }} />
+                  <img src="/assets/wheatbag.png" alt="Wheat Bag" width="60" height="60" style={{ objectFit: "contain" }} />
                 </motion.div>
 
-                <h3 className="text-lg font-bold mb-1 text-center text-amber-700">
+                <h3 className="text-xl font-bold mb-2 text-center text-amber-700">
                   Wheat Bags
                 </h3>
 
-                <div className="text-xs px-3 py-1 rounded-full mb-1 font-semibold bg-amber-100 text-amber-800">
+                <div className="text-sm px-4 py-1.5 rounded-full mb-1 font-semibold bg-amber-100 text-amber-800">
                   Premium chicken feed
                 </div>
               </div>
@@ -362,20 +362,20 @@ export default function MarketPage() {
               <div className="absolute top-0 left-0 right-0 h-28 z-0 bg-gradient-to-r from-yellow-100 to-yellow-50" />
 
               {/* Resource title & image */}
-              <div className="relative pt-4 pb-2 px-4 flex flex-col items-center z-10">
+              <div className="relative pt-6 pb-4 px-4 flex flex-col items-center z-10">
                 <motion.div
-                  className="w-20 h-20 mb-2 bg-yellow-100 rounded-full flex items-center justify-center"
+                  className="w-24 h-24 mb-3 bg-yellow-100 rounded-full flex items-center justify-center shadow-inner"
                   animate={{ y: [0, -5, 0] }}
                   transition={{ repeat: Infinity, duration: 1.8, repeatType: "reverse" }}
                 >
-                  <img src="/assets/egg.png" alt="Egg" width="40" height="40" style={{ objectFit: "contain" }} />
+                  <img src="/assets/egg.png" alt="Egg" width="60" height="60" style={{ objectFit: "contain" }} />
                 </motion.div>
 
-                <h3 className="text-lg font-bold mb-1 text-center text-yellow-700">
+                <h3 className="text-xl font-bold mb-2 text-center text-yellow-700">
                   Sell Eggs
                 </h3>
 
-                <div className="text-xs px-3 py-1 rounded-full mb-1 font-semibold bg-yellow-100 text-yellow-800">
+                <div className="text-sm px-4 py-1.5 rounded-full mb-1 font-semibold bg-yellow-100 text-yellow-800">
                   Market price: ${getPrice("egg").toFixed(2)} each
                 </div>
               </div>
