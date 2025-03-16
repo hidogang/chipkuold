@@ -54,6 +54,7 @@ export default function MarketPage() {
       toast({
         title: "Success",
         description: "Resources purchased successfully!",
+        duration: 3000, // Auto-hide after 3 seconds
       });
     },
     onError: (error: Error) => {
@@ -61,6 +62,7 @@ export default function MarketPage() {
         title: "Error",
         description: error.message,
         variant: "destructive",
+        duration: 3000, // Auto-hide after 3 seconds
       });
     },
   });
@@ -75,6 +77,7 @@ export default function MarketPage() {
       toast({
         title: "Success",
         description: "Eggs sold successfully!",
+        duration: 3000, // Auto-hide after 3 seconds
       });
     },
     onError: (error: Error) => {
@@ -82,6 +85,7 @@ export default function MarketPage() {
         title: "Error",
         description: error.message,
         variant: "destructive",
+        duration: 3000, // Auto-hide after 3 seconds
       });
     },
   });
