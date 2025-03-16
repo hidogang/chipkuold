@@ -251,15 +251,18 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .select({
         type: chickens.type,
-        count: sql`COUNT(*)::int`,
+        count: sql`COUNT(*)`,
       })
       .from(chickens)
       .groupBy(chickens.type);
     
-    return result.map(item => ({ 
-      type: item.type, 
-      count: item.count
-    }));
+    // Explicitly convert count to number to satisfy TypeScript
+    return result.map(item => {
+      return { 
+        type: item.type, 
+        count: parseInt(String(item.count), 10) 
+      };
+    });
   }
 
   async getResourcesByUserId(userId: number): Promise<Resource> {

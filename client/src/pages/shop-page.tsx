@@ -2,17 +2,18 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Price } from "@shared/schema";
+import { Price, Chicken } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import BalanceBar from "@/components/balance-bar";
 import { motion } from "framer-motion";
-import { Info, ShoppingCart, Droplets, Wheat, Egg } from "lucide-react";
+import { Info, ShoppingCart, Droplets, Wheat, Egg, DollarSign } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
 
 const CHICKEN_TYPES = [
   {
@@ -65,6 +66,16 @@ export default function ShopPage() {
   const pricesQuery = useQuery<Price[]>({
     queryKey: ["/api/prices"],
   });
+  
+  // Query to get user's chickens
+  const chickensQuery = useQuery<Chicken[]>({
+    queryKey: ["/api/chickens"],
+  });
+  
+  // Query to fetch chicken counts from all users
+  const chickenCountsQuery = useQuery<{ type: string, count: number }[]>({
+    queryKey: ["/api/chickens/counts"],
+  });
 
   const buyChickenMutation = useMutation({
     mutationFn: async (type: string) => {
@@ -88,10 +99,45 @@ export default function ShopPage() {
       });
     },
   });
+  
+  const sellChickenMutation = useMutation({
+    mutationFn: async (chickenId: number) => {
+      const res = await apiRequest("POST", `/api/chickens/sell/${chickenId}`, {});
+      return res.json();
+    },
+    onSuccess: (data) => {
+      // Invalidate both chickens and user queries to refresh the data
+      queryClient.invalidateQueries({ queryKey: ["/api/chickens"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/chickens/counts"] });
+      toast({
+        title: "Chicken Sold",
+        description: `You received $${data.amount.toFixed(2)} for your chicken!`,
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
 
   const getPrice = (type: string) => {
     const price = pricesQuery.data?.find(p => p.itemType === `${type}_chicken`);
     return price ? parseFloat(price.price) : 0;
+  };
+  
+  // Helper to get the count of a specific chicken type
+  const getChickenCount = (type: string) => {
+    const countInfo = chickenCountsQuery.data?.find(c => c.type === type);
+    return countInfo?.count || 0;
+  };
+  
+  // Helper to get user's chickens of a specific type
+  const getUserChickensByType = (type: string) => {
+    return chickensQuery.data?.filter(c => c.type === type) || [];
   };
 
   return (
@@ -139,6 +185,66 @@ export default function ShopPage() {
           </div>
         </motion.div>
 
+        {/* Sell Chickens Section */}
+        {chickensQuery.data && chickensQuery.data.length > 0 && (
+          <motion.div
+            className="bg-white rounded-lg border border-amber-200 shadow-sm overflow-hidden"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <div className="border-b border-amber-100 bg-gradient-to-r from-amber-50 to-white p-3">
+              <div className="flex items-center">
+                <DollarSign className="text-amber-500 mr-2" size={18} />
+                <h2 className="font-bold text-amber-800">Sell Your Chickens</h2>
+              </div>
+              <p className="text-sm text-amber-700 mt-1">
+                You can sell your chickens for 75% of their purchase price. Sold chickens cannot be recovered.
+              </p>
+            </div>
+            
+            <div className="p-3 divide-y divide-amber-100">
+              {chickensQuery.data.length === 0 ? (
+                <p className="text-center py-4 text-gray-500">You don't have any chickens to sell yet.</p>
+              ) : (
+                chickensQuery.data.map((chicken) => (
+                  <div key={chicken.id} className="py-3 flex justify-between items-center">
+                    <div className="flex items-center">
+                      <img 
+                        src={chicken.type === 'golden' 
+                            ? '/assets/goldenchicken.png' 
+                            : chicken.type === 'regular' 
+                              ? '/assets/regularchicken.png' 
+                              : '/assets/babychicken.png'} 
+                        alt={`${chicken.type} Chicken`}
+                        className="w-10 h-10 mr-3 object-contain" 
+                      />
+                      <div>
+                        <div className="font-medium capitalize">{chicken.type} Chicken</div>
+                        <div className="text-xs text-gray-500">ID: #{chicken.id}</div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-3">
+                      <div className="text-green-600 font-semibold">
+                        ${(getPrice(chicken.type) * 0.75).toFixed(2)}
+                      </div>
+                      <Button 
+                        variant="destructive" 
+                        size="sm"
+                        onClick={() => sellChickenMutation.mutate(chicken.id)}
+                        disabled={sellChickenMutation.isPending}
+                      >
+                        Sell
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </motion.div>
+        )}
+        
         {/* Chicken Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
           {CHICKEN_TYPES.map((chicken, index) => (
@@ -232,6 +338,26 @@ export default function ShopPage() {
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
+                  </div>
+                  
+                  {/* Chicken Count Badge */}
+                  <div className="bg-white p-2 rounded border border-gray-100 text-center">
+                    <div className="text-amber-600 text-xs font-semibold mb-1">Farm Population</div>
+                    <div className="flex justify-center items-center gap-2">
+                      <Badge variant="outline" className="bg-amber-50">
+                        {chickenCountsQuery.isLoading ? 
+                          "Loading..." : 
+                          `${getChickenCount(chicken.type)} owned by all farmers`
+                        }
+                      </Badge>
+                      
+                      {/* Show user's own chicken count */}
+                      {chickensQuery.data && getUserChickensByType(chicken.type).length > 0 && (
+                        <Badge variant="outline" className="bg-green-50 border-green-200">
+                          You own: {getUserChickensByType(chicken.type).length}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
 
                   {/* Resource Requirements */}
