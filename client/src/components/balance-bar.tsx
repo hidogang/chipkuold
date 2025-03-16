@@ -3,9 +3,11 @@ import { useAuth } from "@/hooks/use-auth";
 import { Resource } from "@shared/schema";
 import { motion } from "framer-motion";
 import React from "react";
+import { useLocation } from "wouter";
 
 export default function BalanceBar() {
   const { user } = useAuth();
+  const [, navigate] = useLocation();
 
   const resourcesQuery = useQuery<Resource>({
     queryKey: ["/api/resources"],
@@ -40,7 +42,8 @@ export default function BalanceBar() {
       bgColor: "rgba(3, 169, 244, 0.1)",
       borderColor: "rgba(3, 169, 244, 0.3)",
       iconBg: "rgba(41, 182, 246, 0.15)",
-      textColor: "#01579B"
+      textColor: "#01579B",
+      onClick: () => navigate("/shop")
     },
     {
       name: "Wheat",
@@ -52,7 +55,8 @@ export default function BalanceBar() {
       bgColor: "rgba(255, 193, 7, 0.1)",
       borderColor: "rgba(255, 193, 7, 0.3)",
       iconBg: "rgba(255, 193, 7, 0.15)",
-      textColor: "#FF6F00"
+      textColor: "#FF6F00",
+      onClick: () => navigate("/shop")
     },
     {
       name: "Eggs",
@@ -64,7 +68,8 @@ export default function BalanceBar() {
       bgColor: "rgba(255, 183, 77, 0.1)",
       borderColor: "rgba(255, 183, 77, 0.3)",
       iconBg: "rgba(255, 183, 77, 0.15)",
-      textColor: "#E65100"
+      textColor: "#E65100",
+      onClick: () => navigate("/home")
     },
     {
       name: "USDT",
@@ -77,7 +82,8 @@ export default function BalanceBar() {
       bgColor: "rgba(38, 161, 123, 0.1)",
       borderColor: "rgba(38, 161, 123, 0.3)",
       iconBg: "rgba(38, 161, 123, 0.15)",
-      textColor: "#1A5E45"
+      textColor: "#1A5E45",
+      onClick: () => navigate("/wallet")
     },
   ];
 
@@ -153,6 +159,7 @@ export default function BalanceBar() {
                   background: `linear-gradient(to bottom, ${item.color}, ${item.color}dd)`,
                   boxShadow: "0 2px 4px rgba(0,0,0,0.15)"
                 }}
+                onClick={item.onClick}
               >
                 <span className="text-white font-bold text-xs">+</span>
               </motion.div>
