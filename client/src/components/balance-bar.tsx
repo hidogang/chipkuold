@@ -34,7 +34,7 @@ export default function BalanceBar() {
       name: "Water",
       value: resources.waterBuckets,
       icon: (
-        <img src="/assets/waterbucket.png" alt="Water Bucket" width="20" height="20" style={{ objectFit: "contain" }} />
+        <img src="/assets/waterbucket.png" alt="Water Bucket" width="30" height="30" style={{ objectFit: "contain" }} />
       ),
       color: "#29B6F6",
       bgColor: "rgba(3, 169, 244, 0.1)",
@@ -46,12 +46,7 @@ export default function BalanceBar() {
       name: "Wheat",
       value: resources.wheatBags,
       icon: (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2L13.5 5H10.5L12 2Z" fill="#FFA000" />
-          <path d="M12 5V9M15 12H9M8 15L16 15M12 18V22" stroke="#FFC107" strokeWidth="2" strokeLinecap="round" />
-          <path d="M19.5 10C19.5 14.75 16.5 18.5 12 18.5C7.5 18.5 4.5 14.75 4.5 10C4.5 5.25 7.5 5 12 5C16.5 5 19.5 5.25 19.5 10Z" fill="#FFECB3" />
-          <path d="M15 10C15 12.75 13.75 15 12 15C10.25 15 9 12.75 9 10C9 7.25 10.25 8.5 12 8.5C13.75 8.5 15 7.25 15 10Z" fill="#FFC107" />
-        </svg>
+        <img src="/assets/wheatbag.png" alt="Wheat Bag" width="30" height="30" style={{ objectFit: "contain" }} />
       ),
       color: "#FFC107",
       bgColor: "rgba(255, 193, 7, 0.1)",
@@ -63,12 +58,7 @@ export default function BalanceBar() {
       name: "Eggs",
       value: resources.eggs,
       icon: (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <ellipse cx="12" cy="14" rx="9" ry="8" fill="#FFF9C4" />
-          <ellipse cx="12" cy="14" rx="8" ry="7" fill="#FFFDE7" />
-          <ellipse cx="12" cy="7" rx="6" ry="5" fill="#FAFAFA" />
-          <path d="M12 4C15.866 4 19 8.032 19 13C19 17.968 15.866 22 12 22C8.13401 22 5 17.968 5 13C5 8.032 8.13401 4 12 4Z" stroke="#FFCC80" strokeWidth="1.5" />
-        </svg>
+        <img src="/assets/egg.png" alt="Egg" width="30" height="30" style={{ objectFit: "contain" }} />
       ),
       color: "#FFB74D",
       bgColor: "rgba(255, 183, 77, 0.1)",

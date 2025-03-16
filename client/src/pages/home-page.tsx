@@ -531,7 +531,7 @@ export default function HomePage() {
                         </span>
                       </div>
                       <div className="flex items-center">
-                        <Wheat className="h-4 w-4 text-amber-500 mr-1" />
+                        <img src="/assets/wheatbag.png" alt="Wheat Bag" className="h-4 w-4 mr-1" style={{ objectFit: "contain" }} />
                         <span className="text-sm">
                           {chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1}
                           <span className={resources.wheatBags < (chicken.type === 'golden' ? 3 : chicken.type === 'regular' ? 2 : 1) ? 'text-red-500 ml-1' : 'text-green-500 ml-1'}>
@@ -585,7 +585,7 @@ export default function HomePage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <img src="/assets/waterbucket.png" alt="Water Bucket" width="16" height="16" style={{ objectFit: "contain" }} />
+            <img src="/assets/waterbucket.png" alt="Water Bucket" width="24" height="24" style={{ objectFit: "contain" }} />
             <span>Buy Water</span>
           </motion.button>
 
@@ -595,7 +595,7 @@ export default function HomePage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <Wheat size={16} />
+            <img src="/assets/wheatbag.png" alt="Wheat Bag" width="24" height="24" style={{ objectFit: "contain" }} />
             <span>Buy Wheat</span>
           </motion.button>
         </motion.div>
