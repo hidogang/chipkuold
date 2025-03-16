@@ -245,7 +245,7 @@ export default function HomePage() {
             >
               {/* Decorative clouds */}
               <motion.div
-                className="absolute top-5 left-0 w-28 h-20 opacity-70"
+                className="absolute top-5 left-0 w-40 h-28 opacity-90"
                 animate={{ x: [0, 30, 0] }}
                 transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
               >
@@ -253,7 +253,7 @@ export default function HomePage() {
               </motion.div>
 
               <motion.div
-                className="absolute top-10 right-0 w-20 h-16 opacity-60"
+                className="absolute top-10 right-0 w-32 h-24 opacity-80"
                 animate={{ x: [0, -20, 0] }}
                 transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
               >
@@ -261,7 +261,7 @@ export default function HomePage() {
               </motion.div>
               
               <motion.div
-                className="absolute bottom-10 right-20 w-16 h-12 opacity-40"
+                className="absolute bottom-10 right-20 w-28 h-20 opacity-70"
                 animate={{ x: [0, 15, 0] }}
                 transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
               >
@@ -338,7 +338,7 @@ export default function HomePage() {
       {/* Background Decorative Clouds */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
         <motion.div
-          className="absolute right-5 top-20 w-36 h-24 opacity-50"
+          className="absolute right-5 top-20 w-48 h-32 opacity-80"
           animate={{ x: [0, -20, 0], y: [0, 5, 0] }}
           transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
         >
@@ -346,7 +346,7 @@ export default function HomePage() {
         </motion.div>
         
         <motion.div
-          className="absolute left-10 top-40 w-28 h-20 opacity-40"
+          className="absolute left-10 top-40 w-40 h-28 opacity-70"
           animate={{ x: [0, 15, 0], y: [0, -5, 0] }}
           transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
         >
@@ -354,7 +354,7 @@ export default function HomePage() {
         </motion.div>
         
         <motion.div
-          className="absolute right-20 bottom-32 w-24 h-16 opacity-30"
+          className="absolute right-20 bottom-32 w-36 h-24 opacity-60"
           animate={{ x: [0, -10, 0], y: [0, 8, 0] }}
           transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
         >
