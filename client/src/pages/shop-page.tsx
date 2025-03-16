@@ -2,11 +2,11 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Price, Chicken } from "@shared/schema";
+import { Price, Chicken, MysteryBoxReward } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import BalanceBar from "@/components/balance-bar";
 import { motion } from "framer-motion";
-import { Info, ShoppingCart, Droplets, Wheat, Egg, DollarSign } from "lucide-react";
+import { Info, ShoppingCart, Droplets, Wheat, Egg, DollarSign, Gift, Package } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -14,6 +14,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import React from "react";
 
 const CHICKEN_TYPES = [
   {
@@ -62,6 +64,8 @@ const CHICKEN_TYPES = [
 
 export default function ShopPage() {
   const { toast } = useToast();
+  const [isOpeningBox, setIsOpeningBox] = React.useState(false);
+  const [mysteryBoxReward, setMysteryBoxReward] = React.useState<MysteryBoxReward | null>(null);
 
   const pricesQuery = useQuery<Price[]>({
     queryKey: ["/api/prices"],
@@ -124,9 +128,90 @@ export default function ShopPage() {
     },
   });
 
+  // Mystery box queries and mutations
+  const mysteryBoxRewardsQuery = useQuery<MysteryBoxReward[]>({
+    queryKey: ["/api/mystery-box/rewards"],
+  });
+  
+  const buyMysteryBoxMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/mystery-box/buy", {});
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      toast({
+        title: "Success",
+        description: "Mystery box purchased! Check your rewards.",
+      });
+      // After purchase, we automatically open the box
+      openMysteryBoxMutation.mutate();
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+  
+  const openMysteryBoxMutation = useMutation({
+    mutationFn: async () => {
+      setIsOpeningBox(true);
+      const res = await apiRequest("POST", "/api/mystery-box/open", {});
+      return res.json();
+    },
+    onSuccess: (data: MysteryBoxReward) => {
+      setMysteryBoxReward(data);
+      queryClient.invalidateQueries({ queryKey: ["/api/mystery-box/rewards"] });
+      setTimeout(() => {
+        setIsOpeningBox(false);
+      }, 2000); // Add a delay for animation effect
+    },
+    onError: (error: Error) => {
+      setIsOpeningBox(false);
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+  
+  const claimRewardMutation = useMutation({
+    mutationFn: async (rewardId: number) => {
+      const res = await apiRequest("POST", `/api/mystery-box/claim/${rewardId}`, {});
+      return res.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/mystery-box/rewards"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/chickens"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/resources"] });
+      setMysteryBoxReward(null);
+      toast({
+        title: "Reward Claimed!",
+        description: "Your mystery box reward has been added to your account.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const getPrice = (type: string) => {
     const price = pricesQuery.data?.find(p => p.itemType === `${type}_chicken`);
     return price ? parseFloat(price.price) : 0;
+  };
+  
+  const getMysteryBoxPrice = () => {
+    const price = pricesQuery.data?.find(p => p.itemType === "mystery_box");
+    return price ? parseFloat(price.price) : 50; // Default to 50 if not found
   };
   
   // Helper to get the count of a specific chicken type
@@ -442,7 +527,193 @@ export default function ShopPage() {
             </motion.div>
           ))}
         </div>
+
+        {/* Mystery Box Section */}
+        <motion.div
+          className="bg-white rounded-lg border border-amber-200 shadow-sm overflow-hidden"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <div className="border-b border-amber-100 bg-gradient-to-r from-purple-50 to-white p-3">
+            <div className="flex items-center">
+              <Gift className="text-purple-500 mr-2" size={18} />
+              <h2 className="font-bold text-purple-800">Mystery Boxes</h2>
+            </div>
+            <p className="text-sm text-purple-700 mt-1">
+              Buy a mystery box to win exciting rewards like eggs, chickens, or USDT!
+            </p>
+          </div>
+          
+          <div className="p-5">
+            <div className="flex flex-col md:flex-row items-center gap-5">
+              <div className="w-full md:w-1/3">
+                <motion.div 
+                  className="relative w-40 h-40 mx-auto"
+                  animate={{ 
+                    rotate: isOpeningBox ? [0, 5, -5, 5, -5, 0] : 0,
+                    scale: isOpeningBox ? [1, 1.1, 1] : 1
+                  }}
+                  transition={{ 
+                    duration: isOpeningBox ? 0.5 : 0.3,
+                    repeat: isOpeningBox ? 3 : 0,
+                    repeatType: "reverse"
+                  }}
+                >
+                  <Package 
+                    size={160} 
+                    className="text-purple-500 filter drop-shadow-md" 
+                  />
+                  <motion.div 
+                    className="absolute inset-0 bg-gradient-to-br from-purple-200 to-transparent rounded-lg opacity-50" 
+                    animate={{ opacity: [0.3, 0.5, 0.3] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  />
+                </motion.div>
+              </div>
+              
+              <div className="flex-1 space-y-4">
+                <div className="space-y-1">
+                  <h3 className="text-xl font-bold text-purple-800">Mystery Box</h3>
+                  <p className="text-sm text-gray-600">
+                    Each mystery box contains a random reward that could be:
+                  </p>
+                  <ul className="text-sm list-disc pl-5 space-y-1 text-gray-600">
+                    <li>USDT rewards (up to 5 USDT)</li>
+                    <li>Rare chickens (including Golden Chickens!)</li>
+                    <li>Eggs (between 5-200 eggs)</li>
+                    <li>Resources (water and wheat)</li>
+                  </ul>
+                </div>
+                
+                <div className="flex items-center justify-between pt-2">
+                  <div className="text-lg font-bold text-green-600">
+                    ${getMysteryBoxPrice()}
+                  </div>
+                  
+                  <Button
+                    className="px-6 py-2 rounded-lg text-white font-semibold bg-gradient-to-br from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 transition-all"
+                    onClick={() => buyMysteryBoxMutation.mutate()}
+                    disabled={buyMysteryBoxMutation.isPending || isOpeningBox}
+                  >
+                    {buyMysteryBoxMutation.isPending ? (
+                      "Purchasing..."
+                    ) : isOpeningBox ? (
+                      "Opening..."
+                    ) : (
+                      <>
+                        <Gift className="mr-2 h-4 w-4" />
+                        Buy Mystery Box
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </div>
+            
+            {/* Mystery box rewards section */}
+            {mysteryBoxRewardsQuery.data && mysteryBoxRewardsQuery.data.length > 0 && (
+              <div className="mt-6 border-t border-purple-100 pt-4">
+                <h3 className="text-lg font-semibold text-purple-800 mb-3">Your Unclaimed Rewards</h3>
+                <div className="space-y-3">
+                  {mysteryBoxRewardsQuery.data.map(reward => !reward.claimed && (
+                    <div key={reward.id} className="bg-purple-50 rounded-lg p-3 flex justify-between items-center">
+                      <div>
+                        <div className="font-semibold text-purple-900">
+                          {reward.rewardDetails.rewardType === 'usdt' && `${reward.rewardDetails.amount} USDT`}
+                          {reward.rewardDetails.rewardType === 'chicken' && `${reward.rewardDetails.chickenType} Chicken`}
+                          {reward.rewardDetails.rewardType === 'resources' && `${reward.rewardDetails.resourceAmount} ${reward.rewardDetails.resourceType}`}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          Received on {new Date(reward.createdAt).toLocaleDateString()}
+                        </div>
+                      </div>
+                      <Button 
+                        size="sm" 
+                        className="bg-green-600 hover:bg-green-700"
+                        onClick={() => claimRewardMutation.mutate(reward.id)}
+                        disabled={claimRewardMutation.isPending}
+                      >
+                        Claim
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </motion.div>
       </motion.div>
+      
+      {/* Reward Dialog */}
+      <Dialog open={mysteryBoxReward !== null} onOpenChange={() => setMysteryBoxReward(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center text-2xl font-bold text-purple-800">
+              Mystery Box Reward!
+            </DialogTitle>
+            <DialogDescription className="text-center text-lg">
+              Congratulations! You've won:
+            </DialogDescription>
+          </DialogHeader>
+          
+          {mysteryBoxReward && (
+            <div className="flex flex-col items-center py-6">
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1, y: [0, -10, 0] }}
+                transition={{ duration: 0.6, y: { repeat: Infinity, duration: 1.5 } }}
+                className="w-32 h-32 mb-4 flex items-center justify-center"
+              >
+                {mysteryBoxReward.rewardDetails.rewardType === 'usdt' && (
+                  <DollarSign size={80} className="text-green-500" />
+                )}
+                {mysteryBoxReward.rewardDetails.rewardType === 'chicken' && (
+                  <img 
+                    src={mysteryBoxReward.rewardDetails.chickenType === 'golden' 
+                        ? '/assets/goldenchicken.png' 
+                        : mysteryBoxReward.rewardDetails.chickenType === 'regular' 
+                          ? '/assets/regularchicken.png' 
+                          : '/assets/babychicken.png'} 
+                    alt="Chicken Reward" 
+                    className="h-full w-auto object-contain"
+                  />
+                )}
+                {mysteryBoxReward.rewardDetails.rewardType === 'resources' && (
+                  <>
+                    {mysteryBoxReward.rewardDetails.resourceType === 'water' ? (
+                      <img src="/assets/waterbucket.png" alt="Water Bucket" className="h-full w-auto object-contain" />
+                    ) : mysteryBoxReward.rewardDetails.resourceType === 'wheat' ? (
+                      <Wheat size={80} className="text-amber-500" />
+                    ) : (
+                      <Egg size={80} className="text-amber-200" />
+                    )}
+                  </>
+                )}
+              </motion.div>
+              
+              <h3 className="text-xl font-bold text-purple-900 mb-2">
+                {mysteryBoxReward.rewardDetails.rewardType === 'usdt' && `${mysteryBoxReward.rewardDetails.amount} USDT`}
+                {mysteryBoxReward.rewardDetails.rewardType === 'chicken' && `1 ${mysteryBoxReward.rewardDetails.chickenType} Chicken`}
+                {mysteryBoxReward.rewardDetails.rewardType === 'resources' && (
+                  `${mysteryBoxReward.rewardDetails.resourceAmount} ${
+                    mysteryBoxReward.rewardDetails.resourceType.charAt(0).toUpperCase() + 
+                    mysteryBoxReward.rewardDetails.resourceType.slice(1)
+                  }`
+                )}
+              </h3>
+              
+              <Button
+                className="mt-4 bg-purple-600 hover:bg-purple-700"
+                onClick={() => claimRewardMutation.mutate(mysteryBoxReward.id)}
+                disabled={claimRewardMutation.isPending}
+              >
+                {claimRewardMutation.isPending ? "Claiming..." : "Claim Your Reward"}
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
