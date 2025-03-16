@@ -333,11 +333,15 @@ export default function ChickenCard({ chicken, resources, onHatch }: ChickenCard
               className="relative"
             >
               <img
-                src={`/assets/chicken-${chicken.type}.svg`}
+                src={chicken.type === 'golden' 
+                  ? '/assets/goldenchicken.png' 
+                  : chicken.type === 'regular' 
+                    ? '/assets/regularchicken.png' 
+                    : '/assets/babychicken.png'}
                 alt={`${chicken.type} Chicken`}
                 className="h-20 w-20 sm:h-24 sm:w-24 object-contain"
                 onError={(e) => {
-                  // Fallback if SVG doesn't load
+                  // Fallback if image doesn't load
                   const target = e.target as HTMLImageElement;
                   target.onerror = null;
                   target.src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iI0ZGQTUwMCIgZD0iTTEyLDJBMTAsMTAgMCAwLDAgMiwxMkExMCwxMCAwIDAsMCAxMiwyMkExMCwxMCAwIDAsMCAyMiwxMkExMCwxMCAwIDAsMCAxMiwyTTEyLDRBOCw4IDAgMCwxIDIwLDEyQTgsOCAwIDAsMSAxMiwyMEE4LDggMCAwLDEgNCwxMkE4LDggMCAwLDEgMTIsNE0xMCw5LjVDMTAsNy42IDguNCw2IDYuNSw2QzQuNiw2IDMsNy42IDMsOS41QzMsMTEuNCAxLjUsMTMgMS41LDEzTDQuNSwxOUw5LDE1QzksOSAxMCw5LjUgMTAsOS41WiIgLz48L3N2Zz4=";

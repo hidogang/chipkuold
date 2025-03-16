@@ -174,7 +174,11 @@ export default function ShopPage() {
                     }}
                   >
                     <img 
-                      src={`/assets/chicken-${chicken.type}.svg`} 
+                      src={chicken.type === 'golden' 
+                          ? '/assets/goldenchicken.png' 
+                          : chicken.type === 'regular' 
+                            ? '/assets/regularchicken.png' 
+                            : '/assets/babychicken.png'} 
                       alt={chicken.name}
                       className="w-full h-full object-contain" 
                     />
