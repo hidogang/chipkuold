@@ -3,11 +3,9 @@ import { useAuth } from "@/hooks/use-auth";
 import { Resource } from "@shared/schema";
 import { motion } from "framer-motion";
 import React from "react";
-import { useLocation } from "wouter";
 
 export default function BalanceBar() {
   const { user } = useAuth();
-  const [, navigate] = useLocation();
 
   const resourcesQuery = useQuery<Resource>({
     queryKey: ["/api/resources"],
@@ -24,19 +22,6 @@ export default function BalanceBar() {
   }
 
   const resources = resourcesQuery.data || { waterBuckets: 0, wheatBags: 0, eggs: 0 };
-
-  // Navigation handlers
-  const goToShop = () => {
-    window.location.href = "/shop";
-  };
-
-  const goToHome = () => {
-    window.location.href = "/home";
-  };
-
-  const goToWallet = () => {
-    window.location.href = "/wallet";
-  };
 
   return (
     <div className="fixed top-0 left-0 right-0 z-30 bg-transparent">
@@ -118,13 +103,14 @@ export default function BalanceBar() {
                 {resources.waterBuckets}
               </motion.div>
             </div>
-            <motion.button
-              onClick={goToShop}
+            <motion.a
+              href="/shop"
               className="ml-1 w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center cursor-pointer"
               style={{
                 background: "linear-gradient(to bottom, #29B6F6, #29B6F6dd)",
                 boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
-                border: "none"
+                border: "none",
+                textDecoration: "none"
               }}
               whileHover={{ 
                 scale: 1.2, 
@@ -134,7 +120,7 @@ export default function BalanceBar() {
               whileTap={{ scale: 0.9 }}
             >
               <span className="text-white font-bold text-xs">+</span>
-            </motion.button>
+            </motion.a>
           </div>
 
           <motion.div 
@@ -203,13 +189,14 @@ export default function BalanceBar() {
                 {resources.wheatBags}
               </motion.div>
             </div>
-            <motion.button
-              onClick={goToShop}
+            <motion.a
+              href="/shop"
               className="ml-1 w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center cursor-pointer"
               style={{
                 background: "linear-gradient(to bottom, #FFC107, #FFC107dd)",
                 boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
-                border: "none"
+                border: "none",
+                textDecoration: "none"
               }}
               whileHover={{ 
                 scale: 1.2, 
@@ -219,7 +206,7 @@ export default function BalanceBar() {
               whileTap={{ scale: 0.9 }}
             >
               <span className="text-white font-bold text-xs">+</span>
-            </motion.button>
+            </motion.a>
           </div>
 
           <motion.div 
@@ -291,13 +278,14 @@ export default function BalanceBar() {
                 {resources.eggs}
               </motion.div>
             </div>
-            <motion.button
-              onClick={goToHome}
+            <motion.a
+              href="/home"
               className="ml-1 w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center cursor-pointer"
               style={{
                 background: "linear-gradient(to bottom, #FFB74D, #FFB74Ddd)",
                 boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
-                border: "none"
+                border: "none",
+                textDecoration: "none"
               }}
               whileHover={{ 
                 scale: 1.2, 
@@ -307,7 +295,7 @@ export default function BalanceBar() {
               whileTap={{ scale: 0.9 }}
             >
               <span className="text-white font-bold text-xs">+</span>
-            </motion.button>
+            </motion.a>
           </div>
 
           <motion.div 
@@ -384,13 +372,14 @@ export default function BalanceBar() {
                 ${user.usdtBalance}
               </motion.div>
             </div>
-            <motion.button
-              onClick={goToWallet}
+            <motion.a
+              href="/wallet"
               className="ml-1 w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center cursor-pointer"
               style={{
                 background: "linear-gradient(to bottom, #26A17B, #26A17Bdd)",
                 boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
-                border: "none"
+                border: "none",
+                textDecoration: "none"
               }}
               whileHover={{ 
                 scale: 1.2, 
@@ -400,7 +389,7 @@ export default function BalanceBar() {
               whileTap={{ scale: 0.9 }}
             >
               <span className="text-white font-bold text-xs">+</span>
-            </motion.button>
+            </motion.a>
           </div>
 
           <motion.div 
