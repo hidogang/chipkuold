@@ -251,11 +251,13 @@ export interface GamePrices {
 }
 
 export interface MysteryBoxContent {
-  rewardType: "usdt" | "chicken" | "resources"; 
+  rewardType: "usdt" | "chicken" | "resources" | "eggs"; 
   amount?: number;         // For USDT rewards
   chickenType?: string;    // For chicken rewards
   resourceType?: string;   // For resource rewards
   resourceAmount?: number; // For resource rewards
+  minEggs?: number;
+  maxEggs?: number;
 }
 
 export const possibleMysteryBoxRewards = [
@@ -307,12 +309,12 @@ export const mysteryBoxTypes = {
     price: 5, 
     name: "Basic Mystery Box",
     rewards: {
-      usdt: { min: 1, max: 10, chance: 0.10 },  // 10% chance, 1-10 USDT
-      chicken: { types: ["baby"], chance: 0.20 }, // 20% chance, only baby chickens
-      resources: { 
-        min: 5, max: 15,  // 5-15 resources
-        chance: 0.70,     // 70% chance
-        types: ["water_buckets", "wheat_bags"] 
+      eggs: {
+        ranges: [
+          { min: 5, max: 10, chance: 0.50 }, // 50% chance
+          { min: 11, max: 15, chance: 0.40 }, // 40% chance
+          { min: 16, max: 20, chance: 0.10 }, // 10% chance
+        ]
       }
     }
   },
@@ -320,12 +322,16 @@ export const mysteryBoxTypes = {
     price: 10, 
     name: "Advanced Mystery Box",
     rewards: {
-      usdt: { min: 5, max: 25, chance: 0.15 },  // 15% chance, 5-25 USDT
-      chicken: { types: ["baby", "regular"], chance: 0.25 }, // 25% chance, baby or regular
-      resources: { 
-        min: 10, max: 30, // 10-30 resources
-        chance: 0.60,     // 60% chance
-        types: ["water_buckets", "wheat_bags"] 
+      eggs: {
+        ranges: [
+          { min: 10, max: 20, chance: 0.40 }, // 40% chance
+          { min: 21, max: 35, chance: 0.35 }, // 35% chance
+          { min: 36, max: 50, chance: 0.20 }, // 20% chance
+        ]
+      },
+      chicken: {
+        types: ["baby"],
+        chance: 0.05 // 5% chance for baby chicken
       }
     }
   },
@@ -333,12 +339,20 @@ export const mysteryBoxTypes = {
     price: 25, 
     name: "Legendary Mystery Box",
     rewards: {
-      usdt: { min: 15, max: 50, chance: 0.20 },  // 20% chance, 15-50 USDT
-      chicken: { types: ["baby", "regular", "golden"], chance: 0.30 }, // 30% chance, any type
-      resources: { 
-        min: 20, max: 50, // 20-50 resources
-        chance: 0.50,     // 50% chance
-        types: ["water_buckets", "wheat_bags"] 
+      eggs: {
+        ranges: [
+          { min: 50, max: 100, chance: 0.35 }, // 35% chance
+          { min: 101, max: 150, chance: 0.30 }, // 30% chance
+          { min: 151, max: 200, chance: 0.22 }, // 22% chance
+        ]
+      },
+      chicken: {
+        types: ["rare"],
+        chance: 0.10 // 10% chance for rare chicken
+      },
+      usdt: {
+        amount: 5,
+        chance: 0.03 // 3% chance for USDT cashback
       }
     }
   }
