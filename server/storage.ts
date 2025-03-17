@@ -697,6 +697,18 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  async openMysteryBox(userId: number, boxType: string = 'basic'): Promise<MysteryBoxReward | null> {
+    try {
+      console.log(`[MysteryBox] Opening box for user ${userId}, type: ${boxType}`);
+      const reward = await this.checkAndProcessMysteryBoxOpen(userId, boxType);
+      console.log(`[MysteryBox] Successfully opened box with ID ${reward.id}:`, reward);
+      return reward;
+    } catch (error) {
+      console.error("[MysteryBox] Error opening mystery box:", error);
+      return null;
+    }
+  }
+
   private async checkAndProcessMysteryBoxOpen(userId: number, boxType: string): Promise<MysteryBoxReward> {
     try {
       // Get user resources and verify box availability
@@ -718,17 +730,17 @@ export class DatabaseStorage implements IStorage {
       const rarity = this.determineRarity(boxType);
       console.log(`[MysteryBox] Generated reward:`, reward, `rarity:`, rarity);
 
-      // Create reward record with proper schema structure
+      // Create reward record
       const mysteryBoxReward = await this.createMysteryBoxReward({
         userId,
         boxType,
         rewardType: reward.rewardType,
-        rewardDetails: reward as any, // Cast to any to avoid TS issues with JSONB
+        rewardDetails: reward,
         rarity,
         opened: false
       });
 
-      console.log(`[MysteryBox] Created reward:`, mysteryBoxReward);
+      console.log(`[MysteryBox] Created reward with ID ${mysteryBoxReward.id}:`, mysteryBoxReward);
 
       // Update mystery box count
       await this.updateResources(userId, {
@@ -743,22 +755,87 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async openMysteryBox(userId: number, boxType: string = 'basic'): Promise<MysteryBoxReward | null> {
+  private getRandomReward(boxType: string): MysteryBoxContent {
     try {
-      console.log(`[MysteryBox] Opening box for user ${userId}, type: ${boxType}`);
-      const reward = await this.checkAndProcessMysteryBoxOpen(userId, boxType);
-      console.log(`[MysteryBox] Successfully opened box with reward:`, reward);
-      return reward;
+      const boxConfig = mysteryBoxTypes[boxType];
+      if (!boxConfig) throw new Error("Invalid box type");
+
+      const rand = Math.random();
+      let threshold = 0;
+
+      // Check for USDT reward
+      if (boxConfig.rewards.usdt?.ranges) {
+        for (const range of boxConfig.rewards.usdt.ranges) {
+          threshold += range.chance;
+          if (rand < threshold) {
+            return {
+              rewardType: "usdt",
+              amount: range.amount
+            };
+          }
+        }
+      }
+
+      // Check for chicken reward
+      if (boxConfig.rewards.chicken) {
+        threshold += boxConfig.rewards.chicken.chance;
+        if (rand < threshold) {
+          const chickenTypes = boxConfig.rewards.chicken.types;
+          const randomChickenType = chickenTypes[Math.floor(Math.random() * chickenTypes.length)];
+          return {
+            rewardType: "chicken",
+            chickenType: randomChickenType
+          };
+        }
+      }
+
+      // Check for eggs
+      if (boxConfig.rewards.eggs?.ranges) {
+        for (const range of boxConfig.rewards.eggs.ranges) {
+          threshold += range.chance;
+          if (rand < threshold) {
+            return {
+              rewardType: "eggs",
+              minEggs: range.min,
+              maxEggs: range.max
+            };
+          }
+        }
+      }
+
+      // Default to resources
+      if (boxConfig.rewards.resources) {
+        const resourceType = Math.random() < 0.5 ? "wheat" : "water";
+        const ranges = boxConfig.rewards.resources[resourceType].ranges;
+        const range = ranges[0];
+        const amount = Math.floor(Math.random() * (range.max - range.min + 1)) + range.min;
+
+        return {
+          rewardType: "resources",
+          resourceType,
+          resourceAmount: amount
+        };
+      }
+
+      // Absolute fallback
+      return {
+        rewardType: "eggs",
+        minEggs: 1,
+        maxEggs: 5
+      };
     } catch (error) {
-      console.error("[MysteryBox] Error opening mystery box:", error);
-      return null;
+      console.error("[MysteryBox] Error generating random reward:", error);
+      return {
+        rewardType: "eggs",
+        minEggs: 1,
+        maxEggs: 5
+      };
     }
   }
 
   async claimMysteryBoxReward(rewardId: number): Promise<MysteryBoxReward> {
     try {
-      // Validate rewardId
-      if (!rewardId) {
+      if (typeof rewardId !== 'number' || rewardId <= 0) {
         console.error(`[MysteryBox] Invalid reward ID: ${rewardId}`);
         throw new Error("Invalid reward ID");
       }
@@ -836,8 +913,24 @@ export class DatabaseStorage implements IStorage {
 
       console.log(`[MysteryBox] Successfully claimed reward:`, updatedReward);
       return updatedReward;
-    } catch (error) {
+    }catch (error) {
       console.error("[MysteryBox] Error claiming reward:", error);
+      throw error;
+    }
+  }
+
+  async getMysteryBoxRewardsByUserId(userId: number): Promise<MysteryBoxReward[]> {
+    try {
+      console.log(`[MysteryBox] Fetching rewards for user ${userId}`);
+      const rewards = await db.select()
+        .from(mysteryBoxRewards)
+        .where(eq(mysteryBoxRewards.userId, userId))
+        .orderBy(desc(mysteryBoxRewards.createdAt));
+
+      console.log(`[MysteryBox] Retrieved rewards for user ${userId}:`, rewards.length);
+      return rewards;
+    } catch (error) {
+      console.error("Error getting mystery box rewards:", error);
       throw error;
     }
   }
@@ -916,7 +1009,8 @@ export class DatabaseStorage implements IStorage {
       if (boxConfig.rewards.resources) {
         const resourceType = Math.random() < 0.5 ? "wheat" : "water";
         const ranges = boxConfig.rewards.resources[resourceType].ranges;
-        const range = ranges[0];        const amount = Math.floor(Math.random()* (range.max - range.min + 1)) + range.min;
+        const range = ranges[0];
+        const amount = Math.floor(Math.random() * (range.max - range.min + 1)) + range.min;
 
         return {
           rewardType: "resources",
@@ -930,7 +1024,7 @@ export class DatabaseStorage implements IStorage {
         rewardType: "eggs",
         minEggs: 1,
         maxEggs: 5
-            };
+      };
     } catch (error) {
       console.error("[MysteryBox] Error generating random reward:", error);
       return {
@@ -957,10 +1051,14 @@ export class DatabaseStorage implements IStorage {
 
   async getMysteryBoxRewardsByUserId(userId: number): Promise<MysteryBoxReward[]> {
     try {
-      return db.select()
+      console.log(`[MysteryBox] Fetching rewards for user ${userId}`);
+      const rewards = await db.select()
         .from(mysteryBoxRewards)
         .where(eq(mysteryBoxRewards.userId, userId))
         .orderBy(desc(mysteryBoxRewards.createdAt));
+
+      console.log(`[MysteryBox] Retrieved rewards for user ${userId}:`, rewards.length);
+      return rewards;
     } catch (error) {
       console.error("Error getting mystery box rewards:", error);
       throw error;
