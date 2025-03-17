@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { setupAuth, isAuthenticated } from "./auth";
-import { storage } from "./storage";
+import { storage, mysteryBoxTypes } from "./storage";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -462,70 +462,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (!result.success) return res.status(400).json(result.error);
 
     try {
-      // Get user's transactions to check if this is first deposit
-      const userTransactions = await storage.getTransactionsByUserId(req.user!.id);
-      const previousDeposits = userTransactions.filter(t => t.type === "recharge" && t.status === "approved");
-      const isFirstDeposit = previousDeposits.length === 0;
-
-      // Calculate deposit amount with potential bonus
-      let finalAmount = result.data.amount;
-      let bonusAmount = 0;
-
-      // Apply 10% first deposit bonus
-      if (isFirstDeposit) {
-        bonusAmount = result.data.amount * 0.1; // 10% bonus
-        finalAmount += bonusAmount;
-      }
-
-      // If user was referred, calculate commission
-      let referralCommission = null;
-      if (req.user!.referredBy) {
-        const referrer = await storage.getUserByReferralCode(req.user!.referredBy);
-        if (referrer) {
-          referralCommission = result.data.amount * 0.1; // 10% commission
-          await storage.updateUserBalance(referrer.id, referralCommission);
-
-          // Create commission transaction for referrer
-          await storage.createTransaction(
-            referrer.id,
-            "commission",
-            referralCommission
-          );
-        }
-      }
-
-      // Create the main deposit transaction
+      // Create the main deposit transaction without any bonus
       const transaction = await storage.createTransaction(
         req.user!.id,
         "recharge",
-        result.data.amount, // Store original amount
-        result.data.transactionId,
-        referralCommission || undefined,
-        isFirstDeposit ? JSON.stringify({ firstDepositBonus: bonusAmount }) : undefined
+        result.data.amount,
+        result.data.transactionId
       );
 
-      // If first deposit, create a bonus transaction
-      if (isFirstDeposit && bonusAmount > 0) {
-        await storage.createTransaction(
-          req.user!.id,
-          "bonus",
-          bonusAmount,
-          `bonus-${transaction.transactionId}`,
-          undefined,
-          JSON.stringify({ reason: "First deposit bonus" })
-        );
-
-        // Immediately approve the bonus
-        await storage.updateTransactionStatus(`bonus-${transaction.transactionId}`, "approved");
-        await storage.updateUserBalance(req.user!.id, bonusAmount);
-      }
-
-      // Return the transaction with bonus info if applicable
-      res.json({
-        ...transaction,
-        isFirstDeposit,
-        bonusAmount: isFirstDeposit ? bonusAmount : 0
-      });
+      res.json({ ...transaction });
     } catch (err) {
       if (err instanceof Error) {
         res.status(400).send(err.message);
@@ -842,7 +787,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update transaction status
       await storage.updateTransactionStatus(result.data.transactionId, "completed");
 
-      // Update user's balance
+      // Get user's transactions to check if this is first deposit
+      const userTransactions = await storage.getTransactionsByUserId(req.user!.id);
+      const previousDeposits = userTransactions.filter(t => t.type === "recharge" && t.status === "completed");
+      const isFirstDeposit = previousDeposits.length === 0;
+
+      // Calculate deposit amount with potential bonus
+      let finalAmount = parseFloat(transaction.amount);
+      let bonusAmount = 0;
+
+      // Apply 10% first deposit bonus only after admin confirmation
+      if (isFirstDeposit) {
+        bonusAmount = finalAmount * 0.1; // 10% bonus
+        finalAmount += bonusAmount;
+
+        // Create bonus transaction
+        await storage.createTransaction(
+          req.user!.id,
+          "bonus",
+          bonusAmount,
+          `bonus-${transaction.transactionId}`,
+          undefined,
+          JSON.stringify({ reason: "First deposit bonus" })
+        );
+
+        // Immediately approve and apply the bonus
+        await storage.updateTransactionStatus(`bonus-${transaction.transactionId}`, "completed");
+        await storage.updateUserBalance(req.user!.id, bonusAmount);
+      }
+
+      // Update user's balance with original amount
       await storage.updateUserBalance(req.user!.id, parseFloat(transaction.amount));
 
       // Process referral commissions if user was referred
@@ -868,7 +842,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             await storage.updateUserReferralEarnings(referrer.id, level1Amount);
             await storage.updateUserTeamEarnings(referrer.id, level1Amount);
 
-            // Process higher level referrals (upto 6 levels)
+            // Process higher level referrals (up to 6 levels)
             let currentReferrer = referrer;
 
             for (let level = 2; level <= 6; level++) {
@@ -914,7 +888,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      res.json({ success: true });
+      res.json({ 
+        success: true,
+        isFirstDeposit,
+        bonusAmount,
+        totalAmount: finalAmount
+      });
     } catch (err) {
       if (err instanceof Error) {
         res.status(400).send(err.message);
@@ -1174,106 +1153,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (err) {
       console.error("Error getting active boosts:", err);
       res.status(500).json({ error: "Failed to get active boosts" });
-    }
-  });
-
-  // Update existing recharge endpoint to handle referral commissions
-  app.post("/api/wallet/recharge/complete", isAuthenticated, async (req, res) => {
-    const schema = z.object({
-      transactionId: z.string(),
-    });
-
-    const result = schema.safeParse(req.body);
-    if (!result.success) return res.status(400).json(result.error);
-
-    try {
-      const transaction = await storage.getTransactionByTransactionId(result.data.transactionId);
-      if (!transaction) {
-        return res.status(404).send("Transaction not found");
-      }
-
-      // Update transaction status
-      await storage.updateTransactionStatus(result.data.transactionId, "completed");
-
-      // Update user's balance
-      await storage.updateUserBalance(req.user!.id, parseFloat(transaction.amount));
-
-      // Process referral commissions if user was referred
-      const user = await storage.getUser(req.user!.id);
-      if (user && user.referredBy) {
-        try {
-          // Find the referrer
-          const referrer = await storage.getUserByReferralCode(user.referredBy);
-          if (referrer) {
-            // Calculate level 1 commission (10% of deposit)
-            const level1Amount = parseFloat(transaction.amount) * 0.1;
-
-            // Create earnings record
-            await storage.createReferralEarning({
-              userId: referrer.id,
-              referredUserId: req.user!.id,
-              level: 1,
-              amount: level1Amount.toFixed(2),
-              claimed: false
-            });
-
-            // Update referrer's total earnings
-            await storage.updateUserReferralEarnings(referrer.id, level1Amount);
-            await storage.updateUserTeamEarnings(referrer.id, level1Amount);
-
-            // Process higher level referrals (upto 6 levels)
-            let currentReferrer = referrer;
-
-            for (let level = 2; level <= 6; level++) {
-              if (!currentReferrer.referredBy) break;
-
-              // Find the next level referrer
-              const nextReferrer = await storage.getUserByReferralCode(currentReferrer.referredBy);
-              if (!nextReferrer) break;
-
-              // Get commission rate for this level
-              let commissionRate = 0;
-              switch (level) {
-                case 2: commissionRate = 0.05; break; // 5% for level 2
-                case 3: commissionRate = 0.03; break; // 3% for level 3
-                case 4: commissionRate = 0.02; break; // 2% for level 4
-                case 5: commissionRate = 0.01; break; // 1% for level 5
-                case 6: commissionRate = 0.005; break; // 0.5% for level 6
-              }
-
-              // Calculate commission amount
-              const commissionAmount = parseFloat(transaction.amount) * commissionRate;
-
-              // Create earnings record
-              await storage.createReferralEarning({
-                userId: nextReferrer.id,
-                referredUserId: req.user!.id,
-                level,
-                amount: commissionAmount.toFixed(2),
-                claimed: false
-              });
-
-              // Update referrer's total earnings
-              await storage.updateUserReferralEarnings(nextReferrer.id, commissionAmount);
-              await storage.updateUserTeamEarnings(nextReferrer.id, commissionAmount);
-
-              // Move to next level referrer
-              currentReferrer = nextReferrer;
-            }
-          }
-        } catch (referralError) {
-          console.error("Error processing referral commissions:", referralError);
-          // Continue execution - don't fail the deposit because of referral issues
-        }
-      }
-
-      res.json({ success: true });
-    } catch (err) {
-      if (err instanceof Error) {
-        res.status(400).send(err.message);
-      } else {
-        res.status(400).send("Failed to complete recharge");
-      }
     }
   });
 
