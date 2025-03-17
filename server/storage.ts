@@ -696,14 +696,14 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  private getRandomReward(boxType: string): { rewardType: "eggs" | "chicken" | "usdt", value: any } {
+  private getRandomReward(boxType: string = 'basic'): { rewardType: "usdt" | "chicken" | "eggs"; value: any } {
     const boxConfig = mysteryBoxTypes[boxType];
     if (!boxConfig) throw new Error("Invalid box type");
 
     const rand = Math.random();
     let threshold = 0;
 
-    // Check for USDT reward (Legendary box only)
+    // Check for USDT reward
     if (boxConfig.rewards.usdt) {
       threshold += boxConfig.rewards.usdt.chance;
       if (rand < threshold) {
@@ -715,8 +715,9 @@ export class DatabaseStorage implements IStorage {
     if (boxConfig.rewards.chicken) {
       threshold += boxConfig.rewards.chicken.chance;
       if (rand < threshold) {
-        const chickenType = boxConfig.rewards.chicken.types[0]; // Only one type per box tier
-        return { rewardType: "chicken", value: chickenType };
+        const chickenTypes = boxConfig.rewards.chicken.types;
+        const randomChickenType = chickenTypes[Math.floor(Math.random() * chickenTypes.length)];
+        return { rewardType: "chicken", value: randomChickenType };
       }
     }
 
@@ -930,7 +931,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async claimMilestoneReward(milestoneId: number): Promise<MilestoneReward> {
-    try {
+        try {
       const [milestone] = await db.select()
         .from(milestoneRewards)
         .where(eq(milestoneRewards.id, milestoneId));
@@ -1182,66 +1183,65 @@ export const storage = new DatabaseStorage();
 export const mysteryBoxTypes: {
   [key: string]: {
     price: number;
+    name: string;
     rewards: {
       eggs: {
         ranges: { min: number; max: number; chance: number }[];
       };
       chicken?: { types: string[]; chance: number };
-      usdt?: { chance: number; amount: number };
+      usdt?: { amount: number; chance: number };
     }
   }
 } = {
   basic: {
-    price: 50,
+    price: 5,
+    name: "Basic Mystery Box",
     rewards: {
       eggs: {
         ranges: [
-          { min: 1, max: 3, chance: 0.7 },
-          { min: 4, max: 6, chance: 0.2 },
-          { min: 7, max: 10, chance: 0.1 }
+          { min: 5, max: 10, chance: 0.50 }, // 50% chance
+          { min: 11, max: 15, chance: 0.40 }, // 40% chance
+          { min: 16, max: 20, chance: 0.10 }, // 10% chance
         ]
-      },
-      chicken: { types: ["baby", "regular"], chance: 0.1 }
+      }
     }
   },
-  premium: {
-    price: 100,
+  advanced: {
+    price: 10,
+    name: "Advanced Mystery Box",
     rewards: {
       eggs: {
         ranges: [
-          { min: 2, max: 5, chance: 0.6 },
-          { min: 6, max: 8, chance: 0.3 },
-          { min: 9, max: 12, chance: 0.1 }
+          { min: 10, max: 20, chance: 0.40 }, // 40% chance
+          { min: 21, max: 35, chance: 0.35 }, // 35% chance
+          { min: 36, max: 50, chance: 0.20 }, // 20% chance
         ]
       },
-      chicken: { types: ["golden"], chance: 0.15 },
-      usdt: { chance: 0.1, amount: 10 }
+      chicken: {
+        types: ["baby"],
+        chance: 0.05 // 5% chance for baby chicken
+      }
+    }
+  },
+  legendary: {
+    price: 25,
+    name: "Legendary Mystery Box",
+    rewards: {
+      eggs: {
+        ranges: [
+          { min: 50, max: 100, chance: 0.35 }, // 35% chance
+          { min: 101, max: 150, chance: 0.30 }, // 30% chance
+          { min: 151, max: 200, chance: 0.22 }, // 22% chance
+        ]
+      },
+      chicken: {
+        types: ["rare"],
+        chance: 0.10 // 10% chance for rare chicken
+      },
+      usdt: {
+        amount: 5,
+        chance: 0.03 // 3% chance for USDT cashback
+      }
     }
   }
 };
-
-// Add these methods to the DatabaseStorage class
-
-async getMysteryBoxRewardsByUserId(userId: number): Promise<MysteryBoxReward[]> {
-  try {
-    return db.select()
-      .from(mysteryBoxRewards)
-      .where(eq(mysteryBoxRewards.userId, userId))
-      .orderBy(desc(mysteryBoxRewards.createdAt));
-  } catch (error) {
-    console.error("Error getting mystery box rewards:", error);
-    throw error;
-  }
-}
-
-async createMysteryBoxReward(reward: InsertMysteryBoxReward): Promise<MysteryBoxReward> {
-  try {
-    const [newReward] = await db.insert(mysteryBoxRewards)
-      .values(reward)
-      .returning();
-    return newReward;
-  } catch (error) {
-    console.error("Error creating mystery box reward:", error);
-    throw error;
-  }
-}
