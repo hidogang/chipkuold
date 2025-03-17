@@ -758,6 +758,12 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log(`[MysteryBox] Claiming reward ${rewardId}`);
 
+      // Validate rewardId
+      if (!rewardId || isNaN(rewardId)) {
+        console.error(`[MysteryBox] Invalid reward ID: ${rewardId}`);
+        throw new Error("Invalid reward ID");
+      }
+
       const [reward] = await db.select()
         .from(mysteryBoxRewards)
         .where(eq(mysteryBoxRewards.id, rewardId));
