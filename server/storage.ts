@@ -763,10 +763,12 @@ export class DatabaseStorage implements IStorage {
         .where(eq(mysteryBoxRewards.id, rewardId));
 
       if (!reward) {
+        console.error(`[MysteryBox] Reward not found for ID: ${rewardId}`);
         throw new Error("Reward not found");
       }
 
       if (reward.opened) {
+        console.error(`[MysteryBox] Reward ${rewardId} already claimed`);
         throw new Error("Reward already claimed");
       }
 
@@ -775,12 +777,12 @@ export class DatabaseStorage implements IStorage {
 
       switch (rewardData.rewardType) {
         case "usdt":
-          if ('amount' in rewardData) {
+          if ('amount' in rewardData && rewardData.amount) {
             await this.updateUserBalance(reward.userId, rewardData.amount);
           }
           break;
         case "chicken":
-          if ('chickenType' in rewardData) {
+          if ('chickenType' in rewardData && rewardData.chickenType) {
             await this.createChicken(reward.userId, rewardData.chickenType);
           }
           break;
@@ -795,7 +797,7 @@ export class DatabaseStorage implements IStorage {
           }
           break;
         case "resources":
-          if ('resourceType' in rewardData && 'resourceAmount' in rewardData) {
+          if ('resourceType' in rewardData && 'resourceAmount' in rewardData && rewardData.resourceAmount) {
             const userRes = await this.getResourcesByUserId(reward.userId);
             if (rewardData.resourceType === "wheat") {
               await this.updateResources(reward.userId, {
@@ -811,6 +813,7 @@ export class DatabaseStorage implements IStorage {
           }
           break;
         default:
+          console.error(`[MysteryBox] Invalid reward type: ${rewardData.rewardType}`);
           throw new Error(`Invalid reward type: ${rewardData.rewardType}`);
       }
 
