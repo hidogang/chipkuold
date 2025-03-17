@@ -125,16 +125,6 @@ export const activeBoosts = pgTable("active_boosts", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const autoReinvestSettings = pgTable("auto_reinvest_settings", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().unique(),
-  enabled: boolean("enabled").notNull().default(false),
-  percentage: integer("percentage").notNull().default(25), // 25%, 50%, 75%
-  lastReinvestedAt: timestamp("last_reinvested_at"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
-
 export const insertUserSchema = createInsertSchema(users)
   .pick({
     username: true,
@@ -203,15 +193,6 @@ export const insertActiveBoostSchema = createInsertSchema(activeBoosts).omit({
   createdAt: true,
 });
 
-export const insertAutoReinvestSettingSchema = createInsertSchema(autoReinvestSettings).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-  lastReinvestedAt: true,
-}).extend({
-  percentage: z.number().min(25).max(75).step(25) // Only allow 25%, 50%, 75%
-});
-
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type Chicken = typeof chickens.$inferSelect;
@@ -234,8 +215,6 @@ export type InsertMilestoneReward = z.infer<typeof insertMilestoneRewardSchema>;
 export type InsertSalaryPayment = z.infer<typeof insertSalaryPaymentSchema>;
 export type InsertDailyReward = z.infer<typeof insertDailyRewardSchema>;
 export type InsertActiveBoost = z.infer<typeof insertActiveBoostSchema>;
-export type AutoReinvestSetting = typeof autoReinvestSettings.$inferSelect;
-export type InsertAutoReinvestSetting = z.infer<typeof insertAutoReinvestSettingSchema>;
 
 
 // Admin types
