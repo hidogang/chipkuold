@@ -62,11 +62,13 @@ export const prices = pgTable("prices", {
 export const mysteryBoxRewards = pgTable("mystery_box_rewards", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),
-  boxType: text("box_type").notNull().default("basic"), // basic, advanced, legendary
-  rewardType: text("reward_type").notNull(), // usdt, chicken, resources
-  rewardValue: text("reward_value").notNull(), // JSON string with details
+  boxType: text("box_type").notNull(),
+  rewardType: text("reward_type").notNull(), // "resource", "chicken", "egg", "usdt"
+  rewardDetails: jsonb("reward_details").notNull(), // Detailed reward information
+  rarity: text("rarity").notNull(), // common, rare, epic, legendary
   opened: boolean("opened").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  claimedAt: timestamp("claimed_at"),
 });
 
 export const userProfiles = pgTable("user_profiles", {
@@ -166,6 +168,7 @@ export const insertGameSettingSchema = createInsertSchema(gameSettings).omit({
 export const insertMysteryBoxRewardSchema = createInsertSchema(mysteryBoxRewards).omit({
   id: true,
   createdAt: true,
+  claimedAt: true,
 });
 
 export const insertReferralEarningSchema = createInsertSchema(referralEarnings).omit({
@@ -303,57 +306,151 @@ export const dailyRewardsByDay = [
   { day: 7, eggs: 20, usdt: 1 }        // Weekly bonus
 ];
 
-// Mystery box types and prices
 export const mysteryBoxTypes = {
   basic: { 
-    price: 5, 
-    name: "Basic Mystery Box",
+    price: 10,
+    name: "Basic Box",
+    description: "A starter mystery box with common resources",
     rewards: {
+      resources: {
+        wheat: {
+          ranges: [
+            { min: 10, max: 50, chance: 0.4 }, // 40% chance
+            { min: 5, max: 20, chance: 0.3 }   // 30% chance
+          ]
+        },
+        water: {
+          ranges: [
+            { min: 5, max: 20, chance: 0.4 },  // 40% chance
+            { min: 3, max: 10, chance: 0.3 }   // 30% chance
+          ]
+        }
+      },
       eggs: {
         ranges: [
-          { min: 5, max: 10, chance: 0.50 }, // 50% chance
-          { min: 11, max: 15, chance: 0.40 }, // 40% chance
-          { min: 16, max: 20, chance: 0.10 }, // 10% chance
+          { min: 1, max: 5, chance: 0.3 }      // 30% chance
         ]
       }
+    },
+    rarityDistribution: {
+      common: 0.7,    // 70% chance
+      rare: 0.3       // 30% chance
     }
   },
-  advanced: { 
-    price: 10, 
-    name: "Advanced Mystery Box",
+  silver: { 
+    price: 25,
+    name: "Silver Box",
+    description: "Enhanced rewards with chance for a baby chicken",
     rewards: {
+      resources: {
+        wheat: {
+          ranges: [
+            { min: 50, max: 150, chance: 0.35 },  // 35% chance
+            { min: 25, max: 75, chance: 0.25 }    // 25% chance
+          ]
+        },
+        water: {
+          ranges: [
+            { min: 20, max: 50, chance: 0.35 },   // 35% chance
+            { min: 10, max: 25, chance: 0.25 }    // 25% chance
+          ]
+        }
+      },
       eggs: {
         ranges: [
-          { min: 10, max: 20, chance: 0.40 }, // 40% chance
-          { min: 21, max: 35, chance: 0.35 }, // 35% chance
-          { min: 36, max: 50, chance: 0.20 }, // 20% chance
+          { min: 5, max: 15, chance: 0.2 }        // 20% chance
         ]
       },
       chicken: {
         types: ["baby"],
-        chance: 0.05 // 5% chance for baby chicken
+        chance: 0.1                               // 10% chance
       }
+    },
+    rarityDistribution: {
+      common: 0.5,     // 50% chance
+      rare: 0.4,       // 40% chance
+      epic: 0.1        // 10% chance
     }
   },
-  legendary: { 
-    price: 25, 
-    name: "Legendary Mystery Box",
+  golden: {
+    price: 50,
+    name: "Golden Box",
+    description: "Premium rewards with guaranteed resources and high-value items",
     rewards: {
+      resources: {
+        wheat: {
+          ranges: [
+            { min: 150, max: 300, chance: 0.3 },  // 30% chance
+            { min: 75, max: 150, chance: 0.3 }    // 30% chance
+          ]
+        },
+        water: {
+          ranges: [
+            { min: 50, max: 100, chance: 0.3 },   // 30% chance
+            { min: 25, max: 50, chance: 0.3 }     // 30% chance
+          ]
+        }
+      },
       eggs: {
         ranges: [
-          { min: 50, max: 100, chance: 0.35 }, // 35% chance
-          { min: 101, max: 150, chance: 0.30 }, // 30% chance
-          { min: 151, max: 200, chance: 0.22 }, // 22% chance
+          { min: 15, max: 30, chance: 0.2 }       // 20% chance
         ]
       },
       chicken: {
-        types: ["rare"],
-        chance: 0.10 // 10% chance for rare chicken
+        types: ["regular"],
+        chance: 0.15                              // 15% chance
       },
       usdt: {
-        amount: 5,
-        chance: 0.03 // 3% chance for USDT cashback
+        ranges: [
+          { amount: 5, chance: 0.05 }             // 5% USDT bonus
+        ]
       }
+    },
+    rarityDistribution: {
+      common: 0.3,     // 30% chance
+      rare: 0.4,       // 40% chance
+      epic: 0.2,       // 20% chance
+      legendary: 0.1   // 10% chance
+    }
+  },
+  diamond: {
+    price: 100,
+    name: "Diamond Box",
+    description: "Legendary box with the highest value rewards",
+    rewards: {
+      resources: {
+        wheat: {
+          ranges: [
+            { min: 300, max: 500, chance: 0.25 },  // 25% chance
+            { min: 150, max: 300, chance: 0.25 }   // 25% chance
+          ]
+        },
+        water: {
+          ranges: [
+            { min: 100, max: 200, chance: 0.25 },  // 25% chance
+            { min: 50, max: 100, chance: 0.25 }    // 25% chance
+          ]
+        }
+      },
+      eggs: {
+        ranges: [
+          { min: 30, max: 50, chance: 0.2 }        // 20% chance
+        ]
+      },
+      chicken: {
+        types: ["golden"],
+        chance: 0.2                                // 20% chance
+      },
+      usdt: {
+        ranges: [
+          { amount: 10, chance: 0.1 }              // 10% USDT bonus
+        ]
+      }
+    },
+    rarityDistribution: {
+      rare: 0.3,       // 30% chance
+      epic: 0.5,       // 50% chance
+      legendary: 0.2   // 20% chance
     }
   }
 };
