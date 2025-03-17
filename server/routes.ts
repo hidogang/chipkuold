@@ -7,8 +7,6 @@ import { z } from "zod";
 export async function registerRoutes(app: Express): Promise<Server> {
   setupAuth(app);
 
-  // Admin middleware moved to auth.ts for centralized handling
-
   // Admin routes
   app.get("/api/admin/transactions", async (req, res) => {
     try {
@@ -537,27 +535,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (!result.success) return res.status(400).json(result.error);
 
     try {
-      console.log(`[MysteryBox] Buying box type: ${result.data.boxType}`);
+      console.log(`[MysteryBox] Buying box type: ${result.data.boxType} for user ${req.user!.id}`);
+      await storage.purchaseMysteryBox(req.user!.id, result.data.boxType);
 
       const boxConfig = mysteryBoxTypes[result.data.boxType];
-      if (!boxConfig) {
-        return res.status(400).json({ error: "Invalid box type" });
-      }
-
-      // Update user's balance
-      await storage.updateUserBalance(req.user!.id, -boxConfig.price);
-
-      // Get current resources
-      const resources = await storage.getResourcesByUserId(req.user!.id);
-
-      // Increment mystery box count
-      await storage.updateResources(req.user!.id, {
-        ...resources,
-        mysteryBoxes: (resources.mysteryBoxes || 0) + 1
-      });
-
-      console.log(`[MysteryBox] Successfully purchased box for user ${req.user!.id}`);
-
       res.json({
         success: true,
         boxType: result.data.boxType,
@@ -583,15 +564,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       console.log(`[MysteryBox] Opening box for user ${req.user!.id}, type:`, result.data.boxType);
+      const reward = await storage.openMysteryBox(req.user!.id, result.data.boxType || "basic");
 
-      const reward = await storage.openMysteryBox(req.user!.id, result.data.boxType);
       if (!reward) {
         console.error('[MysteryBox] Failed to generate reward');
         return res.status(400).send("Failed to open mystery box");
       }
 
       console.log(`[MysteryBox] Successfully opened box, reward:`, reward);
-
       res.json({
         success: true,
         reward
@@ -621,15 +601,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const rewardId = parseInt(req.params.id);
       if (isNaN(rewardId)) {
+        console.error('[MysteryBox] Invalid reward ID:', req.params.id);
         return res.status(400).send("Invalid reward ID");
       }
 
       console.log(`[MysteryBox] Claiming reward ${rewardId} for user ${req.user!.id}`);
-
       const claimedReward = await storage.claimMysteryBoxReward(rewardId);
 
       console.log(`[MysteryBox] Successfully claimed reward:`, claimedReward);
-
       res.json({
         success: true,
         reward: claimedReward
@@ -851,7 +830,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Find the referrer
           const referrer = await storage.getUserByReferralCode(user.referredBy);
           if (referrer) {
-            // Calculate level 1 commission (10% of deposit)
+            //            // Calculate level 1 commission (10% of deposit)
             const level1Amount = parseFloat(transaction.amount) * 0.1;
 
             // Create earnings record
@@ -925,284 +904,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         res.status(400).send("Failed to complete recharge");
       }
-    }
-  });
-
-  // Mystery Box endpoints
-  app.get("/api/mystery-box/count", isAuthenticated, async (req, res) => {
-    try {
-      const resources = await storage.getResourcesByUserId(req.user!.id);
-      console.log(`[MysteryBox] Current box count for user ${req.user!.id}:`, resources.mysteryBoxes);
-      res.json({ count: resources.mysteryBoxes || 0 });
-    } catch (err) {
-      console.error('[MysteryBox] Error fetching box count:', err);
-      res.status(500).json({ error: 'Failed to fetch mystery boxes' });
-    }
-  });
-
-  app.post("/api/mystery-box/buy", isAuthenticated, async (req, res) => {
-    const schema = z.object({
-      boxType: z.enum(["basic", "standard", "advanced", "legendary"])
-    });
-
-    const result = schema.safeParse(req.body);
-    if (!result.success) return res.status(400).json(result.error);
-
-    try {
-      console.log(`[MysteryBox] Buying box type: ${result.data.boxType}`);
-
-      const boxConfig = mysteryBoxTypes[result.data.boxType];
-      if (!boxConfig) {
-        return res.status(400).json({ error: "Invalid box type" });
-      }
-
-      // Update user's balance
-      await storage.updateUserBalance(req.user!.id, -boxConfig.price);
-
-      // Get current resources
-      const resources = await storage.getResourcesByUserId(req.user!.id);
-
-      // Increment mystery box count
-      await storage.updateResources(req.user!.id, {
-        ...resources,
-        mysteryBoxes: (resources.mysteryBoxes || 0) + 1
-      });
-
-      console.log(`[MysteryBox] Successfully purchased box for user ${req.user!.id}`);
-
-      res.json({
-        success: true,
-        boxType: result.data.boxType,
-        price: boxConfig.price
-      });
-    } catch (err) {
-      console.error('[MysteryBox] Error purchasing box:', err);
-      if (err instanceof Error) {
-        res.status(400).send(err.message);
-      } else {
-        res.status(400).send("Failed to purchase mystery box");
-      }
-    }
-  });
-
-  app.post("/api/mystery-box/open", isAuthenticated, async (req, res) => {
-    const schema = z.object({
-      boxType: z.enum(["basic", "standard", "advanced", "legendary"]).optional()
-    });
-
-    const result = schema.safeParse(req.body);
-    if (!result.success) return res.status(400).json(result.error);
-
-    try {
-      console.log(`[MysteryBox] Opening box for user ${req.user!.id}, type:`, result.data.boxType);
-
-      const reward = await storage.openMysteryBox(req.user!.id, result.data.boxType);
-      if (!reward) {
-        console.error('[MysteryBox] Failed to generate reward');
-        return res.status(400).send("Failed to open mystery box");
-      }
-
-      console.log(`[MysteryBox] Successfully opened box, reward:`, reward);
-
-      res.json({
-        success: true,
-        reward
-      });
-    } catch (err) {
-      console.error('[MysteryBox] Error opening box:', err);
-      if (err instanceof Error) {
-        res.status(400).send(err.message);
-      } else {
-        res.status(400).send("Failed to open mystery box");
-      }
-    }
-  });
-
-  app.get("/api/mystery-box/rewards", isAuthenticated, async (req, res) => {
-    try {
-      const rewards = await storage.getMysteryBoxRewardsByUserId(req.user!.id);
-      console.log(`[MysteryBox] Retrieved rewards for user ${req.user!.id}:`, rewards.length);
-      res.json(rewards);
-    } catch (err) {
-      console.error('[MysteryBox] Error fetching rewards:', err);
-      res.status(500).json({ error: 'Failed to fetch mystery box rewards' });
-    }
-  });
-
-  app.post("/api/mystery-box/claim/:id", isAuthenticated, async (req, res) => {
-    try {
-      const rewardId = parseInt(req.params.id);
-      if (isNaN(rewardId)) {
-        return res.status(400).send("Invalid reward ID");
-      }
-
-      console.log(`[MysteryBox] Claiming reward ${rewardId} for user ${req.user!.id}`);
-
-      const claimedReward = await storage.claimMysteryBoxReward(rewardId);
-
-      console.log(`[MysteryBox] Successfully claimed reward:`, claimedReward);
-
-      res.json({
-        success: true,
-        reward: claimedReward
-      });
-    } catch (err) {
-      console.error('[MysteryBox] Error claiming reward:', err);
-      if (err instanceof Error) {
-        res.status(400).send(err.message);
-      } else {
-        res.status(400).send("Failed to claim reward");
-      }
-    }
-  });
-
-  // Referral System Routes
-  app.get("/api/referrals", isAuthenticated, async (req, res) => {
-    try {
-      const directReferrals = await storage.getUserReferrals(req.user!.id);
-      res.json(directReferrals);
-    } catch (err) {
-      console.error("Error getting referrals:", err);
-      res.status(500).json({ error: "Failed to get referrals" });
-    }
-  });
-
-  app.get("/api/referrals/earnings", isAuthenticated, async (req, res) => {
-    try {
-      const earnings = await storage.getReferralEarningsByUserId(req.user!.id);
-      res.json(earnings);
-    } catch (err) {
-      console.error("Error getting referral earnings:", err);
-      res.status(500).json({ error: "Failed to get referral earnings" });
-    }
-  });
-
-  app.get("/api/referrals/earnings/unclaimed", isAuthenticated, async (req, res) => {
-    try {
-      const unclaimedEarnings = await storage.getUnclaimedReferralEarnings(req.user!.id);
-      res.json(unclaimedEarnings);
-    } catch (err) {
-      console.error("Error getting unclaimed referral earnings:", err);
-      res.status(500).json({ error: "Failed to get unclaimed referral earnings" });
-    }
-  });
-
-  app.post("/api/referrals/earnings/:id/claim", isAuthenticated, async (req, res) => {
-    try {
-      const earningId = parseInt(req.params.id);
-      const claimed = await storage.claimReferralEarning(earningId);
-      res.json({
-        success: true,
-        claimed
-      });
-    } catch (err) {
-      if (err instanceof Error) {
-        res.status(400).send(err.message);
-      } else {
-        res.status(400).send("Failed to claim referral earning");
-      }
-    }
-  });
-
-  // Team milestone routes
-  app.get("/api/milestones", isAuthenticated, async (req, res) => {
-    try {
-      const milestones = await storage.getMilestoneRewardsByUserId(req.user!.id);
-      res.json(milestones);
-    } catch (err) {
-      console.error("Error getting milestone rewards:", err);
-      res.status(500).json({ error: "Failed to get milestone rewards" });
-    }
-  });
-
-  app.get("/api/milestones/unclaimed", isAuthenticated, async (req, res) => {
-    try {
-      const unclaimedMilestones = await storage.getUnclaimedMilestoneRewards(req.user!.id);
-      res.json(unclaimedMilestones);
-    } catch (err) {
-      console.error("Error getting unclaimed milestone rewards:", err);
-      res.status(500).json({ error: "Failed to get unclaimed milestone rewards" });
-    }
-  });
-
-  app.post("/api/milestones/:id/claim", isAuthenticated, async (req, res) => {
-    try {
-      const milestoneId = parseInt(req.params.id);
-      const claimed = await storage.claimMilestoneReward(milestoneId);
-      res.json({
-        success: true,
-        claimed
-      });
-    } catch (err) {
-      if (err instanceof Error) {
-        res.status(400).send(err.message);
-      } else {
-        res.status(400).send("Failed to claim milestone reward");
-      }
-    }
-  });
-
-  // Salary system routes
-  app.get("/api/salary/payments", isAuthenticated, async (req, res) => {
-    try {
-      const payments = await storage.getSalaryPaymentsByUserId(req.user!.id);
-      res.json(payments);
-    } catch (err) {
-      console.error("Error getting salary payments:", err);
-      res.status(500).json({ error: "Failed to get salary payments" });
-    }
-  });
-
-  // Daily rewards system
-  app.get("/api/rewards/daily", isAuthenticated, async (req, res) => {
-    try {
-      const reward = await storage.getCurrentDailyReward(req.user!.id);
-      res.json(reward);
-    } catch (err) {
-      console.error("Error getting daily reward:", err);
-      res.status(500).json({ error: "Failed to get daily reward" });
-    }
-  });
-
-  app.get("/api/rewards/daily/history", isAuthenticated, async (req, res) => {
-    try {
-      const rewards = await storage.getDailyRewardsByUserId(req.user!.id);
-      res.json(rewards);
-    } catch (err) {
-      console.error("Error getting daily rewards history:", err);
-      res.status(500).json({ error: "Failed to get daily rewards history" });
-    }
-  });
-
-  app.post("/api/rewards/daily/:id/claim", isAuthenticated, async (req, res) => {
-    try {
-      const rewardId = parseInt(req.params.id);
-      const claimed = await storage.claimDailyReward(rewardId);
-      res.json({
-        success: true,
-        claimed
-      });
-    } catch (err) {
-      if (err instanceof Error) {
-        res.status(400).send(err.message);
-      } else {
-        res.status(400).send("Failed to claim daily reward");
-      }
-    }
-  });
-
-  // Active boosts
-  app.get("/api/boosts", isAuthenticated, async (req, res) => {
-    try {
-      const boosts = await storage.getActiveBoostsByUserId(req.user!.id);
-      const eggMultiplier = await storage.getActiveEggBoost(req.user!.id);
-      res.json({
-        boosts,
-        eggMultiplier
-      });
-    } catch (err) {
-      console.error("Error getting active boosts:", err);
-      res.status(500).json({ error: "Failed to get active boosts" });
     }
   });
 
