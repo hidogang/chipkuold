@@ -589,8 +589,10 @@ export default function ShopPage() {
 
         <motion.div className="space-y-6 sm:space-y-8 mt-8">
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-purple-800">Mystery Boxes</h2>
-            <p className="text-gray-600">Unlock amazing rewards with our mystery boxes!</p>
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-amber-600 bg-clip-text text-transparent">
+              Mystery Boxes
+            </h2>
+            <p className="text-gray-600">Unlock epic rewards and rare items!</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -603,31 +605,40 @@ export default function ShopPage() {
                 transition={{ delay: index * 0.2 }}
               >
                 <motion.div
-                  className={`relative overflow-hidden rounded-xl shadow-lg border-2 border-${box.color}-200 bg-white`}
+                  className="relative overflow-hidden rounded-xl shadow-lg bg-gradient-to-b from-white to-gray-50"
                   whileHover={{
                     scale: 1.02,
                     boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
                   }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
+                  {/* Animated background glow */}
                   <motion.div
-                    className={`absolute inset-0 bg-gradient-to-br from-${box.color}-400/20 to-${box.color}-600/10`}
+                    className="absolute inset-0 opacity-75"
+                    style={{
+                      background: `radial-gradient(circle at 50% 50%, ${
+                        type === 'basic' ? '#9333ea40' : 
+                        type === 'advanced' ? '#4f46e540' : 
+                        '#f59e0b40'
+                      }, transparent)`
+                    }}
                     animate={{
-                      opacity: [0.5, 0.8, 0.5],
-                      scale: [1, 1.02, 1],
+                      scale: [1, 1.2, 1],
+                      opacity: [0.3, 0.5, 0.3],
                     }}
                     transition={{
-                      duration: 2,
+                      duration: 3,
                       repeat: Infinity,
                       repeatType: "reverse"
                     }}
                   />
 
                   <div className="relative p-6">
+                    {/* Box icon with glow */}
                     <motion.div
-                      className={`w-24 h-24 mx-auto mb-4 rounded-full bg-${box.color}-100 flex items-center justify-center`}
+                      className="w-32 h-32 mx-auto mb-4 relative"
                       animate={{
-                        y: [0, -5, 0],
+                        y: [0, -8, 0],
                         rotate: isOpeningBox ? [0, -5, 5, -5, 5, 0] : 0
                       }}
                       transition={{
@@ -635,54 +646,96 @@ export default function ShopPage() {
                         rotate: { duration: 0.5, repeat: isOpeningBox ? 2 : 0 }
                       }}
                     >
-                      <Gift
-                        size={48}
-                        className={`text-${box.color}-500 transform transition-transform`}
-                      />
+                      <div className={`absolute inset-0 rounded-full ${
+                        type === 'basic' ? 'bg-purple-500/20' :
+                        type === 'advanced' ? 'bg-indigo-500/20' :
+                        'bg-amber-500/20'
+                      } blur-xl`} />
+                      <div className="relative w-full h-full flex items-center justify-center">
+                        <Gift
+                          size={64}
+                          className={`transform transition-transform ${
+                            type === 'basic' ? 'text-purple-500' :
+                            type === 'advanced' ? 'text-indigo-500' :
+                            'text-amber-500'
+                          }`}
+                        />
+                      </div>
                     </motion.div>
 
-                    <h3 className={`text-xl font-bold text-${box.color}-700 text-center mb-2`}>
-                      {box.name}
-                    </h3>
-
-                    <div className="absolute top-4 right-4">
-                      <div className={`px-3 py-1 rounded-full bg-${box.color}-100 text-${box.color}-800 font-bold`}>
-                        ${box.price} USDT
+                    {/* Box name and price tag */}
+                    <div className="relative">
+                      <h3 className={`text-2xl font-bold text-center mb-2 ${
+                        type === 'basic' ? 'text-purple-700' :
+                        type === 'advanced' ? 'text-indigo-700' :
+                        'text-amber-700'
+                      }`}>
+                        {box.name}
+                      </h3>
+                      <div className="absolute -top-12 right-0">
+                        <div className={`px-4 py-2 rounded-full font-bold text-white shadow-lg ${
+                          type === 'basic' ? 'bg-purple-500' :
+                          type === 'advanced' ? 'bg-indigo-500' :
+                          'bg-amber-500'
+                        }`}>
+                          ${box.price} USDT
+                        </div>
                       </div>
                     </div>
 
-                    <div className={`mt-4 p-3 rounded-lg bg-${box.color}-50/50`}>
+                    {/* Box description */}
+                    <p className="text-gray-600 text-center text-sm mb-4">
+                      {box.description}
+                    </p>
+
+                    {/* Rewards list */}
+                    <div className={`mt-4 p-4 rounded-lg ${
+                      type === 'basic' ? 'bg-purple-50 border border-purple-100' :
+                      type === 'advanced' ? 'bg-indigo-50 border border-indigo-100' :
+                      'bg-amber-50 border border-amber-100'
+                    }`}>
                       <h4 className="font-semibold text-gray-700 mb-2">Possible Rewards:</h4>
-                      <ul className="space-y-1">
+                      <ul className="space-y-2">
                         {box.rewards.map((reward, idx) => (
                           <li key={idx} className="flex items-center text-sm text-gray-600">
-                            <div className={`w-1.5 h-1.5 rounded-full bg-${box.color}-400 mr-2`} />
+                            <div className={`w-2 h-2 rounded-full mr-2 ${
+                              type === 'basic' ? 'bg-purple-400' :
+                              type === 'advanced' ? 'bg-indigo-400' :
+                              'bg-amber-400'
+                            }`} />
                             {reward}
                           </li>
                         ))}
                       </ul>
                     </div>
 
+                    {/* Buy button */}
                     <motion.button
                       onClick={() => buyMysteryBoxMutation.mutate(type)}
                       disabled={buyMysteryBoxMutation.isPending}
                       className={`
-                        mt-4 w-full py-2 px-4 rounded-lg
-                        bg-gradient-to-r from-${box.color}-500 to-${box.color}-600
-                        hover:from-${box.color}-600 hover:to-${box.color}-700
-                        text-white font-semibold
+                        mt-6 w-full py-3 px-6 rounded-lg
+                        text-white font-bold text-lg
                         disabled:opacity-50
                         flex items-center justify-center gap-2
+                        transition-all duration-200
+                        ${type === 'basic' 
+                          ? 'bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800' 
+                          : type === 'advanced'
+                            ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800'
+                            : 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700'
+                        }
+                        shadow-lg hover:shadow-xl
                       `}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
                       {buyMysteryBoxMutation.isPending ? (
-                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
+                        <div className="animate-spin rounded-full h-6 w-6 border-3 border-white border-t-transparent" />
                       ) : (
                         <>
-                          <Package size={18} />
-                          Buy Box
+                          <Package size={24} />
+                          <span>Buy {box.name}</span>
                         </>
                       )}
                     </motion.button>
