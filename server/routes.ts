@@ -536,6 +536,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (!result.success) return res.status(400).json(result.error);
 
     try {
+      console.log(`[MysteryBox] Buying box type: ${result.data.boxType}`);
+
       const boxConfig = mysteryBoxTypes[result.data.boxType];
       if (!boxConfig) {
         return res.status(400).json({ error: "Invalid box type" });
@@ -544,22 +546,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update user's balance
       await storage.updateUserBalance(req.user!.id, -boxConfig.price);
 
-      // Create a mystery box reward
-      const reward = await storage.getRandomReward(result.data.boxType);
-      const mysteryBoxReward = await storage.createMysteryBoxReward({
-        userId: req.user!.id,
-        boxType: result.data.boxType,
-        rewardType: reward.rewardType,
-        rewardValue: JSON.stringify(reward.value),
-        opened: false,
-        claimed: false
+      // Get current resources
+      const resources = await storage.getResourcesByUserId(req.user!.id);
+
+      // Increment mystery box count
+      await storage.updateResources(req.user!.id, {
+        ...resources,
+        mysteryBoxes: (resources.mysteryBoxes || 0) + 1
       });
+
+      console.log(`[MysteryBox] Successfully purchased box for user ${req.user!.id}`);
 
       res.json({
         success: true,
-        reward: mysteryBoxReward
+        boxType: result.data.boxType,
+        price: boxConfig.price
       });
     } catch (err) {
+      console.error('[MysteryBox] Error purchasing box:', err);
       if (err instanceof Error) {
         res.status(400).send(err.message);
       } else {
@@ -568,18 +572,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/mystery-boxes/open", isAuthenticated, async (req, res) => {
+  app.post("/api/mystery-box/open", isAuthenticated, async (req, res) => {
+    const schema = z.object({
+      boxType: z.enum(["basic", "standard", "advanced", "legendary"]).optional()
+    });
+
+    const result = schema.safeParse(req.body);
+    if (!result.success) return res.status(400).json(result.error);
+
     try {
-      const reward = await storage.openMysteryBox(req.user!.id);
+      console.log(`[MysteryBox] Opening box for user ${req.user!.id}`);
+
+      const reward = await storage.openMysteryBox(req.user!.id, result.data.boxType);
       if (!reward) {
         return res.status(400).send("Failed to open mystery box");
       }
+
+      console.log(`[MysteryBox] Successfully opened box, reward:`, reward);
 
       res.json({
         success: true,
         reward
       });
     } catch (err) {
+      console.error('[MysteryBox] Error opening box:', err);
       if (err instanceof Error) {
         res.status(400).send(err.message);
       } else {
@@ -588,7 +604,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/mystery-boxes/rewards", isAuthenticated, async (req, res) => {
+  app.get("/api/mystery-box/rewards", isAuthenticated, async (req, res) => {
     try {
       const rewards = await storage.getMysteryBoxRewardsByUserId(req.user!.id);
       res.json(rewards);
@@ -598,19 +614,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/mystery-boxes/claim/:id", isAuthenticated, async (req, res) => {
+  app.post("/api/mystery-box/claim/:id", isAuthenticated, async (req, res) => {
     try {
       const rewardId = parseInt(req.params.id);
       if (isNaN(rewardId)) {
         return res.status(400).send("Invalid reward ID");
       }
 
+      console.log(`[MysteryBox] Claiming reward ${rewardId} for user ${req.user!.id}`);
+
       const claimedReward = await storage.claimMysteryBoxReward(rewardId);
+
+      console.log(`[MysteryBox] Successfully claimed reward:`, claimedReward);
+
       res.json({
         success: true,
         reward: claimedReward
       });
     } catch (err) {
+      console.error('[MysteryBox] Error claiming reward:', err);
       if (err instanceof Error) {
         res.status(400).send(err.message);
       } else {
@@ -923,6 +945,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (!result.success) return res.status(400).json(result.error);
 
     try {
+      console.log(`[MysteryBox] Buying box type: ${result.data.boxType}`);
+
       const boxConfig = mysteryBoxTypes[result.data.boxType];
       if (!boxConfig) {
         return res.status(400).json({ error: "Invalid box type" });
@@ -931,22 +955,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update user's balance
       await storage.updateUserBalance(req.user!.id, -boxConfig.price);
 
-      // Create a mystery box reward
-      const reward = await storage.getRandomReward(result.data.boxType);
-      const mysteryBoxReward = await storage.createMysteryBoxReward({
-        userId: req.user!.id,
-        boxType: result.data.boxType,
-        rewardType: reward.rewardType,
-        rewardValue: JSON.stringify(reward.value),
-        opened: false,
-        claimed: false
+      // Get current resources
+      const resources = await storage.getResourcesByUserId(req.user!.id);
+
+      // Increment mystery box count
+      await storage.updateResources(req.user!.id, {
+        ...resources,
+        mysteryBoxes: (resources.mysteryBoxes || 0) + 1
       });
+
+      console.log(`[MysteryBox] Successfully purchased box for user ${req.user!.id}`);
 
       res.json({
         success: true,
-        reward: mysteryBoxReward
+        boxType: result.data.boxType,
+        price: boxConfig.price
       });
     } catch (err) {
+      console.error('[MysteryBox] Error purchasing box:', err);
       if (err instanceof Error) {
         res.status(400).send(err.message);
       } else {
@@ -955,18 +981,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/mystery-boxes/open", isAuthenticated, async (req, res) => {
+  app.post("/api/mystery-box/open", isAuthenticated, async (req, res) => {
+    const schema = z.object({
+      boxType: z.enum(["basic", "standard", "advanced", "legendary"]).optional()
+    });
+
+    const result = schema.safeParse(req.body);
+    if (!result.success) return res.status(400).json(result.error);
+
     try {
-      const reward = await storage.openMysteryBox(req.user!.id);
+      console.log(`[MysteryBox] Opening box for user ${req.user!.id}`);
+
+      const reward = await storage.openMysteryBox(req.user!.id, result.data.boxType);
       if (!reward) {
         return res.status(400).send("Failed to open mystery box");
       }
+
+      console.log(`[MysteryBox] Successfully opened box, reward:`, reward);
 
       res.json({
         success: true,
         reward
       });
     } catch (err) {
+      console.error('[MysteryBox] Error opening box:', err);
       if (err instanceof Error) {
         res.status(400).send(err.message);
       } else {
@@ -975,7 +1013,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/mystery-boxes/rewards", isAuthenticated, async (req, res) => {
+  app.get("/api/mystery-box/rewards", isAuthenticated, async (req, res) => {
     try {
       const rewards = await storage.getMysteryBoxRewardsByUserId(req.user!.id);
       res.json(rewards);
@@ -985,19 +1023,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/mystery-boxes/claim/:id", isAuthenticated, async (req, res) => {
+  app.post("/api/mystery-box/claim/:id", isAuthenticated, async (req, res) => {
     try {
       const rewardId = parseInt(req.params.id);
       if (isNaN(rewardId)) {
         return res.status(400).send("Invalid reward ID");
       }
 
+      console.log(`[MysteryBox] Claiming reward ${rewardId} for user ${req.user!.id}`);
+
       const claimedReward = await storage.claimMysteryBoxReward(rewardId);
+
+      console.log(`[MysteryBox] Successfully claimed reward:`, claimedReward);
+
       res.json({
         success: true,
         reward: claimedReward
       });
     } catch (err) {
+      console.error('[MysteryBox] Error claiming reward:', err);
       if (err instanceof Error) {
         res.status(400).send(err.message);
       } else {
