@@ -75,39 +75,39 @@ export interface IStorage {
   updateUserProfile(userId: number, updates: Partial<InsertUserProfile>): Promise<UserProfile>;
 
   // Mystery Box operations
-  purchaseMysteryBox(userId: number): Promise<void>;
-  openMysteryBox(userId: number): Promise<MysteryBoxReward | null>;
+  purchaseMysteryBox(userId: number, boxType?: string): Promise<void>;
+  openMysteryBox(userId: number, boxType?: string): Promise<MysteryBoxReward | null>;
   getMysteryBoxRewardsByUserId(userId: number): Promise<MysteryBoxReward[]>;
   createMysteryBoxReward(reward: InsertMysteryBoxReward): Promise<MysteryBoxReward>;
   claimMysteryBoxReward(rewardId: number): Promise<MysteryBoxReward>;
-  
+
   // Referral operations
   createReferralEarning(earning: InsertReferralEarning): Promise<ReferralEarning>;
   getReferralEarningsByUserId(userId: number): Promise<ReferralEarning[]>;
   getUnclaimedReferralEarnings(userId: number): Promise<ReferralEarning[]>;
   claimReferralEarning(earningId: number): Promise<ReferralEarning>;
-  
+
   // Milestone operations
   createMilestoneReward(milestone: InsertMilestoneReward): Promise<MilestoneReward>;
   getMilestoneRewardsByUserId(userId: number): Promise<MilestoneReward[]>;
   getUnclaimedMilestoneRewards(userId: number): Promise<MilestoneReward[]>;
   claimMilestoneReward(milestoneId: number): Promise<MilestoneReward>;
-  
+
   // Salary operations
   createSalaryPayment(salary: InsertSalaryPayment): Promise<SalaryPayment>;
   getSalaryPaymentsByUserId(userId: number): Promise<SalaryPayment[]>;
-  
+
   // Daily reward operations
   createDailyReward(reward: InsertDailyReward): Promise<DailyReward>;
   getDailyRewardsByUserId(userId: number): Promise<DailyReward[]>;
   claimDailyReward(rewardId: number): Promise<DailyReward>;
   getCurrentDailyReward(userId: number): Promise<DailyReward | undefined>;
-  
+
   // Boost operations
   createBoost(boost: InsertActiveBoost): Promise<ActiveBoost>;
   getActiveBoostsByUserId(userId: number): Promise<ActiveBoost[]>;
   getActiveEggBoost(userId: number): Promise<number>; // Returns current multiplier
-  
+
   // Admin methods
   getTransactions(): Promise<Transaction[]>;
   getTransactionByTransactionId(transactionId: string): Promise<Transaction | undefined>;
@@ -287,7 +287,7 @@ export class DatabaseStorage implements IStorage {
     try {
       const user = await this.getUser(userId);
       if (!user) throw new Error("User not found");
-      
+
       return db.select().from(users).where(eq(users.referredBy, user.referralCode));
     } catch (error) {
       console.error("Error getting user referrals:", error);
@@ -301,11 +301,11 @@ export class DatabaseStorage implements IStorage {
       if (!user) throw new Error("User not found");
 
       const newEarnings = parseFloat(user.totalReferralEarnings || "0") + amount;
-      
+
       await db.update(users)
         .set({ totalReferralEarnings: newEarnings.toFixed(2) })
         .where(eq(users.id, userId));
-      
+
       // Check if user has reached any milestones
       await this.checkAndCreateMilestoneRewards(userId, newEarnings);
     } catch (error) {
@@ -320,10 +320,10 @@ export class DatabaseStorage implements IStorage {
         if (totalEarnings >= milestone.threshold) {
           // Check if milestone already exists
           const existingMilestones = await this.getMilestoneRewardsByUserId(userId);
-          const alreadyAwarded = existingMilestones.some(m => 
+          const alreadyAwarded = existingMilestones.some(m =>
             parseFloat(m.milestone.toString()) === milestone.threshold
           );
-          
+
           if (!alreadyAwarded) {
             // Create new milestone reward
             await this.createMilestoneReward({
@@ -346,11 +346,11 @@ export class DatabaseStorage implements IStorage {
       if (!user) throw new Error("User not found");
 
       const newEarnings = parseFloat(user.totalTeamEarnings || "0") + amount;
-      
+
       await db.update(users)
         .set({ totalTeamEarnings: newEarnings.toFixed(2) })
         .where(eq(users.id, userId));
-      
+
       // Check if user has reached any salary thresholds
       await this.checkAndProcessMonthlySalary(userId, newEarnings);
     } catch (error) {
@@ -358,47 +358,47 @@ export class DatabaseStorage implements IStorage {
       throw error;
     }
   }
-  
+
   private async checkAndProcessMonthlySalary(userId: number, totalTeamEarnings: number): Promise<void> {
     try {
       const user = await this.getUser(userId);
       if (!user) return;
-      
+
       // Get all direct referrals of this user
       const directReferrals = await this.getUserReferrals(userId);
-      
+
       // Count referrals who have made at least one deposit
       let referralsWithDeposits = 0;
-      
+
       for (const referral of directReferrals) {
         // Check if this referral has made any deposits
         const referralTransactions = await this.getTransactionsByUserId(referral.id);
         const hasDeposit = referralTransactions.some(
           transaction => transaction.type === 'recharge' && transaction.status === 'completed'
         );
-        
+
         if (hasDeposit) {
           referralsWithDeposits++;
         }
       }
-      
+
       // Calculate salary (direct proportion: 100 referrals = $100)
       const eligibleSalary = referralsWithDeposits * SALARY_PER_REFERRAL;
-      
+
       if (eligibleSalary > 0) {
         // Check if a payment for the current month already exists
         const currentDate = new Date();
         const currentMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
-        
+
         const salaryPayments = await this.getSalaryPaymentsByUserId(userId);
         const alreadyPaid = salaryPayments.some(payment => payment.period === currentMonth);
-        
+
         if (!alreadyPaid) {
           // Only pay if last payment was at least a month ago
           const lastPaidAt = user.lastSalaryPaidAt;
-          const shouldPay = !lastPaidAt || 
-                           (currentDate.getTime() - new Date(lastPaidAt).getTime() >= 28 * 24 * 60 * 60 * 1000);
-          
+          const shouldPay = !lastPaidAt ||
+            (currentDate.getTime() - new Date(lastPaidAt).getTime() >= 28 * 24 * 60 * 60 * 1000);
+
           if (shouldPay) {
             // Create a new salary payment
             await this.createSalaryPayment({
@@ -406,10 +406,10 @@ export class DatabaseStorage implements IStorage {
               amount: eligibleSalary.toString(),
               period: currentMonth
             });
-            
+
             // Update user balance
             await this.updateUserBalance(userId, eligibleSalary);
-            
+
             // Update last salary paid date
             await this.updateLastSalaryPaid(userId, currentDate);
           }
@@ -483,12 +483,12 @@ export class DatabaseStorage implements IStorage {
       })
       .from(chickens)
       .groupBy(chickens.type);
-    
+
     // Explicitly convert count to number to satisfy TypeScript
     return result.map(item => {
-      return { 
-        type: item.type, 
-        count: parseInt(String(item.count), 10) 
+      return {
+        type: item.type,
+        count: parseInt(String(item.count), 10)
       };
     });
   }
@@ -496,7 +496,7 @@ export class DatabaseStorage implements IStorage {
   async getResourcesByUserId(userId: number): Promise<Resource> {
     try {
       const [resource] = await db.select().from(resources).where(eq(resources.userId, userId));
-      
+
       if (!resource) {
         // Create resources for this user if they don't exist
         const [newResource] = await db.insert(resources).values({
@@ -506,10 +506,10 @@ export class DatabaseStorage implements IStorage {
           eggs: 0,
           mysteryBoxes: 0
         }).returning();
-        
+
         return newResource;
       }
-      
+
       return resource;
     } catch (error) {
       console.error("Error fetching or creating resources:", error);
@@ -651,47 +651,44 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Mystery Box operations
-  async purchaseMysteryBox(userId: number): Promise<void> {
+  async purchaseMysteryBox(userId: number, boxType: string = 'basic'): Promise<void> {
     try {
-      // Get the mystery box price
-      const [mysteryBoxPrice] = await db.select()
-        .from(prices)
-        .where(eq(prices.itemType, "mystery_box"));
-      
-      if (!mysteryBoxPrice) {
-        throw new Error("Mystery box price not configured");
+      // Validate box type
+      if (!mysteryBoxTypes[boxType]) {
+        throw new Error("Invalid mystery box type");
       }
 
-      const price = parseFloat(mysteryBoxPrice.price);
-      
+      // Get the mystery box price
+      const boxPrice = mysteryBoxTypes[boxType].price;
+
       // Check if user has enough balance
       const user = await this.getUser(userId);
       if (!user) {
         throw new Error("User not found");
       }
-      
+
       const userBalance = parseFloat(user.usdtBalance);
-      if (userBalance < price) {
+      if (userBalance < boxPrice) {
         throw new Error("Insufficient USDT balance");
       }
-      
+
       // Deduct user balance
-      await this.updateUserBalance(userId, -price);
-      
+      await this.updateUserBalance(userId, -boxPrice);
+
       // Update user's mystery box count
       const resource = await this.getResourcesByUserId(userId);
       await this.updateResources(userId, {
         mysteryBoxes: (resource.mysteryBoxes || 0) + 1
       });
-      
+
       // Create transaction record
       await this.createTransaction(
         userId,
         "mystery_box",
-        price,
+        boxPrice,
         undefined,
         undefined,
-        JSON.stringify({ action: "purchase" })
+        JSON.stringify({ action: "purchase", boxType })
       );
     } catch (error) {
       console.error("Error purchasing mystery box:", error);
@@ -699,74 +696,83 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async openMysteryBox(userId: number): Promise<MysteryBoxReward | null> {
+  async openMysteryBox(userId: number, boxType: string = 'basic'): Promise<MysteryBoxReward | null> {
     try {
       // Check if user has a mystery box to open
       const resource = await this.getResourcesByUserId(userId);
       if (!resource.mysteryBoxes || resource.mysteryBoxes <= 0) {
         throw new Error("No mystery boxes available");
       }
-      
+
+      // Validate box type
+      if (!mysteryBoxTypes[boxType]) {
+        throw new Error("Invalid mystery box type");
+      }
+
       // Reduce the mystery box count
       await this.updateResources(userId, {
         mysteryBoxes: resource.mysteryBoxes - 1
       });
-      
-      // Generate a random reward
-      const rewardType = this.getRandomRewardType();
+
+      // Generate a random reward based on box type
+      const boxConfig = mysteryBoxTypes[boxType];
+      const rewardType = this.getRandomRewardType(boxConfig.rewards);
       let rewardValue: MysteryBoxContent;
-      
+
       switch (rewardType) {
         case "usdt":
-          // Random USDT amount between 1 and 50
-          const amount = Math.floor(Math.random() * 50) + 1;
+          const amount = Math.floor(
+            Math.random() * (boxConfig.rewards.usdt.max - boxConfig.rewards.usdt.min + 1)
+          ) + boxConfig.rewards.usdt.min;
           rewardValue = { rewardType, amount };
           break;
         case "chicken":
-          // Random chicken type
-          const chickenTypes = ["baby", "regular", "golden"];
-          const chickenType = chickenTypes[Math.floor(Math.random() * chickenTypes.length)];
+          const possibleTypes = boxConfig.rewards.chicken.types;
+          const chickenType = possibleTypes[Math.floor(Math.random() * possibleTypes.length)];
           rewardValue = { rewardType, chickenType };
           break;
         case "resources":
-          // Random resource type and amount
-          const resourceTypes = ["water_buckets", "wheat_bags"];
+          const resourceTypes = boxConfig.rewards.resources.types;
           const resourceType = resourceTypes[Math.floor(Math.random() * resourceTypes.length)];
-          const resourceAmount = Math.floor(Math.random() * 15) + 5; // 5-20
+          const resourceAmount = Math.floor(
+            Math.random() * (boxConfig.rewards.resources.max - boxConfig.rewards.resources.min + 1)
+          ) + boxConfig.rewards.resources.min;
           rewardValue = { rewardType, resourceType, resourceAmount };
           break;
         default:
           throw new Error("Invalid reward type");
       }
-      
+
       // Create a mystery box reward record
       const reward = await this.createMysteryBoxReward({
         userId,
+        boxType,
         rewardType,
         rewardValue: JSON.stringify(rewardValue),
         opened: false
       });
-      
+
       return reward;
     } catch (error) {
       console.error("Error opening mystery box:", error);
       throw error;
     }
   }
-  
-  private getRandomRewardType(): "usdt" | "chicken" | "resources" {
-    // Probabilities:
-    // 10% chance for USDT
-    // 20% chance for chicken
-    // 70% chance for resources
+
+  private getRandomRewardType(rewards: any): "usdt" | "chicken" | "resources" {
     const rand = Math.random() * 100;
-    if (rand < 10) {
-      return "usdt";
-    } else if (rand < 30) {
-      return "chicken";
-    } else {
-      return "resources";
-    }
+    let threshold = 0;
+
+    // Check USDT chance
+    threshold += rewards.usdt.chance * 100;
+    if (rand < threshold) return "usdt";
+
+    // Check chicken chance
+    threshold += rewards.chicken.chance * 100;
+    if (rand < threshold) return "chicken";
+
+    // Default to resources
+    return "resources";
   }
 
   async getMysteryBoxRewardsByUserId(userId: number): Promise<MysteryBoxReward[]> {
@@ -788,18 +794,18 @@ export class DatabaseStorage implements IStorage {
       const [reward] = await db.select()
         .from(mysteryBoxRewards)
         .where(eq(mysteryBoxRewards.id, rewardId));
-      
+
       if (!reward) {
         throw new Error("Reward not found");
       }
-      
+
       if (reward.opened) {
         throw new Error("Reward already claimed");
       }
-      
+
       const rewardValue = JSON.parse(reward.rewardValue) as MysteryBoxContent;
       const userId = reward.userId;
-      
+
       switch (rewardValue.rewardType) {
         case "usdt":
           if (rewardValue.amount) {
@@ -815,24 +821,24 @@ export class DatabaseStorage implements IStorage {
           if (rewardValue.resourceType && rewardValue.resourceAmount) {
             const resource = await this.getResourcesByUserId(userId);
             const updates: Partial<Resource> = {};
-            
+
             if (rewardValue.resourceType === "water_buckets") {
               updates.waterBuckets = resource.waterBuckets + rewardValue.resourceAmount;
             } else if (rewardValue.resourceType === "wheat_bags") {
               updates.wheatBags = resource.wheatBags + rewardValue.resourceAmount;
             }
-            
+
             await this.updateResources(userId, updates);
           }
           break;
       }
-      
+
       // Mark reward as claimed
       const [updatedReward] = await db.update(mysteryBoxRewards)
         .set({ opened: true })
         .where(eq(mysteryBoxRewards.id, rewardId))
         .returning();
-      
+
       return updatedReward;
     } catch (error) {
       console.error("Error claiming mystery box reward:", error);
@@ -885,31 +891,31 @@ export class DatabaseStorage implements IStorage {
       const [earning] = await db.select()
         .from(referralEarnings)
         .where(eq(referralEarnings.id, earningId));
-      
+
       if (!earning) {
         throw new Error("Referral earning not found");
       }
-      
+
       if (earning.claimed) {
         throw new Error("Referral earning already claimed");
       }
-      
+
       // Add to user balance
       await this.updateUserBalance(earning.userId, parseFloat(earning.amount.toString()));
-      
+
       // Mark as claimed
       const [updated] = await db.update(referralEarnings)
         .set({ claimed: true })
         .where(eq(referralEarnings.id, earningId))
         .returning();
-      
+
       return updated;
     } catch (error) {
       console.error("Error claiming referral earning:", error);
       throw error;
     }
   }
-  
+
   // Milestone operations
   async createMilestoneReward(milestone: InsertMilestoneReward): Promise<MilestoneReward> {
     try {
@@ -955,35 +961,35 @@ export class DatabaseStorage implements IStorage {
       const [milestone] = await db.select()
         .from(milestoneRewards)
         .where(eq(milestoneRewards.id, milestoneId));
-      
+
       if (!milestone) {
         throw new Error("Milestone reward not found");
       }
-      
+
       if (milestone.claimed) {
         throw new Error("Milestone reward already claimed");
       }
-      
+
       // Add to user balance
       await this.updateUserBalance(milestone.userId, parseFloat(milestone.reward.toString()));
-      
+
       // Mark as claimed
       const now = new Date();
       const [updated] = await db.update(milestoneRewards)
-        .set({ 
+        .set({
           claimed: true,
           claimedAt: now
         })
         .where(eq(milestoneRewards.id, milestoneId))
         .returning();
-      
+
       return updated;
     } catch (error) {
       console.error("Error claiming milestone reward:", error);
       throw error;
     }
   }
-  
+
   // Salary operations
   async createSalaryPayment(salary: InsertSalaryPayment): Promise<SalaryPayment> {
     try {
@@ -1008,7 +1014,7 @@ export class DatabaseStorage implements IStorage {
       throw error;
     }
   }
-  
+
   // Daily reward operations
   async createDailyReward(reward: InsertDailyReward): Promise<DailyReward> {
     try {
@@ -1039,18 +1045,18 @@ export class DatabaseStorage implements IStorage {
       const [reward] = await db.select()
         .from(dailyRewards)
         .where(eq(dailyRewards.id, rewardId));
-      
+
       if (!reward) {
         throw new Error("Daily reward not found");
       }
-      
+
       if (reward.claimed) {
         throw new Error("Daily reward already claimed");
       }
-      
+
       // Provide rewards to user
       const userId = reward.userId;
-      
+
       // Add eggs to user's resources
       if (reward.eggs > 0) {
         const resource = await this.getResourcesByUserId(userId);
@@ -1058,19 +1064,19 @@ export class DatabaseStorage implements IStorage {
           eggs: resource.eggs + reward.eggs
         });
       }
-      
+
       // Add USDT to user's balance
       const usdtAmount = reward.usdt ? parseFloat(reward.usdt.toString()) : 0;
       if (usdtAmount > 0) {
         await this.updateUserBalance(userId, usdtAmount);
       }
-      
+
       // Mark as claimed
       const [updated] = await db.update(dailyRewards)
         .set({ claimed: true })
         .where(eq(dailyRewards.id, rewardId))
         .returning();
-      
+
       return updated;
     } catch (error) {
       console.error("Error claiming daily reward:", error);
@@ -1084,11 +1090,11 @@ export class DatabaseStorage implements IStorage {
       if (!user) {
         throw new Error("User not found");
       }
-      
+
       // Check if user already claimed today's reward
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
+
       const [existingReward] = await db.select()
         .from(dailyRewards)
         .where(and(
@@ -1096,23 +1102,23 @@ export class DatabaseStorage implements IStorage {
           sql`DATE(${dailyRewards.createdAt}) = CURRENT_DATE`
         ))
         .orderBy(desc(dailyRewards.createdAt));
-      
+
       if (existingReward) {
         return existingReward;
       }
-      
+
       // Calculate streak
       let streak = user.currentStreak || 0;
       const lastRewardDate = user.lastDailyRewardAt;
-      
+
       if (lastRewardDate) {
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
         yesterday.setHours(0, 0, 0, 0);
-        
+
         const lastRewardDay = new Date(lastRewardDate);
         lastRewardDay.setHours(0, 0, 0, 0);
-        
+
         if (lastRewardDay.getTime() >= yesterday.getTime()) {
           // User claimed reward yesterday, continue streak
           streak += 1;
@@ -1125,10 +1131,10 @@ export class DatabaseStorage implements IStorage {
         // First day
         streak = 1;
       }
-      
+
       // Get reward for current streak day
       const rewardData = dailyRewardsByDay.find(r => r.day === streak) || dailyRewardsByDay[0];
-      
+
       // Create new daily reward
       const reward = await this.createDailyReward({
         userId,
@@ -1137,18 +1143,18 @@ export class DatabaseStorage implements IStorage {
         usdt: rewardData.usdt.toString(),
         claimed: false
       });
-      
+
       // Update user streak
       await this.updateUserStreak(userId, streak);
       await this.updateLastDailyReward(userId, new Date());
-      
+
       return reward;
     } catch (error) {
       console.error("Error getting current daily reward:", error);
       throw error;
     }
   }
-  
+
   // Boost operations
   async createBoost(boost: InsertActiveBoost): Promise<ActiveBoost> {
     try {
@@ -1180,16 +1186,16 @@ export class DatabaseStorage implements IStorage {
   async getActiveEggBoost(userId: number): Promise<number> {
     try {
       const activeBoosts = await this.getActiveBoostsByUserId(userId);
-      
+
       // Find highest egg production boost
       let highestMultiplier = 1; // Default (no boost)
-      
+
       for (const boost of activeBoosts) {
         if (boost.type === "egg_production" && parseFloat(boost.multiplier.toString()) > highestMultiplier) {
           highestMultiplier = parseFloat(boost.multiplier.toString());
         }
       }
-      
+
       return highestMultiplier;
     } catch (error) {
       console.error("Error getting active egg boost:", error);
@@ -1199,3 +1205,24 @@ export class DatabaseStorage implements IStorage {
 }
 
 export const storage = new DatabaseStorage();
+
+// Add mysteryBoxTypes here.  This needs to be populated with data from your schema.
+const mysteryBoxTypes = {
+  basic: {
+    price: 50,
+    rewards: {
+      usdt: { min: 1, max: 50, chance: 0.1 },
+      chicken: { types: ["baby", "regular", "golden"], chance: 0.2 },
+      resources: { types: ["water_buckets", "wheat_bags"], min: 5, max: 20, chance: 0.7 }
+    }
+  },
+  premium: {
+    price: 100,
+    rewards: {
+      usdt: { min: 50, max: 200, chance: 0.2 },
+      chicken: { types: ["regular", "golden"], chance: 0.3 },
+      resources: { types: ["water_buckets", "wheat_bags"], min: 20, max: 50, chance: 0.5 }
+    }
+  }
+  // Add more box types here...
+};
