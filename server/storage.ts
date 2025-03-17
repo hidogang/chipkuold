@@ -716,10 +716,9 @@ export class DatabaseStorage implements IStorage {
       // Generate reward and rarity
       const reward = this.getRandomReward(boxType);
       const rarity = this.determineRarity(boxType);
-
       console.log(`[MysteryBox] Generated reward:`, reward, `rarity:`, rarity);
 
-      // Create reward record with rewardDetails as a proper JSONB object
+      // Create reward record with proper schema structure
       const mysteryBoxReward = await this.createMysteryBoxReward({
         userId,
         boxType,
@@ -747,17 +746,19 @@ export class DatabaseStorage implements IStorage {
   async openMysteryBox(userId: number, boxType: string = 'basic'): Promise<MysteryBoxReward | null> {
     try {
       console.log(`[MysteryBox] Opening box for user ${userId}, type: ${boxType}`);
-      return this.checkAndProcessMysteryBoxOpen(userId, boxType);
+      const reward = await this.checkAndProcessMysteryBoxOpen(userId, boxType);
+      console.log(`[MysteryBox] Successfully opened box with reward:`, reward);
+      return reward;
     } catch (error) {
       console.error("[MysteryBox] Error opening mystery box:", error);
-      return null; //Return null to handle the error properly.
+      return null;
     }
   }
 
   async claimMysteryBoxReward(rewardId: number): Promise<MysteryBoxReward> {
     try {
       // Validate rewardId
-      if (!rewardId || isNaN(rewardId)) {
+      if (!rewardId) {
         console.error(`[MysteryBox] Invalid reward ID: ${rewardId}`);
         throw new Error("Invalid reward ID");
       }
@@ -781,6 +782,7 @@ export class DatabaseStorage implements IStorage {
       const rewardData = reward.rewardDetails as MysteryBoxContent;
       console.log(`[MysteryBox] Processing reward:`, rewardData);
 
+      // Process the reward based on its type
       switch (rewardData.rewardType) {
         case "usdt":
           if ('amount' in rewardData && rewardData.amount) {
@@ -914,8 +916,7 @@ export class DatabaseStorage implements IStorage {
       if (boxConfig.rewards.resources) {
         const resourceType = Math.random() < 0.5 ? "wheat" : "water";
         const ranges = boxConfig.rewards.resources[resourceType].ranges;
-        const range = ranges[0];
-        const amount = Math.floor(Math.random() * (range.max - range.min + 1)) + range.min;
+        const range = ranges[0];        const amount = Math.floor(Math.random()* (range.max - range.min + 1)) + range.min;
 
         return {
           rewardType: "resources",
