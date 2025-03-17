@@ -697,10 +697,8 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async openMysteryBox(userId: number, boxType: string = 'basic'): Promise<MysteryBoxReward | null> {
+  private async checkAndProcessMysteryBoxOpen(userId: number, boxType: string): Promise<MysteryBoxReward> {
     try {
-      console.log(`[MysteryBox] Opening box for user ${userId}, type: ${boxType}`);
-
       // Get user resources and verify box availability
       const resource = await this.getResourcesByUserId(userId);
       console.log(`[MysteryBox] User resources:`, resource);
@@ -715,22 +713,21 @@ export class DatabaseStorage implements IStorage {
         throw new Error("Invalid box type");
       }
 
-      // Generate random reward and rarity
+      // Generate reward and rarity
       const reward = this.getRandomReward(boxType);
       const rarity = this.determineRarity(boxType);
+
       console.log(`[MysteryBox] Generated reward:`, reward, `rarity:`, rarity);
 
-      // Create reward record with proper schema structure
+      // Create reward record
       const mysteryBoxReward = await this.createMysteryBoxReward({
         userId,
         boxType,
         rewardType: reward.rewardType,
-        rewardDetails: JSON.stringify(reward), // This should be a proper JSON object
+        rewardDetails: reward, // Store the entire reward object
         rarity,
         opened: false
       });
-
-      console.log(`[MysteryBox] Created reward record:`, mysteryBoxReward);
 
       // Update mystery box count
       await this.updateResources(userId, {
@@ -740,8 +737,18 @@ export class DatabaseStorage implements IStorage {
 
       return mysteryBoxReward;
     } catch (error) {
-      console.error("[MysteryBox] Error opening mystery box:", error);
+      console.error("[MysteryBox] Error processing mystery box open:", error);
       throw error;
+    }
+  }
+
+  async openMysteryBox(userId: number, boxType: string = 'basic'): Promise<MysteryBoxReward | null> {
+    try {
+      console.log(`[MysteryBox] Opening box for user ${userId}, type: ${boxType}`);
+      return this.checkAndProcessMysteryBoxOpen(userId, boxType);
+    } catch (error) {
+      console.error("[MysteryBox] Error opening mystery box:", error);
+      return null; //Return null to handle the error properly.
     }
   }
 
@@ -761,7 +768,7 @@ export class DatabaseStorage implements IStorage {
         throw new Error("Reward already claimed");
       }
 
-      const rewardData = JSON.parse(reward.rewardDetails);
+      const rewardData = reward.rewardDetails;
       console.log(`[MysteryBox] Processing reward:`, rewardData);
 
       switch (rewardData.rewardType) {
@@ -912,7 +919,7 @@ export class DatabaseStorage implements IStorage {
 
   async createMysteryBoxReward(reward: InsertMysteryBoxReward): Promise<MysteryBoxReward> {
     try {
-      const [newReward] = await db.insert(mysteryBoxRewards)
+      const [newReward] =await db.insert(mysteryBoxRewards)
         .values(reward)
         .returning();
       return newReward;
