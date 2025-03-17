@@ -931,7 +931,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async claimMilestoneReward(milestoneId: number): Promise<MilestoneReward> {
-        try {
+    try {
       const [milestone] = await db.select()
         .from(milestoneRewards)
         .where(eq(milestoneRewards.id, milestoneId));
@@ -1206,15 +1206,15 @@ export const mysteryBoxTypes: {
       }
     }
   },
-  advanced: {
+  standard: {
     price: 10,
-    name: "Advanced Mystery Box",
+    name: "Standard Mystery Box",
     rewards: {
       eggs: {
         ranges: [
-          { min: 10, max: 20, chance: 0.40 }, // 40% chance
-          { min: 21, max: 35, chance: 0.35 }, // 35% chance
-          { min: 36, max: 50, chance: 0.20 }, // 20% chance
+          { min: 10, max: 20, chance: 0.45 }, // 45% chance
+          { min: 21, max: 30, chance: 0.35 }, // 35% chance
+          { min: 31, max: 40, chance: 0.20 }, // 20% chance
         ]
       },
       chicken: {
@@ -1223,8 +1223,29 @@ export const mysteryBoxTypes: {
       }
     }
   },
+  advanced: {
+    price: 20,
+    name: "Advanced Mystery Box",
+    rewards: {
+      eggs: {
+        ranges: [
+          { min: 20, max: 40, chance: 0.40 }, // 40% chance
+          { min: 41, max: 60, chance: 0.35 }, // 35% chance
+          { min: 61, max: 80, chance: 0.20 }, // 20% chance
+        ]
+      },
+      chicken: {
+        types: ["baby", "regular"],
+        chance: 0.08 // 8% chance for chicken
+      },
+      usdt: {
+        amount: 2,
+        chance: 0.02 // 2% chance for USDT
+      }
+    }
+  },
   legendary: {
-    price: 25,
+    price: 50,
     name: "Legendary Mystery Box",
     rewards: {
       eggs: {
@@ -1235,12 +1256,12 @@ export const mysteryBoxTypes: {
         ]
       },
       chicken: {
-        types: ["rare"],
-        chance: 0.10 // 10% chance for rare chicken
+        types: ["regular", "golden"],
+        chance: 0.10 // 10% chance for better chickens
       },
       usdt: {
         amount: 5,
-        chance: 0.03 // 3% chance for USDT cashback
+        chance: 0.03 // 3% chance for USDT
       }
     }
   }

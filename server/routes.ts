@@ -582,23 +582,390 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/mystery-boxes/buy", isAuthenticated, async (req, res) => {
+  app.post("/api/mystery-box/buy", isAuthenticated, async (req, res) => {
     const schema = z.object({
-      quantity: z.number().positive().default(1)
+      boxType: z.enum(["basic", "standard", "advanced", "legendary"])
     });
 
     const result = schema.safeParse(req.body);
     if (!result.success) return res.status(400).json(result.error);
 
     try {
-      for (let i = 0; i < result.data.quantity; i++) {
-        await storage.purchaseMysteryBox(req.user!.id);
+      const boxConfig = mysteryBoxTypes[result.data.boxType];
+      if (!boxConfig) {
+        return res.status(400).json({ error: "Invalid box type" });
       }
 
-      const resources = await storage.getResourcesByUserId(req.user!.id);
+      // Update user's balance
+      await storage.updateUserBalance(req.user!.id, -boxConfig.price);
+
+      // Create a mystery box reward
+      const reward = await storage.getRandomReward(result.data.boxType);
+      const mysteryBoxReward = await storage.createMysteryBoxReward({
+        userId: req.user!.id,
+        boxType: result.data.boxType,
+        rewardType: reward.rewardType,
+        rewardValue: JSON.stringify(reward.value),
+        opened: false,
+        claimed: false
+      });
+
       res.json({
         success: true,
-        mysteryBoxes: resources.mysteryBoxes || 0
+        reward: mysteryBoxReward
+      });
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(400).send(err.message);
+      } else {
+        res.status(400).send("Failed to purchase mystery box");
+      }
+    }
+  });
+
+  app.post("/api/mystery-boxes/open", isAuthenticated, async (req, res) => {
+    try {
+      const reward = await storage.openMysteryBox(req.user!.id);
+      if (!reward) {
+        return res.status(400).send("Failed to open mystery box");
+      }
+
+      res.json({
+        success: true,
+        reward
+      });
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(400).send(err.message);
+      } else {
+        res.status(400).send("Failed to open mystery box");
+      }
+    }
+  });
+
+  app.get("/api/mystery-boxes/rewards", isAuthenticated, async (req, res) => {
+    try {
+      const rewards = await storage.getMysteryBoxRewardsByUserId(req.user!.id);
+      res.json(rewards);
+    } catch (err) {
+      console.error('Error fetching mystery box rewards:', err);
+      res.status(500).json({ error: 'Failed to fetch mystery box rewards' });
+    }
+  });
+
+  app.post("/api/mystery-boxes/claim/:id", isAuthenticated, async (req, res) => {
+    try {
+      const rewardId = parseInt(req.params.id);
+      if (isNaN(rewardId)) {
+        return res.status(400).send("Invalid reward ID");
+      }
+
+      const claimedReward = await storage.claimMysteryBoxReward(rewardId);
+      res.json({
+        success: true,
+        reward: claimedReward
+      });
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(400).send(err.message);
+      } else {
+        res.status(400).send("Failed to claim reward");
+      }
+    }
+  });
+
+  // Referral System Routes
+  app.get("/api/referrals", isAuthenticated, async (req, res) => {
+    try {
+      const directReferrals = await storage.getUserReferrals(req.user!.id);
+      res.json(directReferrals);
+    } catch (err) {
+      console.error("Error getting referrals:", err);
+      res.status(500).json({ error: "Failed to get referrals" });
+    }
+  });
+
+  app.get("/api/referrals/earnings", isAuthenticated, async (req, res) => {
+    try {
+      const earnings = await storage.getReferralEarningsByUserId(req.user!.id);
+      res.json(earnings);
+    } catch (err) {
+      console.error("Error getting referral earnings:", err);
+      res.status(500).json({ error: "Failed to get referral earnings" });
+    }
+  });
+
+  app.get("/api/referrals/earnings/unclaimed", isAuthenticated, async (req, res) => {
+    try {
+      const unclaimedEarnings = await storage.getUnclaimedReferralEarnings(req.user!.id);
+      res.json(unclaimedEarnings);
+    } catch (err) {
+      console.error("Error getting unclaimed referral earnings:", err);
+      res.status(500).json({ error: "Failed to get unclaimed referral earnings" });
+    }
+  });
+
+  app.post("/api/referrals/earnings/:id/claim", isAuthenticated, async (req, res) => {
+    try {
+      const earningId = parseInt(req.params.id);
+      const claimed = await storage.claimReferralEarning(earningId);
+      res.json({
+        success: true,
+        claimed
+      });
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(400).send(err.message);
+      } else {
+        res.status(400).send("Failed to claim referral earning");
+      }
+    }
+  });
+
+  // Team milestone routes
+  app.get("/api/milestones", isAuthenticated, async (req, res) => {
+    try {
+      const milestones = await storage.getMilestoneRewardsByUserId(req.user!.id);
+      res.json(milestones);
+    } catch (err) {
+      console.error("Error getting milestone rewards:", err);
+      res.status(500).json({ error: "Failed to get milestone rewards" });
+    }
+  });
+
+  app.get("/api/milestones/unclaimed", isAuthenticated, async (req, res) => {
+    try {
+      const unclaimedMilestones = await storage.getUnclaimedMilestoneRewards(req.user!.id);
+      res.json(unclaimedMilestones);
+    } catch (err) {
+      console.error("Error getting unclaimed milestone rewards:", err);
+      res.status(500).json({ error: "Failed to get unclaimed milestone rewards" });
+    }
+  });
+
+  app.post("/api/milestones/:id/claim", isAuthenticated, async (req, res) => {
+    try {
+      const milestoneId = parseInt(req.params.id);
+      const claimed = await storage.claimMilestoneReward(milestoneId);
+      res.json({
+        success: true,
+        claimed
+      });
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(400).send(err.message);
+      } else {
+        res.status(400).send("Failed to claim milestone reward");
+      }
+    }
+  });
+
+  // Salary system routes
+  app.get("/api/salary/payments", isAuthenticated, async (req, res) => {
+    try {
+      const payments = await storage.getSalaryPaymentsByUserId(req.user!.id);
+      res.json(payments);
+    } catch (err) {
+      console.error("Error getting salary payments:", err);
+      res.status(500).json({ error: "Failed to get salary payments" });
+    }
+  });
+
+  // Daily rewards system
+  app.get("/api/rewards/daily", isAuthenticated, async (req, res) => {
+    try {
+      const reward = await storage.getCurrentDailyReward(req.user!.id);
+      res.json(reward);
+    } catch (err) {
+      console.error("Error getting daily reward:", err);
+      res.status(500).json({ error: "Failed to get daily reward" });
+    }
+  });
+
+  app.get("/api/rewards/daily/history", isAuthenticated, async (req, res) => {
+    try {
+      const rewards = await storage.getDailyRewardsByUserId(req.user!.id);
+      res.json(rewards);
+    } catch (err) {
+      console.error("Error getting daily rewards history:", err);
+      res.status(500).json({ error: "Failed to get daily rewards history" });
+    }
+  });
+
+  app.post("/api/rewards/daily/:id/claim", isAuthenticated, async (req, res) => {
+    try {
+      const rewardId = parseInt(req.params.id);
+      const claimed = await storage.claimDailyReward(rewardId);
+      res.json({
+        success: true,
+        claimed
+      });
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(400).send(err.message);
+      } else {
+        res.status(400).send("Failed to claim daily reward");
+      }
+    }
+  });
+
+  // Active boosts
+  app.get("/api/boosts", isAuthenticated, async (req, res) => {
+    try {
+      const boosts = await storage.getActiveBoostsByUserId(req.user!.id);
+      const eggMultiplier = await storage.getActiveEggBoost(req.user!.id);
+      res.json({
+        boosts,
+        eggMultiplier
+      });
+    } catch (err) {
+      console.error("Error getting active boosts:", err);
+      res.status(500).json({ error: "Failed to get active boosts" });
+    }
+  });
+
+  // Update existing recharge endpoint to handle referral commissions
+  app.post("/api/wallet/recharge/complete", isAuthenticated, async (req, res) => {
+    const schema = z.object({
+      transactionId: z.string(),
+    });
+
+    const result = schema.safeParse(req.body);
+    if (!result.success) return res.status(400).json(result.error);
+
+    try {
+      const transaction = await storage.getTransactionByTransactionId(result.data.transactionId);
+      if (!transaction) {
+        return res.status(404).send("Transaction not found");
+      }
+
+      // Update transaction status
+      await storage.updateTransactionStatus(result.data.transactionId, "completed");
+
+      // Update user's balance
+      await storage.updateUserBalance(req.user!.id, parseFloat(transaction.amount));
+
+      // Process referral commissions if user was referred
+      const user = await storage.getUser(req.user!.id);
+      if (user && user.referredBy) {
+        try {
+          // Find the referrer
+          const referrer = await storage.getUserByReferralCode(user.referredBy);
+          if (referrer) {
+            // Calculate level 1 commission (10% of deposit)
+            const level1Amount = parseFloat(transaction.amount) * 0.1;
+
+            // Create earnings record
+            await storage.createReferralEarning({
+              userId: referrer.id,
+              referredUserId: req.user!.id,
+              level: 1,
+              amount: level1Amount.toFixed(2),
+              claimed: false
+            });
+
+            // Update referrer's total earnings
+            await storage.updateUserReferralEarnings(referrer.id, level1Amount);
+            await storage.updateUserTeamEarnings(referrer.id, level1Amount);
+
+            // Process higher level referrals (upto 6 levels)
+            let currentReferrer = referrer;
+
+            for (let level = 2; level <= 6; level++) {
+              if (!currentReferrer.referredBy) break;
+
+              // Find the next level referrer
+              const nextReferrer = await storage.getUserByReferralCode(currentReferrer.referredBy);
+              if (!nextReferrer) break;
+
+              // Get commission rate for this level
+              let commissionRate = 0;
+              switch (level) {
+                case 2: commissionRate = 0.05; break; // 5% for level 2
+                case 3: commissionRate = 0.03; break; // 3% for level 3
+                case 4: commissionRate = 0.02; break; // 2% for level 4
+                case 5: commissionRate = 0.01; break; // 1% for level 5
+                case 6: commissionRate = 0.005; break; // 0.5% for level 6
+              }
+
+              // Calculate commission amount
+              const commissionAmount = parseFloat(transaction.amount) * commissionRate;
+
+              // Create earnings record
+              await storage.createReferralEarning({
+                userId: nextReferrer.id,
+                referredUserId: req.user!.id,
+                level,
+                amount: commissionAmount.toFixed(2),
+                claimed: false
+              });
+
+              // Update referrer's total earnings
+              await storage.updateUserReferralEarnings(nextReferrer.id, commissionAmount);
+              await storage.updateUserTeamEarnings(nextReferrer.id, commissionAmount);
+
+              // Move to next level referrer
+              currentReferrer = nextReferrer;
+            }
+          }
+        } catch (referralError) {
+          console.error("Error processing referral commissions:", referralError);
+          // Continue execution - don't fail the deposit because of referral issues
+        }
+      }
+
+      res.json({ success: true });
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(400).send(err.message);
+      } else {
+        res.status(400).send("Failed to complete recharge");
+      }
+    }
+  });
+
+  // Mystery Box endpoints
+  app.get("/api/mystery-boxes", isAuthenticated, async (req, res) => {
+    try {
+      const resources = await storage.getResourcesByUserId(req.user!.id);
+      res.json({ count: resources.mysteryBoxes || 0 });
+    } catch (err) {
+      console.error('Error fetching mystery boxes:', err);
+      res.status(500).json({ error: 'Failed to fetch mystery boxes' });
+    }
+  });
+
+  app.post("/api/mystery-box/buy", isAuthenticated, async (req, res) => {
+    const schema = z.object({
+      boxType: z.enum(["basic", "standard", "advanced", "legendary"])
+    });
+
+    const result = schema.safeParse(req.body);
+    if (!result.success) return res.status(400).json(result.error);
+
+    try {
+      const boxConfig = mysteryBoxTypes[result.data.boxType];
+      if (!boxConfig) {
+        return res.status(400).json({ error: "Invalid box type" });
+      }
+
+      // Update user's balance
+      await storage.updateUserBalance(req.user!.id, -boxConfig.price);
+
+      // Create a mystery box reward
+      const reward = await storage.getRandomReward(result.data.boxType);
+      const mysteryBoxReward = await storage.createMysteryBoxReward({
+        userId: req.user!.id,
+        boxType: result.data.boxType,
+        rewardType: reward.rewardType,
+        rewardValue: JSON.stringify(reward.value),
+        opened: false,
+        claimed: false
+      });
+
+      res.json({
+        success: true,
+        reward: mysteryBoxReward
       });
     } catch (err) {
       if (err instanceof Error) {

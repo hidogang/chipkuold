@@ -68,7 +68,7 @@ const MYSTERY_BOX_TYPES = {
   basic: {
     name: "Basic Mystery Box",
     price: 5,
-    description: "Contains 5-20 eggs with different drop rates",
+    description: "A starter box with eggs rewards",
     image: "/assets/basic-box.png",
     color: "purple",
     rewards: [
@@ -77,31 +77,45 @@ const MYSTERY_BOX_TYPES = {
       "16-20 eggs (10% chance)"
     ]
   },
+  standard: {
+    name: "Standard Mystery Box",
+    price: 10,
+    description: "Better rewards with a chance for a Baby Chicken!",
+    image: "/assets/standard-box.png",
+    color: "blue",
+    rewards: [
+      "10-20 eggs (45% chance)",
+      "21-30 eggs (35% chance)",
+      "31-40 eggs (20% chance)",
+      "Baby Chicken (5% chance)"
+    ]
+  },
   advanced: {
     name: "Advanced Mystery Box",
-    price: 10,
-    description: "Higher egg counts and a chance for a Baby Chicken!",
+    price: 20,
+    description: "High-value rewards including Chickens and USDT!",
     image: "/assets/advanced-box.png",
     color: "indigo",
     rewards: [
-      "10-20 eggs (40% chance)",
-      "21-35 eggs (35% chance)",
-      "36-50 eggs (20% chance)",
-      "Baby Chicken (5% chance)"
+      "20-40 eggs (40% chance)",
+      "41-60 eggs (35% chance)",
+      "61-80 eggs (20% chance)",
+      "Baby/Regular Chicken (8% chance)",
+      "2 USDT (2% chance)"
     ]
   },
   legendary: {
     name: "Legendary Mystery Box",
-    price: 25,
-    description: "Best rewards including Rare Chickens and USDT!",
+    price: 50,
+    description: "Best rewards including Golden Chickens and more USDT!",
     image: "/assets/legendary-box.png",
     color: "amber",
     rewards: [
       "50-100 eggs (35% chance)",
       "101-150 eggs (30% chance)",
       "151-200 eggs (22% chance)",
-      "Rare Chicken (10% chance)",
-      "5 USDT Cashback (3% chance)"
+      "Regular/Golden Chicken (10% chance)",
+      "5 USDT (3% chance)"
     ]
   }
 };
@@ -618,6 +632,7 @@ export default function ShopPage() {
                     style={{
                       background: `radial-gradient(circle at 50% 50%, ${
                         type === 'basic' ? '#9333ea40' :
+                        type === 'standard' ? '#1c64f240' :
                         type === 'advanced' ? '#4f46e540' :
                         '#f59e0b40'
                       }, transparent)`
@@ -648,6 +663,7 @@ export default function ShopPage() {
                     >
                       <div className={`absolute inset-0 rounded-full ${
                         type === 'basic' ? 'bg-purple-500/20' :
+                        type === 'standard' ? 'bg-blue-500/20' :
                         type === 'advanced' ? 'bg-indigo-500/20' :
                         'bg-amber-500/20'
                       } blur-xl`} />
@@ -656,6 +672,7 @@ export default function ShopPage() {
                           size={64}
                           className={`transform transition-transform ${
                             type === 'basic' ? 'text-purple-500' :
+                            type === 'standard' ? 'text-blue-500' :
                             type === 'advanced' ? 'text-indigo-500' :
                             'text-amber-500'
                           }`}
@@ -667,6 +684,7 @@ export default function ShopPage() {
                     <div className="relative">
                       <h3 className={`text-2xl font-bold text-center mb-2 ${
                         type === 'basic' ? 'text-purple-700' :
+                        type === 'standard' ? 'text-blue-700' :
                         type === 'advanced' ? 'text-indigo-700' :
                         'text-amber-700'
                       }`}>
@@ -675,6 +693,7 @@ export default function ShopPage() {
                       <div className="absolute -top-12 right-0">
                         <div className={`px-4 py-2 rounded-full font-bold text-white shadow-lg ${
                           type === 'basic' ? 'bg-purple-500' :
+                          type === 'standard' ? 'bg-blue-500' :
                           type === 'advanced' ? 'bg-indigo-500' :
                           'bg-amber-500'
                         }`}>
@@ -691,6 +710,7 @@ export default function ShopPage() {
                     {/* Rewards list */}
                     <div className={`mt-4 p-4 rounded-lg ${
                       type === 'basic' ? 'bg-purple-50 border border-purple-100' :
+                      type === 'standard' ? 'bg-blue-50 border border-blue-100' :
                       type === 'advanced' ? 'bg-indigo-50 border border-indigo-100' :
                       'bg-amber-50 border border-amber-100'
                     }`}>
@@ -700,6 +720,7 @@ export default function ShopPage() {
                           <li key={idx} className="flex items-center text-sm text-gray-600">
                             <div className={`w-2 h-2 rounded-full mr-2 ${
                               type === 'basic' ? 'bg-purple-400' :
+                              type === 'standard' ? 'bg-blue-400' :
                               type === 'advanced' ? 'bg-indigo-400' :
                               'bg-amber-400'
                             }`} />
@@ -721,9 +742,11 @@ export default function ShopPage() {
                         transition-all duration-200
                         ${type === 'basic'
                           ? 'bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800'
-                          : type === 'advanced'
-                            ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800'
-                            : 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700'
+                          : type === 'standard'
+                            ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'
+                            : type === 'advanced'
+                              ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800'
+                              : 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700'
                         }
                         shadow-lg hover:shadow-xl
                       `}
