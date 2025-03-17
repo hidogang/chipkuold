@@ -780,6 +780,30 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  async createMysteryBoxReward(reward: InsertMysteryBoxReward): Promise<MysteryBoxReward> {
+    try {
+      const [newReward] = await db.insert(mysteryBoxRewards)
+        .values(reward)
+        .returning();
+      return newReward;
+    } catch (error) {
+      console.error("Error creating mystery box reward:", error);
+      throw error;
+    }
+  }
+
+  async getMysteryBoxRewardsByUserId(userId: number): Promise<MysteryBoxReward[]> {
+    try {
+      return db.select()
+        .from(mysteryBoxRewards)
+        .where(eq(mysteryBoxRewards.userId, userId))
+        .orderBy(desc(mysteryBoxRewards.createdAt));
+    } catch (error) {
+      console.error("Error getting mystery box rewards:", error);
+      throw error;
+    }
+  }
+
   async claimMysteryBoxReward(rewardId: number): Promise<MysteryBoxReward> {
     try {
       const [reward] = await db.select()
@@ -819,6 +843,7 @@ export class DatabaseStorage implements IStorage {
       throw error;
     }
   }
+
 
   // Referral operations
   async createReferralEarning(earning: InsertReferralEarning): Promise<ReferralEarning> {
