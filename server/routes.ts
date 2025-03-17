@@ -517,12 +517,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Mystery Box endpoints
-  app.get("/api/mystery-boxes", isAuthenticated, async (req, res) => {
+  app.get("/api/mystery-box/count", isAuthenticated, async (req, res) => {
     try {
       const resources = await storage.getResourcesByUserId(req.user!.id);
+      console.log(`[MysteryBox] Current box count for user ${req.user!.id}:`, resources.mysteryBoxes);
       res.json({ count: resources.mysteryBoxes || 0 });
     } catch (err) {
-      console.error('Error fetching mystery boxes:', err);
+      console.error('[MysteryBox] Error fetching box count:', err);
       res.status(500).json({ error: 'Failed to fetch mystery boxes' });
     }
   });
@@ -581,10 +582,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (!result.success) return res.status(400).json(result.error);
 
     try {
-      console.log(`[MysteryBox] Opening box for user ${req.user!.id}`);
+      console.log(`[MysteryBox] Opening box for user ${req.user!.id}, type:`, result.data.boxType);
 
       const reward = await storage.openMysteryBox(req.user!.id, result.data.boxType);
       if (!reward) {
+        console.error('[MysteryBox] Failed to generate reward');
         return res.status(400).send("Failed to open mystery box");
       }
 
@@ -607,9 +609,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/mystery-box/rewards", isAuthenticated, async (req, res) => {
     try {
       const rewards = await storage.getMysteryBoxRewardsByUserId(req.user!.id);
+      console.log(`[MysteryBox] Retrieved rewards for user ${req.user!.id}:`, rewards.length);
       res.json(rewards);
     } catch (err) {
-      console.error('Error fetching mystery box rewards:', err);
+      console.error('[MysteryBox] Error fetching rewards:', err);
       res.status(500).json({ error: 'Failed to fetch mystery box rewards' });
     }
   });
@@ -926,12 +929,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Mystery Box endpoints
-  app.get("/api/mystery-boxes", isAuthenticated, async (req, res) => {
+  app.get("/api/mystery-box/count", isAuthenticated, async (req, res) => {
     try {
       const resources = await storage.getResourcesByUserId(req.user!.id);
+      console.log(`[MysteryBox] Current box count for user ${req.user!.id}:`, resources.mysteryBoxes);
       res.json({ count: resources.mysteryBoxes || 0 });
     } catch (err) {
-      console.error('Error fetching mystery boxes:', err);
+      console.error('[MysteryBox] Error fetching box count:', err);
       res.status(500).json({ error: 'Failed to fetch mystery boxes' });
     }
   });
@@ -990,10 +994,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (!result.success) return res.status(400).json(result.error);
 
     try {
-      console.log(`[MysteryBox] Opening box for user ${req.user!.id}`);
+      console.log(`[MysteryBox] Opening box for user ${req.user!.id}, type:`, result.data.boxType);
 
       const reward = await storage.openMysteryBox(req.user!.id, result.data.boxType);
       if (!reward) {
+        console.error('[MysteryBox] Failed to generate reward');
         return res.status(400).send("Failed to open mystery box");
       }
 
@@ -1016,9 +1021,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/mystery-box/rewards", isAuthenticated, async (req, res) => {
     try {
       const rewards = await storage.getMysteryBoxRewardsByUserId(req.user!.id);
+      console.log(`[MysteryBox] Retrieved rewards for user ${req.user!.id}:`, rewards.length);
       res.json(rewards);
     } catch (err) {
-      console.error('Error fetching mystery box rewards:', err);
+      console.error('[MysteryBox] Error fetching rewards:', err);
       res.status(500).json({ error: 'Failed to fetch mystery box rewards' });
     }
   });

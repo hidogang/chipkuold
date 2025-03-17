@@ -700,7 +700,7 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log(`[MysteryBox] Opening box for user ${userId}, type: ${boxType}`);
 
-      // Check if user has a mystery box
+      // Get user resources and verify box availability
       const resource = await this.getResourcesByUserId(userId);
       console.log(`[MysteryBox] User resources:`, resource);
 
@@ -746,7 +746,7 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  private getRandomReward(boxType: string = 'basic'): { rewardType: "usdt" | "chicken" | "eggs"; value: any } {
+  private getRandomReward(boxType: string): { rewardType: "usdt" | "chicken" | "eggs"; value: any } {
     const boxConfig = mysteryBoxTypes[boxType];
     if (!boxConfig) throw new Error("Invalid box type");
 
@@ -927,7 +927,7 @@ export class DatabaseStorage implements IStorage {
 
       if (!earning) {
         throw new Error("Referral earning not found");
-      }
+            }
 
       if (earning.claimed) {
         throw new Error("Referral earning already claimed");
