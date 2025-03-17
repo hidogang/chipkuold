@@ -1,0 +1,74 @@
+💡 Objective: Implement a Mystery Box & Loot Crate system where players can purchase boxes to receive randomized rewards such as eggs, rare chickens, or USDT. Include an opening animation for an engaging experience.
+
+🔹 Mystery Box Mechanics & Pricing
+Players can purchase different tiers of Mystery Boxes using USDT for a chance to win rewards. The higher the box tier, the better the rewards.
+
+🎁 Mystery Box Type	💰 Price (USDT)	🎲 Possible Rewards
+Basic Mystery Box	5 USDT	5-20 eggs
+Advanced Mystery Box	10 USDT	10-50 eggs OR a free Baby Chicken (5% chance)
+Legendary Mystery Box	25 USDT	50-200 eggs OR a Rare Chicken (10% chance) OR 5 USDT cashback (3% chance)
+🔹 How It Works (Game Logic & Implementation)
+1️⃣ Buying a Mystery Box
+Players navigate to the Shop and select Mystery Boxes.
+They can choose a box and pay with USDT.
+After payment, the "Open Box" button appears.
+2️⃣ Opening Animation & Randomized Rewards
+A Loot Crate Opening Animation plays for 3-5 seconds.
+Inside the animation:
+Box shakes or glows before opening.
+Random rewards appear in a spinning carousel effect.
+A "Congratulations!" pop-up shows the reward.
+The reward is automatically added to the player's inventory (eggs, chickens, or USDT).
+3️⃣ Reward Probability System
+Each box follows a weighted random reward distribution:
+
+Basic Mystery Box (5 USDT)
+50% chance → 5-10 eggs
+40% chance → 11-15 eggs
+10% chance → 16-20 eggs
+Advanced Mystery Box (10 USDT)
+40% chance → 10-20 eggs
+35% chance → 21-35 eggs
+20% chance → 36-50 eggs
+5% chance → 1 Free Baby Chicken
+Legendary Mystery Box (25 USDT)
+35% chance → 50-100 eggs
+30% chance → 101-150 eggs
+22% chance → 151-200 eggs
+10% chance → 1 Rare Chicken
+3% chance → 5 USDT cashback
+🔹 UI & UX Design Details
+🔸 Mystery Box UI Panel
+
+A dedicated Mystery Box section in the Shop.
+Clickable animated boxes showing possible rewards.
+Buy Now & Open Now buttons for instant interaction.
+🔸 Opening Animation
+
+The box shakes, glows, or spins.
+Fireworks or confetti effect when a high-value reward is won.
+Winning pop-up with a sound effect.
+🔸 Inventory Integration
+
+Rewards are instantly credited to the player’s Egg Balance, Chicken Collection, or USDT Wallet.
+Players receive a notification confirming their reward.
+🔹 Backend Implementation
+1️⃣ Purchase Validation: Check if the player has enough USDT before allowing the purchase.
+2️⃣ Random Reward Generation: Use a probability-based algorithm to determine the reward.
+3️⃣ Transaction Logging: Store all purchases & rewards in the database for game fairness & anti-fraud protection.
+4️⃣ Animation Control: The front-end should display a dynamic opening sequence before revealing the reward.
+5️⃣ Instant Reward Delivery: Add the received items to the player's inventory automatically.
+
+🔹 Monetization & Engagement Benefits
+✅ Encourages spending with randomized high-value rewards.
+✅ Creates excitement & repeat purchases through animations & lucky draws.
+✅ Enhances player retention with a fun gambling-style mechanic.
+✅ Increases overall game revenue through impulse purchases.
+
+🔹 Final Deliverable
+📌 A full Mystery Box system with:
+
+3 Tiers of Boxes
+Randomized rewards with probability weighting
+A fun opening animation
+Instant item delivery & transaction logging
