@@ -719,15 +719,17 @@ export class DatabaseStorage implements IStorage {
 
       console.log(`[MysteryBox] Generated reward:`, reward, `rarity:`, rarity);
 
-      // Create reward record
+      // Create reward record with rewardDetails as a proper JSONB object
       const mysteryBoxReward = await this.createMysteryBoxReward({
         userId,
         boxType,
         rewardType: reward.rewardType,
-        rewardDetails: reward, // Store the entire reward object
+        rewardDetails: reward as any, // Cast to any to avoid TS issues with JSONB
         rarity,
         opened: false
       });
+
+      console.log(`[MysteryBox] Created reward:`, mysteryBoxReward);
 
       // Update mystery box count
       await this.updateResources(userId, {
@@ -768,35 +770,44 @@ export class DatabaseStorage implements IStorage {
         throw new Error("Reward already claimed");
       }
 
-      const rewardData = reward.rewardDetails;
+      const rewardData = reward.rewardDetails as MysteryBoxContent;
       console.log(`[MysteryBox] Processing reward:`, rewardData);
 
       switch (rewardData.rewardType) {
         case "usdt":
-          await this.updateUserBalance(reward.userId, rewardData.amount);
+          if ('amount' in rewardData) {
+            await this.updateUserBalance(reward.userId, rewardData.amount);
+          }
           break;
         case "chicken":
-          await this.createChicken(reward.userId, rewardData.chickenType);
+          if ('chickenType' in rewardData) {
+            await this.createChicken(reward.userId, rewardData.chickenType);
+          }
           break;
         case "eggs":
-          const userResources = await this.getResourcesByUserId(reward.userId);
-          await this.updateResources(reward.userId, {
-            ...userResources,
-            eggs: userResources.eggs + rewardData.minEggs + (rewardData.maxEggs - rewardData.minEggs) / 2 // average
-          });
+          if ('minEggs' in rewardData && 'maxEggs' in rewardData) {
+            const userResources = await this.getResourcesByUserId(reward.userId);
+            const eggAmount = Math.floor((rewardData.minEggs + rewardData.maxEggs) / 2);
+            await this.updateResources(reward.userId, {
+              ...userResources,
+              eggs: userResources.eggs + eggAmount
+            });
+          }
           break;
         case "resources":
-          const userRes = await this.getResourcesByUserId(reward.userId);
-          if (rewardData.resourceType === "wheat") {
-            await this.updateResources(reward.userId, {
-              ...userRes,
-              wheatBags: userRes.wheatBags + rewardData.resourceAmount
-            });
-          } else {
-            await this.updateResources(reward.userId, {
-              ...userRes,
-              waterBuckets: userRes.waterBuckets + rewardData.resourceAmount
-            });
+          if ('resourceType' in rewardData && 'resourceAmount' in rewardData) {
+            const userRes = await this.getResourcesByUserId(reward.userId);
+            if (rewardData.resourceType === "wheat") {
+              await this.updateResources(reward.userId, {
+                ...userRes,
+                wheatBags: userRes.wheatBags + rewardData.resourceAmount
+              });
+            } else {
+              await this.updateResources(reward.userId, {
+                ...userRes,
+                waterBuckets: userRes.waterBuckets + rewardData.resourceAmount
+              });
+            }
           }
           break;
         default:
@@ -805,7 +816,10 @@ export class DatabaseStorage implements IStorage {
 
       // Mark reward as claimed
       const [updatedReward] = await db.update(mysteryBoxRewards)
-        .set({ opened: true })
+        .set({
+          opened: true,
+          claimedAt: new Date()
+        })
         .where(eq(mysteryBoxRewards.id, rewardId))
         .returning();
 
@@ -818,110 +832,112 @@ export class DatabaseStorage implements IStorage {
   }
 
   private determineRarity(boxType: string): string {
-    const boxConfig = mysteryBoxTypes[boxType];
-    if (!boxConfig) throw new Error("Invalid box type");
+    try {
+      const boxConfig = mysteryBoxTypes[boxType];
+      if (!boxConfig) throw new Error("Invalid box type");
 
-    const rand = Math.random();
-    let threshold = 0;
+      const rand = Math.random();
+      let threshold = 0;
 
-    for (const [rarity, chance] of Object.entries(boxConfig.rarityDistribution)) {
-      threshold += chance;
-      if (rand < threshold) {
-        return rarity;
+      for (const [rarity, chance] of Object.entries(boxConfig.rarityDistribution)) {
+        threshold += chance;
+        if (rand < threshold) {
+          return rarity;
+        }
       }
-    }
 
-    // Fallback to common if something goes wrong
-    return "common";
+      return "common"; // Fallback
+    } catch (error) {
+      console.error("[MysteryBox] Error determining rarity:", error);
+      return "common"; // Safe fallback
+    }
   }
 
   private getRandomReward(boxType: string): MysteryBoxContent {
-    const boxConfig = mysteryBoxTypes[boxType];
-    if (!boxConfig) throw new Error("Invalid box type");
+    try {
+      const boxConfig = mysteryBoxTypes[boxType];
+      if (!boxConfig) throw new Error("Invalid box type");
 
-    const rand = Math.random();
-    let threshold = 0;
+      const rand = Math.random();
+      let threshold = 0;
 
-    // Check for USDT reward
-    if (boxConfig.rewards.usdt?.ranges) {
-      for (const range of boxConfig.rewards.usdt.ranges) {
-        threshold += range.chance;
+      // Check for USDT reward
+      if (boxConfig.rewards.usdt?.ranges) {
+        for (const range of boxConfig.rewards.usdt.ranges) {
+          threshold += range.chance;
+          if (rand < threshold) {
+            return {
+              rewardType: "usdt",
+              amount: range.amount
+            };
+          }
+        }
+      }
+
+      // Check for chicken reward
+      if (boxConfig.rewards.chicken) {
+        threshold += boxConfig.rewards.chicken.chance;
         if (rand < threshold) {
+          const chickenTypes = boxConfig.rewards.chicken.types;
+          const randomChickenType = chickenTypes[Math.floor(Math.random() * chickenTypes.length)];
           return {
-            rewardType: "usdt",
-            amount: range.amount
+            rewardType: "chicken",
+            chickenType: randomChickenType
           };
         }
       }
-    }
 
-    // Check for chicken reward
-    if (boxConfig.rewards.chicken) {
-      threshold += boxConfig.rewards.chicken.chance;
-      if (rand < threshold) {
-        const chickenTypes = boxConfig.rewards.chicken.types;
-        const randomChickenType = chickenTypes[Math.floor(Math.random() * chickenTypes.length)];
-        return {
-          rewardType: "chicken",
-          chickenType: randomChickenType
-        };
-      }
-    }
-
-    // Check for resource rewards
-    if (boxConfig.rewards.resources) {
-      const resourceTypes = ["wheat", "water"];
-      const selectedResource = resourceTypes[Math.floor(Math.random() * resourceTypes.length)];
-      const resourceRanges = boxConfig.rewards.resources[selectedResource].ranges;
-
-      let rangeThreshold = 0;
-      const resourceRand = Math.random();
-
-      for (const range of resourceRanges) {
-        rangeThreshold += range.chance;
-        if (resourceRand < rangeThreshold) {
-          const amount = Math.floor(
-            Math.random() * (range.max - range.min + 1)
-          ) + range.min;
-          return {
-            rewardType: "resources",
-            resourceType: selectedResource,
-            resourceAmount: amount
-          };
+      // Check for eggs
+      if (boxConfig.rewards.eggs?.ranges) {
+        for (const range of boxConfig.rewards.eggs.ranges) {
+          threshold += range.chance;
+          if (rand < threshold) {
+            return {
+              rewardType: "eggs",
+              minEggs: range.min,
+              maxEggs: range.max
+            };
+          }
         }
       }
-    }
 
-    // Default to eggs with weighted ranges
-    const eggRanges = boxConfig.rewards.eggs.ranges;
-    let rangeThreshold = 0;
-    const eggRand = Math.random();
+      // Default to resources
+      if (boxConfig.rewards.resources) {
+        const resourceType = Math.random() < 0.5 ? "wheat" : "water";
+        const ranges = boxConfig.rewards.resources[resourceType].ranges;
+        const range = ranges[0];
+        const amount = Math.floor(Math.random() * (range.max - range.min + 1)) + range.min;
 
-    for (const range of eggRanges) {
-      rangeThreshold += range.chance;
-      if (eggRand < rangeThreshold) {
         return {
-          rewardType: "eggs",
-          minEggs: range.min,
-          maxEggs: range.max
+          rewardType: "resources",
+          resourceType,
+          resourceAmount: amount
         };
       }
-    }
 
-    // Fallback to minimum eggs if something goes wrong
-    return {
-      rewardType: "eggs",
-      minEggs: boxConfig.rewards.eggs.ranges[0].min,
-      maxEggs: boxConfig.rewards.eggs.ranges[0].max
-    };
+      // Absolute fallback
+      return {
+        rewardType: "eggs",
+        minEggs: 1,
+        maxEggs: 5
+            };
+    } catch (error) {
+      console.error("[MysteryBox] Error generating random reward:", error);
+      return {
+        rewardType: "eggs",
+        minEggs: 1,
+        maxEggs: 5
+      };
+    }
   }
-
 
   async createMysteryBoxReward(reward: InsertMysteryBoxReward): Promise<MysteryBoxReward> {
     try {
-      const [newReward] =await db.insert(mysteryBoxRewards)
+      console.log("[MysteryBox] Creating reward:", reward);
+      const [newReward] = await db.insert(mysteryBoxRewards)
         .values(reward)
         .returning();
+      console.log("[MysteryBox] Created reward:", newReward);
       return newReward;
     } catch (error) {
       console.error("Error creating mystery box reward:", error);
