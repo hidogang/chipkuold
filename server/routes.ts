@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { setupAuth } from "./auth";
+import { setupAuth, isAuthenticated } from "./auth";
 import { storage } from "./storage";
 import { z } from "zod";
 
@@ -229,15 +229,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Chickens
-  app.get("/api/chickens", async (req, res) => {
-    if (!req.user) return res.sendStatus(401);
-    const chickens = await storage.getChickensByUserId(req.user.id);
+  app.get("/api/chickens", isAuthenticated, async (req, res) => {
+    const chickens = await storage.getChickensByUserId(req.user!.id);
     res.json(chickens);
   });
 
-  app.post("/api/chickens/buy", async (req, res) => {
-    if (!req.user) return res.sendStatus(401);
-
+  app.post("/api/chickens/buy", isAuthenticated, async (req, res) => {
     const schema = z.object({ type: z.enum(["baby", "regular", "golden"]) });
     const result = schema.safeParse(req.body);
     if (!result.success) return res.status(400).json(result.error);
@@ -247,8 +244,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (!price) return res.status(400).send("Invalid chicken type");
 
     try {
-      await storage.updateUserBalance(req.user.id, -parseFloat(price.price));
-      const chicken = await storage.createChicken(req.user.id, result.data.type);
+      await storage.updateUserBalance(req.user!.id, -parseFloat(price.price));
+      const chicken = await storage.createChicken(req.user!.id, result.data.type);
       res.json(chicken);
     } catch (err) {
       if (err instanceof Error) {
@@ -259,16 +256,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/chickens/:id/hatch", async (req, res) => {
-    if (!req.user) return res.sendStatus(401);
-
+  app.post("/api/chickens/:id/hatch", isAuthenticated, async (req, res) => {
     const chickenId = parseInt(req.params.id);
-    const chickens = await storage.getChickensByUserId(req.user.id);
+    const chickens = await storage.getChickensByUserId(req.user!.id);
     const chicken = chickens.find(c => c.id === chickenId);
 
     if (!chicken) return res.status(404).send("Chicken not found");
 
-    const resources = await storage.getResourcesByUserId(req.user.id);
+    const resources = await storage.getResourcesByUserId(req.user!.id);
     const resourceRequirements = {
       baby: { water: 1, wheat: 1, eggs: 2 },
       regular: { water: 2, wheat: 2, eggs: 5 },
@@ -281,7 +276,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     // Update resources: decrease water and wheat, increase eggs
-    await storage.updateResources(req.user.id, {
+    await storage.updateResources(req.user!.id, {
       waterBuckets: resources.waterBuckets - required.water,
       wheatBags: resources.wheatBags - required.wheat,
       eggs: resources.eggs + required.eggs
@@ -290,49 +285,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     await storage.updateChickenHatchTime(chickenId);
     res.json({ success: true });
   });
-  
-  app.post("/api/chickens/sell/:id", async (req, res) => {
-    if (!req.user) return res.sendStatus(401);
 
+  app.post("/api/chickens/sell/:id", isAuthenticated, async (req, res) => {
     try {
       const chickenId = parseInt(req.params.id);
-      
+
       // Verify the chicken exists and belongs to the user
-      const chickens = await storage.getChickensByUserId(req.user.id);
+      const chickens = await storage.getChickensByUserId(req.user!.id);
       const chicken = chickens.find(c => c.id === chickenId);
-      
+
       if (!chicken) {
         return res.status(404).send("Chicken not found");
       }
-      
+
       // Get the sell price (use 75% of purchase price)
       const prices = await storage.getPrices();
       const price = prices.find(p => p.itemType === `${chicken.type}_chicken`);
-      
+
       if (!price) {
         return res.status(400).send("Invalid chicken type");
       }
-      
+
       const sellPrice = parseFloat(price.price) * 0.75; // 75% of purchase price
-      
+
       // Delete the chicken
       await storage.deleteChicken(chickenId);
-      
+
       // Add funds to user's balance
-      await storage.updateUserBalance(req.user.id, sellPrice);
-      
+      await storage.updateUserBalance(req.user!.id, sellPrice);
+
       // Create a transaction record
       await storage.createTransaction(
-        req.user.id,
+        req.user!.id,
         "sale",
         sellPrice,
         undefined,
         undefined,
         JSON.stringify({ itemType: `${chicken.type}_chicken`, action: "sell" })
       );
-      
-      res.json({ 
-        success: true, 
+
+      res.json({
+        success: true,
         amount: sellPrice
       });
     } catch (err) {
@@ -343,7 +336,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     }
   });
-  
+
   // Get chicken counts by type
   app.get("/api/chickens/counts", async (req, res) => {
     try {
@@ -359,16 +352,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Resources
-  app.get("/api/resources", async (req, res) => {
-    if (!req.user) return res.sendStatus(401);
+  app.get("/api/resources", isAuthenticated, async (req, res) => {
     try {
-      const resources = await storage.getResourcesByUserId(req.user.id);
+      const resources = await storage.getResourcesByUserId(req.user!.id);
       res.json(resources);
     } catch (err) {
       // If resources not found, create a default resource
       try {
         // Create a default resource by updating with empty values
-        const defaultResource = await storage.updateResources(req.user.id, {
+        const defaultResource = await storage.updateResources(req.user!.id, {
           waterBuckets: 0,
           wheatBags: 0,
           eggs: 0
@@ -386,9 +378,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(prices);
   });
 
-  app.post("/api/market/buy", async (req, res) => {
-    if (!req.user) return res.sendStatus(401);
-
+  app.post("/api/market/buy", isAuthenticated, async (req, res) => {
     const schema = z.object({
       itemType: z.enum(["water_bucket", "wheat_bag"]),
       quantity: z.number().positive()
@@ -404,14 +394,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const totalCost = parseFloat(price.price) * result.data.quantity;
 
     try {
-      await storage.updateUserBalance(req.user.id, -totalCost);
-      const resources = await storage.getResourcesByUserId(req.user.id);
+      await storage.updateUserBalance(req.user!.id, -totalCost);
+      const resources = await storage.getResourcesByUserId(req.user!.id);
 
       const updates = result.data.itemType === "water_bucket"
         ? { waterBuckets: resources.waterBuckets + result.data.quantity }
         : { wheatBags: resources.wheatBags + result.data.quantity };
 
-      await storage.updateResources(req.user.id, updates);
+      await storage.updateResources(req.user!.id, updates);
       res.json({ success: true });
     } catch (err) {
       if (err instanceof Error) {
@@ -422,9 +412,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/market/sell", async (req, res) => {
-    if (!req.user) return res.sendStatus(401);
-
+  app.post("/api/market/sell", isAuthenticated, async (req, res) => {
     const schema = z.object({
       quantity: z.number().positive()
     });
@@ -432,7 +420,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const result = schema.safeParse(req.body);
     if (!result.success) return res.status(400).json(result.error);
 
-    const resources = await storage.getResourcesByUserId(req.user.id);
+    const resources = await storage.getResourcesByUserId(req.user!.id);
     if (resources.eggs < result.data.quantity) {
       return res.status(400).send("Insufficient eggs");
     }
@@ -444,8 +432,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const totalEarnings = parseFloat(price.price) * result.data.quantity;
 
     try {
-      await storage.updateUserBalance(req.user.id, totalEarnings);
-      await storage.updateResources(req.user.id, {
+      await storage.updateUserBalance(req.user!.id, totalEarnings);
+      await storage.updateResources(req.user!.id, {
         eggs: resources.eggs - result.data.quantity
       });
       res.json({ success: true });
@@ -459,15 +447,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Wallet
-  app.get("/api/transactions", async (req, res) => {
-    if (!req.user) return res.sendStatus(401);
-    const transactions = await storage.getTransactionsByUserId(req.user.id);
+  app.get("/api/transactions", isAuthenticated, async (req, res) => {
+    const transactions = await storage.getTransactionsByUserId(req.user!.id);
     res.json(transactions);
   });
 
-  app.post("/api/wallet/recharge", async (req, res) => {
-    if (!req.user) return res.sendStatus(401);
-
+  app.post("/api/wallet/recharge", isAuthenticated, async (req, res) => {
     const schema = z.object({
       amount: z.number().positive(),
       transactionId: z.string()
@@ -478,24 +463,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       // Get user's transactions to check if this is first deposit
-      const userTransactions = await storage.getTransactionsByUserId(req.user.id);
+      const userTransactions = await storage.getTransactionsByUserId(req.user!.id);
       const previousDeposits = userTransactions.filter(t => t.type === "recharge" && t.status === "approved");
       const isFirstDeposit = previousDeposits.length === 0;
-      
+
       // Calculate deposit amount with potential bonus
       let finalAmount = result.data.amount;
       let bonusAmount = 0;
-      
+
       // Apply 10% first deposit bonus
       if (isFirstDeposit) {
         bonusAmount = result.data.amount * 0.1; // 10% bonus
         finalAmount += bonusAmount;
       }
-      
+
       // If user was referred, calculate commission
       let referralCommission = null;
-      if (req.user.referredBy) {
-        const referrer = await storage.getUserByReferralCode(req.user.referredBy);
+      if (req.user!.referredBy) {
+        const referrer = await storage.getUserByReferralCode(req.user!.referredBy);
         if (referrer) {
           referralCommission = result.data.amount * 0.1; // 10% commission
           await storage.updateUserBalance(referrer.id, referralCommission);
@@ -511,28 +496,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Create the main deposit transaction
       const transaction = await storage.createTransaction(
-        req.user.id,
+        req.user!.id,
         "recharge",
         result.data.amount, // Store original amount
         result.data.transactionId,
         referralCommission || undefined,
         isFirstDeposit ? JSON.stringify({ firstDepositBonus: bonusAmount }) : undefined
       );
-      
+
       // If first deposit, create a bonus transaction
       if (isFirstDeposit && bonusAmount > 0) {
         await storage.createTransaction(
-          req.user.id,
+          req.user!.id,
           "bonus",
           bonusAmount,
           `bonus-${transaction.transactionId}`,
           undefined,
           JSON.stringify({ reason: "First deposit bonus" })
         );
-        
+
         // Immediately approve the bonus
         await storage.updateTransactionStatus(`bonus-${transaction.transactionId}`, "approved");
-        await storage.updateUserBalance(req.user.id, bonusAmount);
+        await storage.updateUserBalance(req.user!.id, bonusAmount);
       }
 
       // Return the transaction with bonus info if applicable
@@ -550,9 +535,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/wallet/withdraw", async (req, res) => {
-    if (!req.user) return res.sendStatus(401);
-
+  app.post("/api/wallet/withdraw", isAuthenticated, async (req, res) => {
     const schema = z.object({
       amount: z.number().positive(),
       usdtAddress: z.string().min(5).max(100)
@@ -562,7 +545,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (!result.success) return res.status(400).json(result.error);
 
     try {
-      await storage.updateUserBalance(req.user.id, -result.data.amount);
+      await storage.updateUserBalance(req.user!.id, -result.data.amount);
 
       // Store USDT address as bankDetails JSON field for compatibility
       const usdtAddressData = JSON.stringify({ usdtAddress: result.data.usdtAddress });
@@ -571,7 +554,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const transactionId = `W${Date.now()}${Math.floor(Math.random() * 1000)}`;
 
       const transaction = await storage.createTransaction(
-        req.user.id,
+        req.user!.id,
         "withdrawal",
         result.data.amount,
         transactionId,
@@ -589,10 +572,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Mystery Box endpoints
-  app.get("/api/mystery-boxes", async (req, res) => {
-    if (!req.user) return res.sendStatus(401);
+  app.get("/api/mystery-boxes", isAuthenticated, async (req, res) => {
     try {
-      const resources = await storage.getResourcesByUserId(req.user.id);
+      const resources = await storage.getResourcesByUserId(req.user!.id);
       res.json({ count: resources.mysteryBoxes || 0 });
     } catch (err) {
       console.error('Error fetching mystery boxes:', err);
@@ -600,9 +582,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/mystery-boxes/buy", async (req, res) => {
-    if (!req.user) return res.sendStatus(401);
-    
+  app.post("/api/mystery-boxes/buy", isAuthenticated, async (req, res) => {
     const schema = z.object({
       quantity: z.number().positive().default(1)
     });
@@ -612,12 +592,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       for (let i = 0; i < result.data.quantity; i++) {
-        await storage.purchaseMysteryBox(req.user.id);
+        await storage.purchaseMysteryBox(req.user!.id);
       }
-      
-      const resources = await storage.getResourcesByUserId(req.user.id);
-      res.json({ 
-        success: true, 
+
+      const resources = await storage.getResourcesByUserId(req.user!.id);
+      res.json({
+        success: true,
         mysteryBoxes: resources.mysteryBoxes || 0
       });
     } catch (err) {
@@ -629,15 +609,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/mystery-boxes/open", async (req, res) => {
-    if (!req.user) return res.sendStatus(401);
-    
+  app.post("/api/mystery-boxes/open", isAuthenticated, async (req, res) => {
     try {
-      const reward = await storage.openMysteryBox(req.user.id);
+      const reward = await storage.openMysteryBox(req.user!.id);
       if (!reward) {
         return res.status(400).send("Failed to open mystery box");
       }
-      
+
       res.json({
         success: true,
         reward
@@ -651,11 +629,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/mystery-boxes/rewards", async (req, res) => {
-    if (!req.user) return res.sendStatus(401);
-    
+  app.get("/api/mystery-boxes/rewards", isAuthenticated, async (req, res) => {
     try {
-      const rewards = await storage.getMysteryBoxRewardsByUserId(req.user.id);
+      const rewards = await storage.getMysteryBoxRewardsByUserId(req.user!.id);
       res.json(rewards);
     } catch (err) {
       console.error('Error fetching mystery box rewards:', err);
@@ -663,15 +639,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/mystery-boxes/claim/:id", async (req, res) => {
-    if (!req.user) return res.sendStatus(401);
-    
+  app.post("/api/mystery-boxes/claim/:id", isAuthenticated, async (req, res) => {
     try {
       const rewardId = parseInt(req.params.id);
       if (isNaN(rewardId)) {
         return res.status(400).send("Invalid reward ID");
       }
-      
+
       const claimedReward = await storage.claimMysteryBoxReward(rewardId);
       res.json({
         success: true,
@@ -687,10 +661,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Referral System Routes
-  app.get("/api/referrals", async (req, res) => {
-    if (!req.user) return res.sendStatus(401);
+  app.get("/api/referrals", isAuthenticated, async (req, res) => {
     try {
-      const directReferrals = await storage.getUserReferrals(req.user.id);
+      const directReferrals = await storage.getUserReferrals(req.user!.id);
       res.json(directReferrals);
     } catch (err) {
       console.error("Error getting referrals:", err);
@@ -698,10 +671,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/referrals/earnings", async (req, res) => {
-    if (!req.user) return res.sendStatus(401);
+  app.get("/api/referrals/earnings", isAuthenticated, async (req, res) => {
     try {
-      const earnings = await storage.getReferralEarningsByUserId(req.user.id);
+      const earnings = await storage.getReferralEarningsByUserId(req.user!.id);
       res.json(earnings);
     } catch (err) {
       console.error("Error getting referral earnings:", err);
@@ -709,10 +681,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/referrals/earnings/unclaimed", async (req, res) => {
-    if (!req.user) return res.sendStatus(401);
+  app.get("/api/referrals/earnings/unclaimed", isAuthenticated, async (req, res) => {
     try {
-      const unclaimedEarnings = await storage.getUnclaimedReferralEarnings(req.user.id);
+      const unclaimedEarnings = await storage.getUnclaimedReferralEarnings(req.user!.id);
       res.json(unclaimedEarnings);
     } catch (err) {
       console.error("Error getting unclaimed referral earnings:", err);
@@ -720,8 +691,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/referrals/earnings/:id/claim", async (req, res) => {
-    if (!req.user) return res.sendStatus(401);
+  app.post("/api/referrals/earnings/:id/claim", isAuthenticated, async (req, res) => {
     try {
       const earningId = parseInt(req.params.id);
       const claimed = await storage.claimReferralEarning(earningId);
@@ -739,10 +709,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Team milestone routes
-  app.get("/api/milestones", async (req, res) => {
-    if (!req.user) return res.sendStatus(401);
+  app.get("/api/milestones", isAuthenticated, async (req, res) => {
     try {
-      const milestones = await storage.getMilestoneRewardsByUserId(req.user.id);
+      const milestones = await storage.getMilestoneRewardsByUserId(req.user!.id);
       res.json(milestones);
     } catch (err) {
       console.error("Error getting milestone rewards:", err);
@@ -750,10 +719,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/milestones/unclaimed", async (req, res) => {
-    if (!req.user) return res.sendStatus(401);
+  app.get("/api/milestones/unclaimed", isAuthenticated, async (req, res) => {
     try {
-      const unclaimedMilestones = await storage.getUnclaimedMilestoneRewards(req.user.id);
+      const unclaimedMilestones = await storage.getUnclaimedMilestoneRewards(req.user!.id);
       res.json(unclaimedMilestones);
     } catch (err) {
       console.error("Error getting unclaimed milestone rewards:", err);
@@ -761,8 +729,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/milestones/:id/claim", async (req, res) => {
-    if (!req.user) return res.sendStatus(401);
+  app.post("/api/milestones/:id/claim", isAuthenticated, async (req, res) => {
     try {
       const milestoneId = parseInt(req.params.id);
       const claimed = await storage.claimMilestoneReward(milestoneId);
@@ -780,10 +747,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Salary system routes
-  app.get("/api/salary/payments", async (req, res) => {
-    if (!req.user) return res.sendStatus(401);
+  app.get("/api/salary/payments", isAuthenticated, async (req, res) => {
     try {
-      const payments = await storage.getSalaryPaymentsByUserId(req.user.id);
+      const payments = await storage.getSalaryPaymentsByUserId(req.user!.id);
       res.json(payments);
     } catch (err) {
       console.error("Error getting salary payments:", err);
@@ -792,10 +758,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Daily rewards system
-  app.get("/api/rewards/daily", async (req, res) => {
-    if (!req.user) return res.sendStatus(401);
+  app.get("/api/rewards/daily", isAuthenticated, async (req, res) => {
     try {
-      const reward = await storage.getCurrentDailyReward(req.user.id);
+      const reward = await storage.getCurrentDailyReward(req.user!.id);
       res.json(reward);
     } catch (err) {
       console.error("Error getting daily reward:", err);
@@ -803,10 +768,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/rewards/daily/history", async (req, res) => {
-    if (!req.user) return res.sendStatus(401);
+  app.get("/api/rewards/daily/history", isAuthenticated, async (req, res) => {
     try {
-      const rewards = await storage.getDailyRewardsByUserId(req.user.id);
+      const rewards = await storage.getDailyRewardsByUserId(req.user!.id);
       res.json(rewards);
     } catch (err) {
       console.error("Error getting daily rewards history:", err);
@@ -814,8 +778,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/rewards/daily/:id/claim", async (req, res) => {
-    if (!req.user) return res.sendStatus(401);
+  app.post("/api/rewards/daily/:id/claim", isAuthenticated, async (req, res) => {
     try {
       const rewardId = parseInt(req.params.id);
       const claimed = await storage.claimDailyReward(rewardId);
@@ -833,11 +796,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Active boosts
-  app.get("/api/boosts", async (req, res) => {
-    if (!req.user) return res.sendStatus(401);
+  app.get("/api/boosts", isAuthenticated, async (req, res) => {
     try {
-      const boosts = await storage.getActiveBoostsByUserId(req.user.id);
-      const eggMultiplier = await storage.getActiveEggBoost(req.user.id);
+      const boosts = await storage.getActiveBoostsByUserId(req.user!.id);
+      const eggMultiplier = await storage.getActiveEggBoost(req.user!.id);
       res.json({
         boosts,
         eggMultiplier
@@ -849,30 +811,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update existing recharge endpoint to handle referral commissions
-  app.post("/api/wallet/recharge/complete", async (req, res) => {
-    if (!req.user) return res.sendStatus(401);
-    
+  app.post("/api/wallet/recharge/complete", isAuthenticated, async (req, res) => {
     const schema = z.object({
       transactionId: z.string(),
     });
-    
+
     const result = schema.safeParse(req.body);
     if (!result.success) return res.status(400).json(result.error);
-    
+
     try {
       const transaction = await storage.getTransactionByTransactionId(result.data.transactionId);
       if (!transaction) {
         return res.status(404).send("Transaction not found");
       }
-      
+
       // Update transaction status
       await storage.updateTransactionStatus(result.data.transactionId, "completed");
-      
+
       // Update user's balance
-      await storage.updateUserBalance(req.user.id, parseFloat(transaction.amount));
-      
+      await storage.updateUserBalance(req.user!.id, parseFloat(transaction.amount));
+
       // Process referral commissions if user was referred
-      const user = await storage.getUser(req.user.id);
+      const user = await storage.getUser(req.user!.id);
       if (user && user.referredBy) {
         try {
           // Find the referrer
@@ -880,30 +840,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (referrer) {
             // Calculate level 1 commission (10% of deposit)
             const level1Amount = parseFloat(transaction.amount) * 0.1;
-            
+
             // Create earnings record
             await storage.createReferralEarning({
               userId: referrer.id,
-              referredUserId: req.user.id,
+              referredUserId: req.user!.id,
               level: 1,
               amount: level1Amount.toFixed(2),
               claimed: false
             });
-            
+
             // Update referrer's total earnings
             await storage.updateUserReferralEarnings(referrer.id, level1Amount);
             await storage.updateUserTeamEarnings(referrer.id, level1Amount);
-            
-            // Process higher level referrals (up to 6 levels)
+
+            // Process higher level referrals (upto 6 levels)
             let currentReferrer = referrer;
-            
+
             for (let level = 2; level <= 6; level++) {
               if (!currentReferrer.referredBy) break;
-              
+
               // Find the next level referrer
               const nextReferrer = await storage.getUserByReferralCode(currentReferrer.referredBy);
               if (!nextReferrer) break;
-              
+
               // Get commission rate for this level
               let commissionRate = 0;
               switch (level) {
@@ -913,23 +873,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 case 5: commissionRate = 0.01; break; // 1% for level 5
                 case 6: commissionRate = 0.005; break; // 0.5% for level 6
               }
-              
+
               // Calculate commission amount
               const commissionAmount = parseFloat(transaction.amount) * commissionRate;
-              
+
               // Create earnings record
               await storage.createReferralEarning({
                 userId: nextReferrer.id,
-                referredUserId: req.user.id,
+                referredUserId: req.user!.id,
                 level,
                 amount: commissionAmount.toFixed(2),
                 claimed: false
               });
-              
+
               // Update referrer's total earnings
               await storage.updateUserReferralEarnings(nextReferrer.id, commissionAmount);
               await storage.updateUserTeamEarnings(nextReferrer.id, commissionAmount);
-              
+
               // Move to next level referrer
               currentReferrer = nextReferrer;
             }
@@ -939,7 +899,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Continue execution - don't fail the deposit because of referral issues
         }
       }
-      
+
       res.json({ success: true });
     } catch (err) {
       if (err instanceof Error) {

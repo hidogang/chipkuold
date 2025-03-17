@@ -924,7 +924,8 @@ export class DatabaseStorage implements IStorage {
         ))
         .orderBy(desc(milestoneRewards.createdAt));
     } catch (error) {
-      console.error("Error getting unclaimed milestone rewards:", error);throw error;
+      console.error("Error getting unclaimed milestone rewards:", error);
+      throw error;
     }
   }
 
@@ -1178,20 +1179,29 @@ export class DatabaseStorage implements IStorage {
 
 export const storage = new DatabaseStorage();
 
-// Add mysteryBoxTypes here.  This needs to be populated with data from your schema.
-const mysteryBoxTypes = {
+export const mysteryBoxTypes: {
+  [key: string]: {
+    price: number;
+    rewards: {
+      eggs: {
+        ranges: { min: number; max: number; chance: number }[];
+      };
+      chicken?: { types: string[]; chance: number };
+      usdt?: { chance: number; amount: number };
+    }
+  }
+} = {
   basic: {
     price: 50,
     rewards: {
       eggs: {
         ranges: [
-          { min: 5, max: 10, chance: 0.6 },
-          { min: 11, max: 20, chance: 0.3 },
-          { min: 21, max: 50, chance: 0.1 }
+          { min: 1, max: 3, chance: 0.7 },
+          { min: 4, max: 6, chance: 0.2 },
+          { min: 7, max: 10, chance: 0.1 }
         ]
       },
-      chicken: { types: ["baby"], chance: 0.2 },
-      resources: { types: ["water_buckets", "wheat_bags"], min: 5, max: 20, chance: 0.2 }
+      chicken: { types: ["baby", "regular"], chance: 0.1 }
     }
   },
   premium: {
@@ -1199,15 +1209,39 @@ const mysteryBoxTypes = {
     rewards: {
       eggs: {
         ranges: [
-          { min: 10, max: 20, chance: 0.5 },
-          { min: 21, max: 50, chance: 0.3 },
-          { min: 51, max: 100, chance: 0.2 }
+          { min: 2, max: 5, chance: 0.6 },
+          { min: 6, max: 8, chance: 0.3 },
+          { min: 9, max: 12, chance: 0.1 }
         ]
       },
-      chicken: { types: ["regular"], chance: 0.3 },
-      usdt: { amount: 50, chance: 0.2 },
-      resources: { types: ["water_buckets", "wheat_bags"], min: 20, max: 50, chance: 0.2 }
+      chicken: { types: ["golden"], chance: 0.15 },
+      usdt: { chance: 0.1, amount: 10 }
     }
   }
-  // Add more box types here...
 };
+
+// Add these methods to the DatabaseStorage class
+
+async getMysteryBoxRewardsByUserId(userId: number): Promise<MysteryBoxReward[]> {
+  try {
+    return db.select()
+      .from(mysteryBoxRewards)
+      .where(eq(mysteryBoxRewards.userId, userId))
+      .orderBy(desc(mysteryBoxRewards.createdAt));
+  } catch (error) {
+    console.error("Error getting mystery box rewards:", error);
+    throw error;
+  }
+}
+
+async createMysteryBoxReward(reward: InsertMysteryBoxReward): Promise<MysteryBoxReward> {
+  try {
+    const [newReward] = await db.insert(mysteryBoxRewards)
+      .values(reward)
+      .returning();
+    return newReward;
+  } catch (error) {
+    console.error("Error creating mystery box reward:", error);
+    throw error;
+  }
+}

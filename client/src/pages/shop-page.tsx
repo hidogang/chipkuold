@@ -617,8 +617,8 @@ export default function ShopPage() {
                     className="absolute inset-0 opacity-75"
                     style={{
                       background: `radial-gradient(circle at 50% 50%, ${
-                        type === 'basic' ? '#9333ea40' : 
-                        type === 'advanced' ? '#4f46e540' : 
+                        type === 'basic' ? '#9333ea40' :
+                        type === 'advanced' ? '#4f46e540' :
                         '#f59e0b40'
                       }, transparent)`
                     }}
@@ -719,8 +719,8 @@ export default function ShopPage() {
                         disabled:opacity-50
                         flex items-center justify-center gap-2
                         transition-all duration-200
-                        ${type === 'basic' 
-                          ? 'bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800' 
+                        ${type === 'basic'
+                          ? 'bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800'
                           : type === 'advanced'
                             ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800'
                             : 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700'
@@ -750,13 +750,15 @@ export default function ShopPage() {
           <div className="mt-6 border-t border-purple-100 pt-4">
             <h3 className="text-lg font-semibold text-purple-800 mb-3">Your Unclaimed Rewards</h3>
             <div className="space-y-3">
-              {mysteryBoxRewardsQuery.data.map(reward => !reward.claimed && (
+              {mysteryBoxRewardsQuery.data.map(reward => !reward.opened && (
                 <div key={reward.id} className="bg-purple-50 rounded-lg p-3 flex justify-between items-center">
                   <div>
                     <div className="font-semibold text-purple-900">
-                      {reward.rewardDetails.rewardType === 'usdt' && `${reward.rewardDetails.amount} USDT`}
-                      {reward.rewardDetails.rewardType === 'chicken' && `${reward.rewardDetails.chickenType} Chicken`}
-                      {reward.rewardDetails.rewardType === 'resources' && `${reward.rewardDetails.resourceAmount} ${reward.rewardDetails.resourceType}`}
+                      {reward.rewardType === 'usdt' && `${JSON.parse(reward.rewardValue).amount} USDT`}
+                      {reward.rewardType === 'chicken' && `${JSON.parse(reward.rewardValue).chickenType} Chicken`}
+                      {reward.rewardType === 'resources' &&
+                        `${JSON.parse(reward.rewardValue).resourceAmount} ${JSON.parse(reward.rewardValue).resourceType}`
+                      }
                     </div>
                     <div className="text-xs text-gray-500">
                       Received on {new Date(reward.createdAt).toLocaleDateString()}
@@ -796,52 +798,40 @@ export default function ShopPage() {
                 transition={{ duration: 0.6, y: { repeat: Infinity, duration: 1.5 } }}
                 className="w-32 h-32 mb-4 flex items-center justify-center"
               >
-                {mysteryBoxReward.rewardDetails.rewardType === 'usdt' && (
+                {mysteryBoxReward.rewardType === 'usdt' && (
                   <DollarSign size={80} className="text-green-500" />
                 )}
-                {mysteryBoxReward.rewardDetails.rewardType === 'chicken' && (
+                {mysteryBoxReward.rewardType === 'chicken' && (
                   <img
-                    src={mysteryBoxReward.rewardDetails.chickenType === 'golden'
+                    src={JSON.parse(mysteryBoxReward.rewardValue).chickenType === 'golden'
                       ? '/assets/goldenchicken.png'
-                      : mysteryBoxReward.rewardDetails.chickenType === 'regular'
+                      : JSON.parse(mysteryBoxReward.rewardValue).chickenType === 'regular'
                         ? '/assets/regularchicken.png'
                         : '/assets/babychicken.png'}
-                    alt="Chicken Reward"
-                    className="h-full w-auto object-contain"
+                    alt={`${JSON.parse(mysteryBoxReward.rewardValue).chickenType} Chicken`}
+                    className="w-full h-full object-contain"
                   />
-                )}
-                {mysteryBoxReward.rewardDetails.rewardType === 'resources' && (
-                  <>
-                    {mysteryBoxReward.rewardDetails.resourceType === 'water' ? (
-                      <img src="/assets/waterbucket.png" alt="Water Bucket" className="h-full w-auto object-contain" />
-                    ) : mysteryBoxReward.rewardDetails.resourceType === 'wheat' ? (
-                      <Wheat size={80} className="text-amber-500" />
-                    ) : (
-                      <Egg size={80} className="text-amber-200" />
-                    )}
-                  </>
                 )}
               </motion.div>
 
-              <h3 className="text-xl font-bold text-purple-900 mb-2">
-                {mysteryBoxReward.rewardDetails.rewardType === 'usdt' && `${mysteryBoxReward.rewardDetails.amount} USDT`}
-                {mysteryBoxReward.rewardDetails.rewardType === 'chicken' && `1 ${mysteryBoxReward.rewardDetails.chickenType} Chicken`}
-                {mysteryBoxReward.rewardDetails.rewardType === 'resources' && (
-                  `${mysteryBoxReward.rewardDetails.resourceAmount} ${
-                    mysteryBoxReward.rewardDetails.resourceType.split('_')
-                      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                      .join(' ')
-                  }`
-                )}
-              </h3>
-
-              <Button
-                className="mt-4 bg-purple-600 hover:bg-purple-700"
-                onClick={() => claimRewardMutation.mutate(mysteryBoxReward.id)}
-                disabled={claimRewardMutation.isPending}
-              >
-                {claimRewardMutation.isPending ? "Claiming..." : "Claim Your Reward"}
-              </Button>
+              <div className="text-center space-y-2">
+                <h3 className="text-xl font-bold text-purple-800">
+                  {mysteryBoxReward.rewardType === 'usdt' &&
+                    `${JSON.parse(mysteryBoxReward.rewardValue).amount} USDT`}
+                  {mysteryBoxReward.rewardType === 'chicken' &&
+                    `${JSON.parse(mysteryBoxReward.rewardValue).chickenType} Chicken`}
+                  {mysteryBoxReward.rewardType === 'resources' &&
+                    `${JSON.parse(mysteryBoxReward.rewardValue).resourceAmount} ${
+                      JSON.parse(mysteryBoxReward.rewardValue).resourceType}`}
+                </h3>
+                <Button
+                  onClick={() => claimRewardMutation.mutate(mysteryBoxReward.id)}
+                  disabled={claimRewardMutation.isPending}
+                  className="w-full bg-green-600 hover:bg-green-700"
+                >
+                  Claim Reward
+                </Button>
+              </div>
             </div>
           )}
         </DialogContent>

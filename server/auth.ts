@@ -1,6 +1,6 @@
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
-import { Express } from "express";
+import { Express, Request, Response, NextFunction } from "express";
 import session from "express-session";
 import { storage } from "./storage";
 import { User as SelectUser } from "@shared/schema";
@@ -11,6 +11,21 @@ declare global {
     interface User extends SelectUser {}
   }
 }
+
+// Authentication middleware for protected routes
+export const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+  console.log("[Auth Middleware] Checking authentication");
+  console.log("[Auth Middleware] Session:", req.session);
+  console.log("[Auth Middleware] User:", req.user);
+  console.log("[Auth Middleware] IsAuthenticated:", req.isAuthenticated());
+
+  if (req.isAuthenticated()) {
+    console.log("[Auth Middleware] Authentication successful for user:", req.user?.username);
+    return next();
+  }
+  console.log("[Auth Middleware] Authentication failed - no valid session");
+  res.status(401).json({ message: "Not authenticated" });
+};
 
 export function setupAuth(app: Express) {
   if (!process.env.SESSION_SECRET) {
@@ -32,6 +47,13 @@ export function setupAuth(app: Express) {
     name: 'chickfarms.sid'
   };
 
+  console.log("[Auth Setup] Session settings:", {
+    ...sessionSettings,
+    store: 'MemoryStore',
+    cookie: sessionSettings.cookie,
+    nodeEnv: process.env.NODE_ENV
+  });
+
   app.set("trust proxy", 1);
   app.use(session(sessionSettings));
   app.use(passport.initialize());
@@ -47,23 +69,14 @@ export function setupAuth(app: Express) {
           return done(null, false, { message: "Invalid credentials" });
         }
 
-        // Special handling for admin user
-        if (username === "adminraja" && user.isAdmin) {
-          const passwordMatch = await comparePasswords(password, user.password);
-          console.log("[Auth] Admin login attempt - Password match:", passwordMatch);
-          if (!passwordMatch) {
-            return done(null, false, { message: "Invalid credentials" });
-          }
-          return done(null, user);
-        }
-
         const passwordMatch = await comparePasswords(password, user.password);
-        console.log("[Auth] Password match result:", passwordMatch);
+        console.log("[Auth] Password match:", passwordMatch);
 
         if (!passwordMatch) {
           return done(null, false, { message: "Invalid credentials" });
         }
 
+        console.log("[Auth] Login successful for user:", username);
         return done(null, user);
       } catch (err) {
         console.error("[Auth] Login error:", err);
@@ -85,6 +98,7 @@ export function setupAuth(app: Express) {
         console.log("[Auth] User not found during deserialization:", id);
         return done(null, false);
       }
+      console.log("[Auth] User deserialized successfully:", user.username);
       done(null, user);
     } catch (err) {
       console.error("[Auth] Deserialization error:", err);
@@ -92,6 +106,73 @@ export function setupAuth(app: Express) {
     }
   });
 
+  app.post("/api/login", (req, res, next) => {
+    console.log("[Auth] Login attempt for:", req.body.username);
+    passport.authenticate("local", (err: Error | null, user: Express.User | false, info: any) => {
+      if (err) {
+        console.error("[Auth] Login error:", err);
+        return next(err);
+      }
+      if (!user) {
+        console.log("[Auth] Login failed for:", req.body.username);
+        return res.status(401).json({ message: info?.message || "Invalid credentials" });
+      }
+
+      req.login(user, (err) => {
+        if (err) {
+          console.error("[Auth] Session creation error:", err);
+          return next(err);
+        }
+        console.log("[Auth] Login successful for:", user.username);
+        console.log("[Auth] Session ID:", req.sessionID);
+        console.log("[Auth] Session:", req.session);
+
+        res.json({
+          id: user.id,
+          username: user.username,
+          isAdmin: user.isAdmin,
+          usdtBalance: user.usdtBalance
+        });
+      });
+    })(req, res, next);
+  });
+
+  app.get("/api/user", (req, res) => {
+    console.log("[Auth] User check - Session:", req.session);
+    console.log("[Auth] User check - Is authenticated:", req.isAuthenticated());
+    console.log("[Auth] User check - User:", req.user);
+
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    const user = req.user;
+    res.json({
+      id: user.id,
+      username: user.username,
+      isAdmin: user.isAdmin,
+      usdtBalance: user.usdtBalance
+    });
+  });
+
+  app.post("/api/logout", (req, res, next) => {
+    const username = req.user?.username;
+    console.log("[Auth] Logout attempt for:", username);
+    req.logout((err) => {
+      if (err) {
+        console.error("[Auth] Logout error:", err);
+        return next(err);
+      }
+      req.session.destroy((err) => {
+        if (err) {
+          console.error("[Auth] Session destruction error:", err);
+          return next(err);
+        }
+        res.clearCookie('chickfarms.sid');
+        console.log("[Auth] Logout successful for:", username);
+        res.sendStatus(200);
+      });
+    });
+  });
   app.post("/api/register", async (req, res, next) => {
     try {
       console.log("[Auth] Registration attempt for:", req.body.username);
@@ -119,67 +200,5 @@ export function setupAuth(app: Express) {
       console.error("[Auth] Registration error:", err);
       next(err);
     }
-  });
-
-  app.post("/api/login", (req, res, next) => {
-    console.log("[Auth] Login attempt for:", req.body.username);
-    passport.authenticate("local", (err: Error | null, user: Express.User | false, info: any) => {
-      if (err) {
-        console.error("[Auth] Login error:", err);
-        return next(err);
-      }
-      if (!user) {
-        console.log("[Auth] Login failed for:", req.body.username);
-        return res.status(401).json({ message: info?.message || "Invalid credentials" });
-      }
-
-      req.login(user, (err) => {
-        if (err) {
-          console.error("[Auth] Session creation error:", err);
-          return next(err);
-        }
-        console.log("[Auth] Login successful for:", user.username, "isAdmin:", user.isAdmin);
-        res.json({
-          id: user.id,
-          username: user.username,
-          isAdmin: user.isAdmin,
-          usdtBalance: user.usdtBalance
-        });
-      });
-    })(req, res, next);
-  });
-
-  app.post("/api/logout", (req, res, next) => {
-    const username = req.user?.username;
-    console.log("[Auth] Logout attempt for:", username);
-    req.logout((err) => {
-      if (err) {
-        console.error("[Auth] Logout error:", err);
-        return next(err);
-      }
-      req.session.destroy((err) => {
-        if (err) {
-          console.error("[Auth] Session destruction error:", err);
-          return next(err);
-        }
-        res.clearCookie('chickfarms.sid');
-        console.log("[Auth] Logout successful for:", username);
-        res.sendStatus(200);
-      });
-    });
-  });
-
-  app.get("/api/user", (req, res) => {
-    console.log("[Auth] User check - Is authenticated:", req.isAuthenticated());
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: "Not authenticated" });
-    }
-    const user = req.user;
-    res.json({
-      id: user.id,
-      username: user.username,
-      isAdmin: user.isAdmin,
-      usdtBalance: user.usdtBalance
-    });
   });
 }
