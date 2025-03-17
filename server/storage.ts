@@ -756,13 +756,13 @@ export class DatabaseStorage implements IStorage {
 
   async claimMysteryBoxReward(rewardId: number): Promise<MysteryBoxReward> {
     try {
-      console.log(`[MysteryBox] Claiming reward ${rewardId}`);
-
       // Validate rewardId
       if (!rewardId || isNaN(rewardId)) {
         console.error(`[MysteryBox] Invalid reward ID: ${rewardId}`);
         throw new Error("Invalid reward ID");
       }
+
+      console.log(`[MysteryBox] Attempting to claim reward ${rewardId}`);
 
       const [reward] = await db.select()
         .from(mysteryBoxRewards)
