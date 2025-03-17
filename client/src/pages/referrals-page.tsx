@@ -5,10 +5,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
-import { User, ReferralEarning, MilestoneReward } from "@shared/schema";
+import { User, ReferralEarning, MilestoneReward, AutoReinvestSetting } from "@shared/schema";
 import QRCode from "react-qr-code";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export default function ReferralsPage() {
   const { user } = useAuth();
@@ -68,6 +71,15 @@ export default function ReferralsPage() {
     enabled: !!user
   });
 
+  // Add query for auto-reinvest settings
+  const autoReinvestQuery = useQuery<AutoReinvestSetting>({
+    queryKey: ["/api/settings/auto-reinvest"],
+    queryFn: getQueryFn({
+      on401: "throw",
+    }),
+    enabled: !!user
+  });
+
   const handleClaimReferralEarning = async (earningId: number) => {
     try {
       await apiRequest("POST", `/api/referrals/earnings/${earningId}/claim`);
@@ -108,13 +120,54 @@ export default function ReferralsPage() {
     }
   };
 
-  const isLoading = 
-    referralsQuery.isLoading || 
-    earningsQuery.isLoading || 
-    unclaimedEarningsQuery.isLoading || 
-    milestonesQuery.isLoading || 
+  const handleAutoReinvestToggle = async (enabled: boolean) => {
+    try {
+      await apiRequest("PATCH", "/api/settings/auto-reinvest", {
+        enabled,
+        percentage: autoReinvestQuery.data?.percentage || 25
+      });
+      toast({
+        title: "Success!",
+        description: `Auto-reinvestment ${enabled ? 'enabled' : 'disabled'}.`
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/settings/auto-reinvest"] });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update auto-reinvestment settings.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handlePercentageChange = async (percentage: string) => {
+    try {
+      await apiRequest("PATCH", "/api/settings/auto-reinvest", {
+        enabled: autoReinvestQuery.data?.enabled || false,
+        percentage: parseInt(percentage)
+      });
+      toast({
+        title: "Success!",
+        description: "Auto-reinvestment percentage updated."
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/settings/auto-reinvest"] });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update auto-reinvestment percentage.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const isLoading =
+    referralsQuery.isLoading ||
+    earningsQuery.isLoading ||
+    unclaimedEarningsQuery.isLoading ||
+    milestonesQuery.isLoading ||
     unclaimedMilestonesQuery.isLoading ||
-    salaryQuery.isLoading;
+    salaryQuery.isLoading ||
+    autoReinvestQuery.isLoading;
 
   const getReferralLevel = (level: number): string => {
     switch (level) {
@@ -148,7 +201,6 @@ export default function ReferralsPage() {
   const milestones: MilestoneReward[] = milestonesQuery.data || [];
   const unclaimedMilestones: MilestoneReward[] = unclaimedMilestonesQuery.data || [];
   const salaryPayments: any[] = salaryQuery.data || [];
-
   const totalDirectReferrals = directReferrals.length;
   const totalReferralEarnings = user?.totalReferralEarnings ? parseFloat(user.totalReferralEarnings.toString()) : 0;
   const totalTeamEarnings = user?.totalTeamEarnings ? parseFloat(user.totalTeamEarnings.toString()) : 0;
@@ -156,7 +208,7 @@ export default function ReferralsPage() {
   return (
     <div className="container mx-auto py-8 px-4">
       <h1 className="text-3xl font-bold mb-6">Referrals & Team</h1>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <Card>
           <CardHeader className="pb-2">
@@ -169,7 +221,7 @@ export default function ReferralsPage() {
                 {user?.referralCode}
               </div>
               <div className="border p-3 rounded-md bg-white">
-                <QRCode 
+                <QRCode
                   value={`https://chickfarms.replit.app/signup?ref=${user?.referralCode}`}
                   style={{ width: "100%", maxWidth: "120px", height: "auto" }}
                 />
@@ -196,7 +248,7 @@ export default function ReferralsPage() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="pb-2">
             <CardTitle>Team Stats</CardTitle>
@@ -219,7 +271,7 @@ export default function ReferralsPage() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="pb-2">
             <CardTitle>Unclaimed Rewards</CardTitle>
@@ -242,8 +294,53 @@ export default function ReferralsPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Add Auto-Reinvestment Card */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle>Auto-Reinvestment</CardTitle>
+            <CardDescription>Automatically reinvest your earnings</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="auto-reinvest">Enable Auto-Reinvestment</Label>
+                <Switch
+                  id="auto-reinvest"
+                  checked={autoReinvestQuery.data?.enabled || false}
+                  onCheckedChange={handleAutoReinvestToggle}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Reinvestment Percentage</Label>
+                <RadioGroup
+                  value={autoReinvestQuery.data?.percentage?.toString() || "25"}
+                  onValueChange={handlePercentageChange}
+                  className="grid grid-cols-3 gap-2"
+                >
+                  {[25, 50, 75].map((percent) => (
+                    <div key={percent} className="flex items-center space-x-2">
+                      <RadioGroupItem value={percent.toString()} id={`percent-${percent}`} />
+                      <Label htmlFor={`percent-${percent}`}>{percent}%</Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </div>
+
+              <div className="text-sm text-muted-foreground mt-2">
+                <p>Auto-reinvestment will automatically use a portion of your earnings to:</p>
+                <ul className="list-disc pl-4 mt-1 space-y-1">
+                  <li>Purchase new chickens</li>
+                  <li>Buy essential resources</li>
+                  <li>Upgrade farm facilities</li>
+                </ul>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
-      
+
       <Tabs defaultValue="referrals" className="w-full">
         <TabsList className="grid grid-cols-4 mb-6">
           <TabsTrigger value="referrals">Direct Referrals</TabsTrigger>
@@ -251,7 +348,7 @@ export default function ReferralsPage() {
           <TabsTrigger value="milestones">Milestone Rewards</TabsTrigger>
           <TabsTrigger value="salary">Monthly Salary</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="referrals">
           <Card>
             <CardHeader>
@@ -286,7 +383,7 @@ export default function ReferralsPage() {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="earnings">
           <Card>
             <CardHeader>
@@ -307,7 +404,7 @@ export default function ReferralsPage() {
                             {formatDistanceToNow(new Date(earning.createdAt), { addSuffix: true })}
                           </p>
                         </div>
-                        <Button 
+                        <Button
                           onClick={() => handleClaimReferralEarning(earning.id)}
                           size="sm"
                         >
@@ -319,7 +416,7 @@ export default function ReferralsPage() {
                   <Separator className="my-4" />
                 </>
               )}
-              
+
               {referralEarnings.length > 0 ? (
                 <div className="space-y-3">
                   <h3 className="font-bold mb-2">Earnings History</h3>
@@ -348,7 +445,7 @@ export default function ReferralsPage() {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="milestones">
           <Card>
             <CardHeader>
@@ -371,7 +468,7 @@ export default function ReferralsPage() {
                             {formatDistanceToNow(new Date(milestone.createdAt), { addSuffix: true })}
                           </p>
                         </div>
-                        <Button 
+                        <Button
                           onClick={() => handleClaimMilestoneReward(milestone.id)}
                           size="sm"
                         >
@@ -383,7 +480,7 @@ export default function ReferralsPage() {
                   <Separator className="my-4" />
                 </>
               )}
-              
+
               <div className="space-y-6">
                 <div>
                   <h3 className="font-bold mb-2">Available Milestones</h3>
@@ -398,14 +495,14 @@ export default function ReferralsPage() {
                           Progress: {Math.min(100, Math.round((totalTeamEarnings / 1000) * 100))}%
                         </p>
                         <div className="w-24 h-2 bg-gray-200 rounded mt-1">
-                          <div 
-                            className="h-full bg-primary rounded" 
+                          <div
+                            className="h-full bg-primary rounded"
                             style={{ width: `${Math.min(100, Math.round((totalTeamEarnings / 1000) * 100))}%` }}
                           ></div>
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="p-3 border rounded-lg flex justify-between">
                       <div>
                         <p className="font-medium">$500 Bonus</p>
@@ -416,14 +513,14 @@ export default function ReferralsPage() {
                           Progress: {Math.min(100, Math.round((totalTeamEarnings / 10000) * 100))}%
                         </p>
                         <div className="w-24 h-2 bg-gray-200 rounded mt-1">
-                          <div 
-                            className="h-full bg-primary rounded" 
+                          <div
+                            className="h-full bg-primary rounded"
                             style={{ width: `${Math.min(100, Math.round((totalTeamEarnings / 10000) * 100))}%` }}
                           ></div>
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="p-3 border rounded-lg flex justify-between">
                       <div>
                         <p className="font-medium">$2,500 Bonus</p>
@@ -434,14 +531,14 @@ export default function ReferralsPage() {
                           Progress: {Math.min(100, Math.round((totalTeamEarnings / 50000) * 100))}%
                         </p>
                         <div className="w-24 h-2 bg-gray-200 rounded mt-1">
-                          <div 
-                            className="h-full bg-primary rounded" 
+                          <div
+                            className="h-full bg-primary rounded"
                             style={{ width: `${Math.min(100, Math.round((totalTeamEarnings / 50000) * 100))}%` }}
                           ></div>
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="p-3 border rounded-lg flex justify-between">
                       <div>
                         <p className="font-medium">$5,000 Bonus</p>
@@ -452,8 +549,8 @@ export default function ReferralsPage() {
                           Progress: {Math.min(100, Math.round((totalTeamEarnings / 100000) * 100))}%
                         </p>
                         <div className="w-24 h-2 bg-gray-200 rounded mt-1">
-                          <div 
-                            className="h-full bg-primary rounded" 
+                          <div
+                            className="h-full bg-primary rounded"
                             style={{ width: `${Math.min(100, Math.round((totalTeamEarnings / 100000) * 100))}%` }}
                           ></div>
                         </div>
@@ -461,7 +558,7 @@ export default function ReferralsPage() {
                     </div>
                   </div>
                 </div>
-                
+
                 {milestones.length > 0 && (
                   <div>
                     <h3 className="font-bold mb-2">Claimed Milestone Rewards</h3>
@@ -489,7 +586,7 @@ export default function ReferralsPage() {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="salary">
           <Card>
             <CardHeader>
@@ -500,7 +597,7 @@ export default function ReferralsPage() {
               <div className="space-y-6">
                 <div>
                   <h3 className="font-bold mb-4">How Monthly Salary Works</h3>
-                  
+
                   <div className="p-4 bg-muted rounded-lg mb-4">
                     <p className="mb-2">Your monthly salary is directly proportional to the number of your referrals who have made their first deposit:</p>
                     <ul className="list-disc pl-6 space-y-1">
@@ -510,7 +607,7 @@ export default function ReferralsPage() {
                     </ul>
                     <p className="mt-2 text-sm text-muted-foreground">Salary is paid automatically at the beginning of each month if you qualify.</p>
                   </div>
-                  
+
                   <h3 className="font-bold mb-2">Examples</h3>
                   <div className="space-y-2">
                     <div className="p-3 border rounded-lg flex justify-between">
@@ -519,14 +616,14 @@ export default function ReferralsPage() {
                         <p className="text-sm text-muted-foreground">When you have 100 active referrals with deposits</p>
                       </div>
                     </div>
-                    
+
                     <div className="p-3 border rounded-lg flex justify-between">
                       <div>
                         <p className="font-medium">$500 Monthly Salary</p>
                         <p className="text-sm text-muted-foreground">When you have 500 active referrals with deposits</p>
                       </div>
                     </div>
-                    
+
                     <div className="p-3 border rounded-lg flex justify-between">
                       <div>
                         <p className="font-medium">$1,000 Monthly Salary</p>
@@ -535,7 +632,7 @@ export default function ReferralsPage() {
                     </div>
                   </div>
                 </div>
-                
+
                 {salaryPayments.length > 0 ? (
                   <div>
                     <h3 className="font-bold mb-2">Salary Payment History</h3>
