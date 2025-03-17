@@ -696,6 +696,47 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  async openMysteryBox(userId: number, boxType: string = 'basic'): Promise<MysteryBoxReward | null> {
+    try {
+      // Check if user has a mystery box
+      const resource = await this.getResourcesByUserId(userId);
+      if (!resource.mysteryBoxes || resource.mysteryBoxes <= 0) {
+        throw new Error("No mystery boxes available");
+      }
+
+      // Validate box type and get configuration
+      const boxConfig = mysteryBoxTypes[boxType];
+      if (!boxConfig) {
+        throw new Error("Invalid box type");
+      }
+
+      // Generate random reward
+      const reward = this.getRandomReward(boxType);
+
+      // Create reward record
+      const mysteryBoxReward = await this.createMysteryBoxReward({
+        userId,
+        boxType,
+        rewardType: reward.rewardType,
+        rewardValue: JSON.stringify({
+          type: reward.rewardType,
+          amount: reward.value
+        }),
+        opened: false
+      });
+
+      // Reduce mystery box count
+      await this.updateResources(userId, {
+        mysteryBoxes: resource.mysteryBoxes - 1
+      });
+
+      return mysteryBoxReward;
+    } catch (error) {
+      console.error("Error opening mystery box:", error);
+      throw error;
+    }
+  }
+
   private getRandomReward(boxType: string = 'basic'): { rewardType: "usdt" | "chicken" | "eggs"; value: any } {
     const boxConfig = mysteryBoxTypes[boxType];
     if (!boxConfig) throw new Error("Invalid box type");
@@ -743,43 +784,6 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
-  async openMysteryBox(userId: number, boxType: string = 'basic'): Promise<MysteryBoxReward | null> {
-    try {
-      // Check if user has a mystery box to open
-      const resource = await this.getResourcesByUserId(userId);
-      if (!resource.mysteryBoxes || resource.mysteryBoxes <= 0) {
-        throw new Error("No mystery boxes available");
-      }
-
-      // Validate box type
-      if (!mysteryBoxTypes[boxType]) {
-        throw new Error("Invalid mystery box type");
-      }
-
-      // Reduce the mystery box count
-      await this.updateResources(userId, {
-        mysteryBoxes: resource.mysteryBoxes - 1
-      });
-
-      // Generate reward based on box type
-      const reward = this.getRandomReward(boxType);
-
-      // Create reward record
-      const mysteryBoxReward = await this.createMysteryBoxReward({
-        userId,
-        boxType,
-        rewardType: reward.rewardType,
-        rewardValue: JSON.stringify({ type: reward.rewardType, amount: reward.value }),
-        opened: false
-      });
-
-      return mysteryBoxReward;
-    } catch (error) {
-      console.error("Error opening mystery box:", error);
-      throw error;
-    }
-  }
-
   async createMysteryBoxReward(reward: InsertMysteryBoxReward): Promise<MysteryBoxReward> {
     try {
       const [newReward] = await db.insert(mysteryBoxRewards)
@@ -810,8 +814,13 @@ export class DatabaseStorage implements IStorage {
         .from(mysteryBoxRewards)
         .where(eq(mysteryBoxRewards.id, rewardId));
 
-      if (!reward) throw new Error("Reward not found");
-      if (reward.opened) throw new Error("Reward already claimed");
+      if (!reward) {
+        throw new Error("Reward not found");
+      }
+
+      if (reward.opened) {
+        throw new Error("Reward already claimed");
+      }
 
       const rewardData = JSON.parse(reward.rewardValue);
       const userId = reward.userId;
@@ -843,6 +852,7 @@ export class DatabaseStorage implements IStorage {
       throw error;
     }
   }
+
 
 
   // Referral operations
@@ -931,7 +941,7 @@ export class DatabaseStorage implements IStorage {
   async getMilestoneRewardsByUserId(userId: number): Promise<MilestoneReward[]> {
     try {
       return db.select()
-        .from(milestoneRewards)
+                .from(milestoneRewards)
         .where(eq(milestoneRewards.userId, userId))
         .orderBy(desc(milestoneRewards.createdAt));
     } catch (error) {
