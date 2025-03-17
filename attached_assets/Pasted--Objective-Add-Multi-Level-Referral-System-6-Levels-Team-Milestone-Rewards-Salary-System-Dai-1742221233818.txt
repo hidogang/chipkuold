@@ -1,0 +1,125 @@
+💡 Objective: Add Multi-Level Referral System (6 Levels), Team Milestone Rewards, Salary System, Daily Rewards, Mystery Boxes, Auto-Reinvestment, Earnings Boosts, and a Promotion Tab to the game.
+
+🔹 Multi-Level Referral System (6 Levels)
+Description:
+
+Players can refer others and earn commissions from six levels of their downline.
+The commission percentage decreases per level to ensure balance.
+Logic:
+
+Level 1 (Direct Referrals): 10% of referred player’s earnings.
+Level 2: 5% of second-level referrals.
+Level 3: 3%
+Level 4: 2%
+Level 5: 1%
+Level 6: 0.5%
+Implementation:
+
+Store referral relationships in the database.
+Whenever a referred user earns, calculate and distribute commissions up the chain.
+Add a Referral Dashboard in the new Promotion Tab showing earnings & referred users.
+Add a Claim Button to withdraw referral earnings.
+🔹 Team Milestone Rewards
+Description:
+
+If a player’s total referral earnings reach certain milestones, they receive extra bonuses.
+Logic:
+
+$1,000 referral earnings → Bonus: $50
+$10,000 referral earnings → Bonus: $500
+$50,000 referral earnings → Bonus: $2,500
+$100,000 referral earnings → Bonus: $5,000
+Implementation:
+
+Track total referral earnings.
+Automatically unlock and display milestone rewards in the Promotion Tab.
+Allow players to claim their milestone rewards manually via a button.
+
+🔹 Daily Rewards & Streak System
+Description:
+
+Players who log in daily get rewards (extra eggs or USDT).
+The longer the streak, the higher the reward.
+Logic:
+
+Day 1: 2 extra eggs
+Day 2: 4 extra eggs
+Day 3: 6 extra eggs
+Day 4: 8 extra eggs
+Day 5: 10 extra eggs + 0.5 USDT
+Day 7: 20 extra eggs + 1 USDT (Bonus Streak Reward!)
+Implementation:
+
+Track consecutive daily logins for each player.
+Reset streak if the player misses a day.
+Display rewards in a Daily Rewards UI.
+Add a Claim Button in the Home Screen.
+🔹 Mystery Boxes & Loot Crates
+Description:
+
+Players can buy Mystery Boxes to get random rewards like:
+Extra eggs
+Free water/wheat
+Rare chickens
+USDT rewards
+Logic:
+
+Basic Mystery Box (5 USDT) → Rewards between 5-20 eggs
+Advanced Mystery Box (10 USDT) → Rewards between 10-50 eggs or 1 free chicken
+Legendary Mystery Box (25 USDT) → Rewards between 50-200 eggs, 1 rare chicken, or 5 USDT
+Implementation:
+
+Create a Mystery Box Shop in the Market.
+Generate randomized loot rewards on purchase.
+Display a Mystery Box Animation when opening.
+Store the won rewards in the player’s account.
+🔹 Auto-Reinvestment Option
+Description:
+
+Players can enable Auto-Reinvestment, which automatically uses their earnings to buy new chickens.
+Logic:
+
+When enabled: Every time the player earns eggs, a portion is used to buy more chickens automatically.
+Players can set their reinvestment percentage (e.g., 25%, 50%, 75%).
+Implementation:
+
+Add a toggle switch in the Wallet tab for Auto-Reinvest.
+Allow players to set a reinvestment percentage.
+Automatically purchase chickens with reinvested earnings at the end of the day.
+🔹 Limited-Time Earnings Boosts
+Description:
+
+Players can buy "Boosts" to temporarily increase their egg production rate.
+Logic:
+
+2x Egg Production for 1 Hour → 10 USDT
+1.5x Egg Production for 6 Hours → 20 USDT
+1.2x Egg Production for 24 Hours → 30 USDT
+Implementation:
+
+Add a Boost Shop in the Market.
+Boosts activate instantly upon purchase.
+Display an Active Boost Timer on the screen.
+Eggs earned during the boost are calculated at the higher rate.
+🔹 New "Promotion" Tab in Menu
+Description:
+
+A new "Promotion" tab will be added to the menu where players can manage:
+Referral System & Earnings
+Milestone Bonuses & Salary System
+Affiliate Tools & Referral Links
+Leaderboard of Top Referrers
+Implementation:
+
+Add a new "Promotion" button to the game menu.
+Inside, show a dashboard with earnings, bonuses & team progress.
+Add buttons to claim rewards, withdraw commissions & share referral links.
+💎 FINAL OUTPUT
+✅ Fully Automated Multi-Level Referral System (6 Levels)
+✅ Team Milestone Rewards
+✅ Salary System (Passive USDT Earnings)
+✅ Daily Rewards & Login Streaks
+✅ Mystery Boxes & Loot Crates
+✅ Auto-Reinvestment System
+✅ Limited-Time Earnings Boosts
+✅ New "Promotion" Tab for Marketing & Earnings
