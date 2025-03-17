@@ -99,21 +99,12 @@ export default function WalletPage() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       queryClient.invalidateQueries({ queryKey: ["/api/transactions"] });
-      
-      if (data.isFirstDeposit && data.bonusAmount > 0) {
-        toast({
-          title: "🎉 First Deposit Bonus!",
-          description: `Your deposit request has been submitted AND you received a ${data.bonusAmount.toFixed(2)} USDT bonus as a first-time depositor!`,
-          variant: "default",
-          duration: 6000,
-        });
-      } else {
-        toast({
-          title: "Recharge Requested",
-          description: "Your USDT recharge request has been submitted for verification.",
-        });
-      }
-      
+
+      toast({
+        title: "Recharge Requested",
+        description: "Your USDT recharge request has been submitted for verification.",
+      });
+
       rechargeForm.reset();
     },
     onError: (error: Error) => {

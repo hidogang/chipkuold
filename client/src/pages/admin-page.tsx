@@ -136,14 +136,24 @@ export default function AdminPage() {
       });
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/transactions"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/withdrawals"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
-      toast({
-        title: "Success",
-        description: "Transaction status updated successfully",
-      });
+
+      // Show appropriate success message based on bonus status
+      if (response.isFirstDeposit && response.bonusAmount && response.status === "completed") {
+        toast({
+          title: "Transaction Approved",
+          description: `Deposit approved successfully! A ${response.bonusAmount.toFixed(2)} USDT first deposit bonus has been credited to the user.`,
+          duration: 5000,
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: "Transaction status updated successfully",
+        });
+      }
     },
     onError: (error: Error) => {
       toast({
