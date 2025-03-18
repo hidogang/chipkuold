@@ -2,6 +2,46 @@ import { pgTable, text, serial, integer, boolean, timestamp, decimal, jsonb, dat
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// Add spin rewards configuration
+export interface SpinRewardType {
+  reward: {
+    type: "eggs" | "wheat" | "water" | "usdt" | "extra_spin" | "chicken";
+    amount: number;
+    chickenType?: string;
+  };
+  probability: number;
+}
+
+export const dailySpinRewards: SpinRewardType[] = [
+  { reward: { type: "eggs", amount: 5 }, probability: 25 },
+  { reward: { type: "eggs", amount: 10 }, probability: 20 },
+  { reward: { type: "eggs", amount: 15 }, probability: 15 },
+  { reward: { type: "wheat", amount: 1 }, probability: 15 },
+  { reward: { type: "water", amount: 1 }, probability: 15 },
+  { reward: { type: "extra_spin", amount: 1 }, probability: 5 },
+  { reward: { type: "usdt", amount: 0.5 }, probability: 4 },
+  { reward: { type: "usdt", amount: 1 }, probability: 1 }
+];
+
+export const superJackpotRewards: SpinRewardType[] = [
+  { reward: { type: "eggs", amount: 50 }, probability: 30 },
+  { reward: { type: "eggs", amount: 100 }, probability: 20 },
+  { reward: { type: "eggs", amount: 200 }, probability: 15 },
+  { reward: { type: "usdt", amount: 5 }, probability: 10 },
+  { reward: { type: "chicken", amount: 1, chickenType: "regular" }, probability: 10 },
+  { reward: { type: "chicken", amount: 1, chickenType: "golden" }, probability: 5 },
+  { reward: { type: "usdt", amount: 25 }, probability: 3 },
+  { reward: { type: "usdt", amount: 50 }, probability: 2 },
+  { 
+    reward: { 
+      type: "chicken", 
+      amount: 1, 
+      chickenType: "golden",
+    }, 
+    probability: 1 
+  }
+];
+
 // Adding rarityDistribution to the mysteryBox type interface
 export interface MysteryBoxType {
   price: number;
@@ -198,6 +238,8 @@ export const users = pgTable("users", {
   lastSalaryPaidAt: timestamp("last_salary_paid_at"),
   lastDailyRewardAt: date("last_daily_reward_at"),
   currentStreak: integer("current_streak").notNull().default(0),
+  lastSpinAt: timestamp("last_spin_at"),
+  extraSpinsAvailable: integer("extra_spins_available").notNull().default(0),
 });
 
 export const chickens = pgTable("chickens", {
@@ -310,6 +352,17 @@ export const activeBoosts = pgTable("active_boosts", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Add spin history table
+export const spinHistory = pgTable("spin_history", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  spinType: text("spin_type").notNull(), // "daily" or "super"
+  rewardType: text("reward_type").notNull(), // "eggs", "wheat", "water", "usdt", "extra_spin", "chicken"
+  rewardAmount: decimal("reward_amount", { precision: 10, scale: 2 }).notNull(),
+  chickenType: text("chicken_type"), // For chicken rewards
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(users)
   .pick({
     username: true,
@@ -379,6 +432,12 @@ export const insertActiveBoostSchema = createInsertSchema(activeBoosts).omit({
   createdAt: true,
 });
 
+export const insertSpinHistorySchema = createInsertSchema(spinHistory).omit({
+  id: true,
+  createdAt: true,
+});
+
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type Chicken = typeof chickens.$inferSelect;
@@ -401,6 +460,8 @@ export type InsertMilestoneReward = z.infer<typeof insertMilestoneRewardSchema>;
 export type InsertSalaryPayment = z.infer<typeof insertSalaryPaymentSchema>;
 export type InsertDailyReward = z.infer<typeof insertDailyRewardSchema>;
 export type InsertActiveBoost = z.infer<typeof insertActiveBoostSchema>;
+export type SpinHistory = typeof spinHistory.$inferSelect;
+export type InsertSpinHistory = z.infer<typeof insertSpinHistorySchema>;
 
 
 // Admin types

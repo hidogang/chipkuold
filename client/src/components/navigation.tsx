@@ -50,6 +50,10 @@ function ReferralsIcon() {
   );
 }
 
+function SpinIcon() {
+  return <img src="/assets/spin-wheel-icon.png" className="w-8 h-8 object-contain" alt="Spin" />;
+}
+
 export default function Navigation() {
   const { user, logoutMutation } = useAuth();
   const [location] = useLocation();
@@ -117,6 +121,16 @@ export default function Navigation() {
                   >
                     <ReferralsIcon />
                     <span>Referrals</span>
+                  </Button>
+                </Link>
+                <Link href="/spin">
+                  <Button 
+                    variant={location === "/spin" ? "default" : "ghost"}
+                    className="flex items-center h-10 gap-2 font-medium" 
+                    size="sm"
+                  >
+                    <SpinIcon />
+                    <span>Spin</span>
                   </Button>
                 </Link>
               </div>
@@ -191,6 +205,16 @@ export default function Navigation() {
               </Button>
             </Link>
 
+            <Link href="/spin">
+              <Button 
+                variant={location === "/spin" ? "default" : "ghost"}
+                className="flex flex-col items-center space-y-1 h-auto py-1 px-2"
+              >
+                <SpinIcon />
+                <span className="text-xs font-medium">Spin</span>
+              </Button>
+            </Link>
+
             <Link href="/market">
               <Button 
                 variant={location === "/market" ? "default" : "ghost"}
@@ -208,16 +232,6 @@ export default function Navigation() {
               >
                 <WalletIcon />
                 <span className="text-xs font-medium">Wallet</span>
-              </Button>
-            </Link>
-
-            <Link href="/referrals">
-              <Button 
-                variant={location === "/referrals" ? "default" : "ghost"}
-                className="flex flex-col items-center space-y-1 h-auto py-1 px-2"
-              >
-                <ReferralsIcon />
-                <span className="text-xs font-medium">Team</span>
               </Button>
             </Link>
 

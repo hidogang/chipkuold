@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { setupAuth, isAuthenticated } from "./auth";
 import { storage, mysteryBoxTypes } from "./storage";
 import { z } from "zod";
+import { dailySpinRewards, superJackpotRewards } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   setupAuth(app);
@@ -830,7 +831,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Find the referrer
           const referrer = await storage.getUserByReferralCode(user.referredBy);
           if (referrer) {
-            //            // Calculate level 1 commission (10% of deposit)
+            // Calculate level 1 commission (10% of deposit)
             const level1Amount = parseFloat(transaction.amount) * 0.1;
 
             // Create earnings record
@@ -892,7 +893,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      res.json({ 
+      res.json({
         success: true,
         isFirstDeposit,
         bonusAmount,
@@ -903,6 +904,259 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.status(400).send(err.message);
       } else {
         res.status(400).send("Failed to complete recharge");
+      }
+    }
+  });
+
+  // Spin System Routes
+  app.get("/api/spin/status", isAuthenticated, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.user!.id);
+      if (!user) {
+        return res.status(404).send("User not found");
+      }
+
+      // Calculate time until next free spin
+      const lastSpinTime = user.lastSpinAt ? new Date(user.lastSpinAt) : null;
+      const now = new Date();
+      const nextMidnightUTC = new Date(now);
+      nextMidnightUTC.setUTCHours(24, 0, 0, 0);
+
+      const canSpinDaily = !lastSpinTime || lastSpinTime < new Date(now.setUTCHours(0, 0, 0, 0));
+      const timeUntilNextSpin = canSpinDaily ? 0 : nextMidnightUTC.getTime() - now.getTime();
+
+      res.json({
+        canSpinDaily,
+        timeUntilNextSpin,
+        extraSpinsAvailable: user.extraSpinsAvailable || 0
+      });
+    } catch (err) {
+      console.error("Error getting spin status:", err);
+      res.status(500).json({ error: "Failed to get spin status" });
+    }
+  });
+
+  app.post("/api/spin/daily", isAuthenticated, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.user!.id);
+      if (!user) {
+        return res.status(404).send("User not found");
+      }
+
+      // Check if user has a free spin available
+      const now = new Date();
+      const lastSpinTime = user.lastSpinAt ? new Date(user.lastSpinAt) : null;
+      const canSpinDaily = !lastSpinTime || lastSpinTime < new Date(now.setUTCHours(0, 0, 0, 0));
+
+      if (!canSpinDaily && user.extraSpinsAvailable === 0) {
+        return res.status(400).send("No spins available");
+      }
+
+      // Randomly select a reward based on probabilities
+      const totalProbability = dailySpinRewards.reduce((sum, reward) => sum + reward.probability, 0);
+      let random = Math.random() * totalProbability;
+      let selectedReward = dailySpinRewards[0];
+
+      for (const reward of dailySpinRewards) {
+        random -= reward.probability;
+        if (random <= 0) {
+          selectedReward = reward;
+          break;
+        }
+      }
+
+      // Record spin history
+      const spinRecord = await storage.createSpinHistory({
+        userId: req.user!.id,
+        spinType: "daily",
+        rewardType: selectedReward.reward.type,
+        rewardAmount: selectedReward.reward.amount,
+        chickenType: selectedReward.reward.chickenType
+      });
+
+      // Apply the reward
+      switch (selectedReward.reward.type) {
+        case "eggs": {
+          const resources = await storage.getResourcesByUserId(req.user!.id);
+          await storage.updateResources(req.user!.id, {
+            eggs: resources.eggs + selectedReward.reward.amount
+          });
+          break;
+        }
+        case "wheat": {
+          const resources = await storage.getResourcesByUserId(req.user!.id);
+          await storage.updateResources(req.user!.id, {
+            wheatBags: resources.wheatBags + selectedReward.reward.amount
+          });
+          break;
+        }
+        case "water": {
+          const resources = await storage.getResourcesByUserId(req.user!.id);
+          await storage.updateResources(req.user!.id, {
+            waterBuckets: resources.waterBuckets + selectedReward.reward.amount
+          });
+          break;
+        }
+        case "usdt": {
+          await storage.updateUserBalance(req.user!.id, selectedReward.reward.amount);
+          break;
+        }
+        case "extra_spin": {
+          await storage.updateUserExtraSpins(req.user!.id, user.extraSpinsAvailable + selectedReward.reward.amount);
+          break;
+        }
+      }
+
+      // Update last spin time if it was a free spin
+      if (canSpinDaily) {
+        await storage.updateUserLastSpin(req.user!.id);
+      } else {
+        // Deduct an extra spin
+        await storage.updateUserExtraSpins(req.user!.id, user.extraSpinsAvailable - 1);
+      }
+
+      res.json({
+        success: true,
+        reward: selectedReward.reward,
+        spinRecord
+      });
+    } catch (err) {
+      console.error("Error processing daily spin:", err);
+      if (err instanceof Error) {
+        res.status(400).send(err.message);
+      } else {
+        res.status(400).send("Failed to process daily spin");
+      }
+    }
+  });
+
+  app.post("/api/spin/super", isAuthenticated, async (req, res) => {
+    try {
+      const SUPER_SPIN_COST = 10; // 10 USDT per super spin
+
+      // Check if user has enough USDT
+      const user = await storage.getUser(req.user!.id);
+      if (!user) {
+        return res.status(404).send("User not found");
+      }
+
+      if (parseFloat(user.usdtBalance) < SUPER_SPIN_COST) {
+        return res.status(400).send("Insufficient USDT balance");
+      }
+
+      // Deduct USDT cost
+      await storage.updateUserBalance(req.user!.id, -SUPER_SPIN_COST);
+
+      // Select reward using weighted probability
+      const totalProbability = superJackpotRewards.reduce((sum, reward) => sum + reward.probability, 0);
+      let random = Math.random() * totalProbability;
+      let selectedReward = superJackpotRewards[0];
+
+      for (const reward of superJackpotRewards) {
+        random -= reward.probability;
+        if (random <= 0) {
+          selectedReward = reward;
+          break;
+        }
+      }
+
+      // Record spin history
+      const spinRecord = await storage.createSpinHistory({
+        userId: req.user!.id,
+        spinType: "super",
+        rewardType: selectedReward.reward.type,
+        rewardAmount: selectedReward.reward.amount,
+        chickenType: selectedReward.reward.chickenType
+      });
+
+      // Apply the reward
+      switch (selectedReward.reward.type) {
+        case "eggs": {
+          const resources = await storage.getResourcesByUserId(req.user!.id);
+          await storage.updateResources(req.user!.id, {
+            eggs: resources.eggs + selectedReward.reward.amount
+          });
+          break;
+        }
+        case "usdt": {
+          await storage.updateUserBalance(req.user!.id, selectedReward.reward.amount);
+          break;
+        }
+        case "chicken": {
+          if (selectedReward.reward.chickenType) {
+            await storage.createChicken(req.user!.id, selectedReward.reward.chickenType);
+            // If it's the special golden chicken + USDT combo
+            if (selectedReward.reward.amount > 1) {
+              await storage.updateUserBalance(req.user!.id, 50); // 50 USDT bonus
+            }
+          }
+          break;
+        }
+      }
+
+      res.json({
+        success: true,
+        reward: selectedReward.reward,
+        spinRecord
+      });
+    } catch (err) {
+      console.error("Error processing super spin:", err);
+      if (err instanceof Error) {
+        res.status(400).send(err.message);
+      } else {
+        res.status(400).send("Failed to process super spin");
+      }
+    }
+  });
+
+  app.get("/api/spin/history", isAuthenticated, async (req, res) => {
+    try {
+      const history = await storage.getSpinHistoryByUserId(req.user!.id);
+      res.json(history);
+    } catch (err) {
+      console.error("Error getting spin history:", err);
+      res.status(500).json({ error: "Failed to get spin history" });
+    }
+  });
+
+  app.post("/api/spin/buy", isAuthenticated, async (req, res) => {
+    try {
+      const EXTRA_SPIN_COST = 2; // 2 USDT per extra spin
+
+      const schema = z.object({
+        quantity: z.number().positive()
+      });
+
+      const result = schema.safeParse(req.body);
+      if (!result.success) return res.status(400).json(result.error);
+
+      const totalCost = EXTRA_SPIN_COST * result.data.quantity;
+
+      // Check if user has enough USDT
+      const user = await storage.getUser(req.user!.id);
+      if (!user) {
+        return res.status(404).send("User not found");
+      }
+
+      if (parseFloat(user.usdtBalance) < totalCost) {
+        return res.status(400).send("Insufficient USDT balance");
+      }
+
+      // Deduct USDT and add extra spins
+      await storage.updateUserBalance(req.user!.id, -totalCost);
+      await storage.updateUserExtraSpins(req.user!.id, (user.extraSpinsAvailable || 0) + result.data.quantity);
+
+      res.json({
+        success: true,
+        extraSpinsAdded: result.data.quantity,
+        totalCost
+      });
+    } catch (err) {
+      console.error("Error buying extra spins:", err);
+      if (err instanceof Error) {
+        res.status(400).send(err.message);
+      } else {
+        res.status(400).send("Failed to buy extra spins");
       }
     }
   });

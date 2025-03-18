@@ -9,13 +9,13 @@ import {
   InsertMilestoneReward, SalaryPayment, InsertSalaryPayment,
   DailyReward, InsertDailyReward, ActiveBoost, InsertActiveBoost,
   milestoneThresholds, referralCommissionRates, SALARY_PER_REFERRAL,
-  dailyRewardsByDay, boostTypes
+  dailyRewardsByDay, boostTypes, SpinHistory, InsertSpinHistory,
 } from "@shared/schema";
 import {
   users, chickens, resources, transactions, prices,
   userProfiles, gameSettings as gameSettingsTable,
   mysteryBoxRewards, referralEarnings, milestoneRewards,
-  salaryPayments, dailyRewards, activeBoosts
+  salaryPayments, dailyRewards, activeBoosts, spinHistory
 } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
@@ -113,6 +113,12 @@ export interface IStorage {
   getTransactionByTransactionId(transactionId: string): Promise<Transaction | undefined>;
   updatePaymentAddress(address: string): Promise<void>;
   updateWithdrawalTax(percentage: number): Promise<void>;
+
+  // Spin operations
+  createSpinHistory(spin: InsertSpinHistory): Promise<SpinHistory>;
+  getSpinHistoryByUserId(userId: number): Promise<SpinHistory[]>;
+  updateUserLastSpin(userId: number): Promise<void>;
+  updateUserExtraSpins(userId: number, spins: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1319,6 +1325,57 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error("Error getting active egg boost:", error);
       return 1; // Default in case of error
+    }
+  }
+
+  // Spin operations
+  async createSpinHistory(spin: InsertSpinHistory): Promise<SpinHistory> {
+    try {
+      console.log('[Storage] Creating spin history:', spin);
+      const [record] = await db.insert(spinHistory)
+        .values(spin)
+        .returning();
+      return record;
+    } catch (error) {
+      console.error('[Storage] Error creating spin history:', error);
+      throw error;
+    }
+  }
+
+  async getSpinHistoryByUserId(userId: number): Promise<SpinHistory[]> {
+    try {
+      console.log(`[Storage] Fetching spin history for user ${userId}`);
+      return db.select()
+        .from(spinHistory)
+        .where(eq(spinHistory.userId, userId))
+        .orderBy(desc(spinHistory.createdAt));
+    } catch (error) {
+      console.error('[Storage] Error getting spin history:', error);
+      throw error;
+    }
+  }
+
+  async updateUserLastSpin(userId: number): Promise<void> {
+    try {
+      console.log(`[Storage] Updating last spin time for user ${userId}`);
+      await db.update(users)
+        .set({ lastSpinAt: new Date() })
+        .where(eq(users.id, userId));
+    } catch (error) {
+      console.error('[Storage] Error updating last spin time:', error);
+      throw error;
+    }
+  }
+
+  async updateUserExtraSpins(userId: number, spins: number): Promise<void> {
+    try {
+      console.log(`[Storage] Updating extra spins for user ${userId} to ${spins}`);
+      await db.update(users)
+        .set({ extraSpinsAvailable: spins })
+        .where(eq(users.id, userId));
+    } catch (error) {
+      console.error('[Storage] Error updating extra spins:', error);
+      throw error;
     }
   }
 }
