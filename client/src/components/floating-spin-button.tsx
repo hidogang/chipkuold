@@ -15,6 +15,7 @@ export function FloatingSpinButton() {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("daily");
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
 
   // Get spin status
   const spinStatusQuery = useQuery({
@@ -54,6 +55,25 @@ export function FloatingSpinButton() {
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to spin",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Buy extra spins mutation
+  const buySpinsMutation = useMutation({
+    mutationFn: (quantity: number) => apiRequest("POST", "/api/spin/buy", { quantity }),
+    onSuccess: () => {
+      toast({
+        title: "Success!",
+        description: "Extra spins purchased successfully.",
+      });
+      setShowPurchaseModal(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to purchase spins",
         variant: "destructive",
       });
     },
@@ -133,6 +153,47 @@ export function FloatingSpinButton() {
                   spinType="super"
                 />
               )}
+            </div>
+
+            {/* Purchase Options */}
+            <div className="mt-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
+              <h3 className="text-lg font-semibold text-amber-900 mb-2">
+                {activeTab === "daily" ? "Purchase Extra Spins" : "Super Jackpot Entry"}
+              </h3>
+              <p className="text-sm text-amber-700 mb-4">
+                {activeTab === "daily" 
+                  ? "Get more chances to win with extra spins! Each spin costs 2 USDT."
+                  : "Try your luck at amazing rewards! Each super jackpot spin costs 10 USDT."}
+              </p>
+              <div className="flex gap-2">
+                {activeTab === "daily" && (
+                  <>
+                    <Button 
+                      onClick={() => buySpinsMutation.mutate(1)}
+                      className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700"
+                      disabled={buySpinsMutation.isPending}
+                    >
+                      Buy 1 Spin (2 USDT)
+                    </Button>
+                    <Button 
+                      onClick={() => buySpinsMutation.mutate(5)}
+                      className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700"
+                      disabled={buySpinsMutation.isPending}
+                    >
+                      Buy 5 Spins (10 USDT)
+                    </Button>
+                  </>
+                )}
+                {activeTab === "super" && (
+                  <Button 
+                    onClick={() => superSpinMutation.mutate()}
+                    className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700"
+                    disabled={superSpinMutation.isPending}
+                  >
+                    Try Super Jackpot (10 USDT)
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </DialogContent>

@@ -1,0 +1,60 @@
+Daily Spin & Super Jackpot Spin – Game Feature Prompt
+📌 Feature Overview:
+We need to implement a Daily Spin & Super Jackpot Spin in our investment-based chicken farming game. Players can spin the wheel daily for free and buy extra spins using USDT. The spin rewards include eggs, wheat, water, USDT, and rare items like free chickens.
+
+✅ Floating Spin Button: A small animated button in the bottom-left corner to open the Spin Wheel.
+✅ Spin Wheel UI: A visually appealing spinning wheel with dynamic animations.
+✅ Reward System: A logic-driven random reward selection with different probabilities.
+✅ Free & Paid Spins: Players get one free spin per day and can buy extra spins using USDT.
+✅ Super Jackpot Spin: A special high-reward spin that costs more but offers premium prizes.
+
+🔹 Game Logic & Mechanics
+1️⃣ Daily Spin Rules
+Free Spin: Players get 1 free spin daily (resets every 24 hours).
+Paid Spins: Players can buy extra spins for 2 USDT per spin.
+Spin Cooldown: If a player has a free spin, they must use it before buying more.
+Prize Pool (Daily Spin)
+Prize	Probability	Reward Type
+5 Eggs	20%	Game Item
+10 Eggs	15%	Game Item
+15 Eggs	10%	Game Item
+1 Bag Wheat	15%	Game Item
+1 Bucket Water	15%	Game Item
+1 Free Spin	10%	Game Bonus
+0.5 USDT	10%	Currency
+1 USDT	5%	Currency
+2️⃣ Super Jackpot Spin Rules
+Higher Rewards, Higher Risk! Players can buy a Super Jackpot Spin for 5 USDT per spin.
+Prize Pool (Super Jackpot Spin)
+Prize	Probability	Reward Type
+20 Eggs	15%	Game Item
+50 Eggs	10%	Game Item
+1 Baby Chicken	10%	Game Item
+1 Regular Chicken	5%	Game Item
+2 USDT	10%	Currency
+5 USDT	5%	Currency
+2 Free Spins	15%	Game Bonus
+10 USDT	3%	Currency
+🔹 User Interface (UI) Requirements
+1️⃣ Floating Spin Button:
+
+Located in the bottom-left corner of the game.
+Animated to bounce slightly to grab attention.
+2️⃣ Spin Wheel UI:
+
+Smooth rotation animation with a realistic stop effect.
+Winning animation when a prize is won.
+Button to claim reward after the spin stops.
+3️⃣ Purchase Modal:
+
+Players can buy extra spins (2 USDT for Daily Spin, 5 USDT for Super Jackpot Spin).
+Display remaining free spins and purchase history.
+🔹 Backend & Database Logic
+✅ User Spin Data: Store user spin history and number of free spins left.
+✅ Fair Randomness Algorithm: Use a secure random generator for fair results.
+✅ Spin Purchase Handling: Deduct USDT from the user’s wallet for extra spins.
+✅ Reward Distribution:
+
+If the reward is eggs/wheat/water, add it to inventory.
+If the reward is USDT, credit it to the user’s wallet.
+If the reward is a free chicken, update the chicken count in the user’s account.
