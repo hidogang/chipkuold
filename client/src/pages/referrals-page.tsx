@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { User, ReferralEarning, MilestoneReward } from "@shared/schema";
 import QRCode from "react-qr-code";
+import BalanceBar from "@/components/balance-bar";
 
 export default function ReferralsPage() {
   const { user } = useAuth();
@@ -154,415 +155,418 @@ export default function ReferralsPage() {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-6">Referrals & Team</h1>
+      <BalanceBar />
+      <div className="mt-4">
+        <h1 className="text-3xl font-bold mb-6">Referrals & Team</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle>Your Referral Code</CardTitle>
-            <CardDescription>Share with friends to earn commissions</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col items-center space-y-3">
-              <div className="bg-muted p-3 rounded-md text-center font-mono font-bold text-lg">
-                {user?.referralCode}
-              </div>
-              <div className="border p-3 rounded-md bg-white">
-                <QRCode
-                  value={`https://chickfarms.replit.app/signup?ref=${user?.referralCode}`}
-                  style={{ width: "100%", maxWidth: "120px", height: "auto" }}
-                />
-              </div>
-              <div className="text-sm text-center text-muted-foreground mt-2">
-                Scan QR code or share your referral link:<br />
-                <span className="font-semibold break-all">
-                  https://chickfarms.replit.app/signup?ref={user?.referralCode}
-                </span>
-              </div>
-              <Button
-                size="sm"
-                className="mt-2"
-                onClick={() => {
-                  navigator.clipboard.writeText(`https://chickfarms.replit.app/signup?ref=${user?.referralCode}`);
-                  toast({
-                    title: "Copied!",
-                    description: "Referral link copied to clipboard."
-                  });
-                }}
-              >
-                Copy Link
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle>Team Stats</CardTitle>
-            <CardDescription>Your referral network performance</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span>Direct Referrals:</span>
-                <span className="font-bold">{totalDirectReferrals}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Total Referral Earnings:</span>
-                <span className="font-bold">${totalReferralEarnings.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Total Team Earnings:</span>
-                <span className="font-bold">${totalTeamEarnings.toFixed(2)}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle>Unclaimed Rewards</CardTitle>
-            <CardDescription>Earnings waiting to be claimed</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span>Referral Earnings:</span>
-                <span className="font-bold">
-                  ${unclaimedEarnings.reduce((sum: number, earning: ReferralEarning) => sum + parseFloat(earning.amount.toString()), 0).toFixed(2)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>Milestone Rewards:</span>
-                <span className="font-bold">
-                  ${unclaimedMilestones.reduce((sum: number, milestone: MilestoneReward) => sum + parseFloat(milestone.reward.toString()), 0).toFixed(2)}
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Tabs defaultValue="referrals" className="w-full">
-        <TabsList className="grid grid-cols-4 mb-6">
-          <TabsTrigger value="referrals">Direct Referrals</TabsTrigger>
-          <TabsTrigger value="earnings">Referral Earnings</TabsTrigger>
-          <TabsTrigger value="milestones">Milestone Rewards</TabsTrigger>
-          <TabsTrigger value="salary">Monthly Salary</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="referrals">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
-            <CardHeader>
-              <CardTitle>Your Direct Referrals</CardTitle>
-              <CardDescription>Users who joined using your referral code</CardDescription>
+            <CardHeader className="pb-2">
+              <CardTitle>Your Referral Code</CardTitle>
+              <CardDescription>Share with friends to earn commissions</CardDescription>
             </CardHeader>
             <CardContent>
-              {directReferrals.length > 0 ? (
-                <div className="space-y-4">
-                  {directReferrals.map((referral: User) => (
-                    <div key={referral.id} className="p-4 border rounded-lg">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <p className="font-medium">{referral.username}</p>
-                          <p className="text-sm text-muted-foreground">
-                            Joined: {formatDistanceToNow(new Date(referral.lastLoginAt || Date.now()), { addSuffix: true })}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm">Balance: ${parseFloat(referral.usdtBalance).toFixed(2)}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+              <div className="flex flex-col items-center space-y-3">
+                <div className="bg-muted p-3 rounded-md text-center font-mono font-bold text-lg">
+                  {user?.referralCode}
                 </div>
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">You don't have any direct referrals yet.</p>
-                  <p className="mt-2">Share your referral code to start earning commissions!</p>
+                <div className="border p-3 rounded-md bg-white">
+                  <QRCode
+                    value={`https://chickfarms.replit.app/signup?ref=${user?.referralCode}`}
+                    style={{ width: "100%", maxWidth: "120px", height: "auto" }}
+                  />
                 </div>
-              )}
+                <div className="text-sm text-center text-muted-foreground mt-2">
+                  Scan QR code or share your referral link:<br />
+                  <span className="font-semibold break-all">
+                    https://chickfarms.replit.app/signup?ref={user?.referralCode}
+                  </span>
+                </div>
+                <Button
+                  size="sm"
+                  className="mt-2"
+                  onClick={() => {
+                    navigator.clipboard.writeText(`https://chickfarms.replit.app/signup?ref=${user?.referralCode}`);
+                    toast({
+                      title: "Copied!",
+                      description: "Referral link copied to clipboard."
+                    });
+                  }}
+                >
+                  Copy Link
+                </Button>
+              </div>
             </CardContent>
           </Card>
-        </TabsContent>
 
-        <TabsContent value="earnings">
           <Card>
-            <CardHeader>
-              <CardTitle>Referral Earnings</CardTitle>
-              <CardDescription>Commissions from your referral network</CardDescription>
+            <CardHeader className="pb-2">
+              <CardTitle>Team Stats</CardTitle>
+              <CardDescription>Your referral network performance</CardDescription>
             </CardHeader>
             <CardContent>
-              {unclaimedEarnings.length > 0 && (
-                <>
-                  <h3 className="font-bold mb-2">Unclaimed Earnings</h3>
-                  <div className="space-y-3 mb-6">
-                    {unclaimedEarnings.map((earning: ReferralEarning) => (
-                      <div key={earning.id} className="p-3 border rounded-lg flex justify-between items-center">
-                        <div>
-                          <p className="font-medium">${parseFloat(earning.amount.toString()).toFixed(2)}</p>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span>Direct Referrals:</span>
+                  <span className="font-bold">{totalDirectReferrals}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Total Referral Earnings:</span>
+                  <span className="font-bold">${totalReferralEarnings.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Total Team Earnings:</span>
+                  <span className="font-bold">${totalTeamEarnings.toFixed(2)}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle>Unclaimed Rewards</CardTitle>
+              <CardDescription>Earnings waiting to be claimed</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span>Referral Earnings:</span>
+                  <span className="font-bold">
+                    ${unclaimedEarnings.reduce((sum: number, earning: ReferralEarning) => sum + parseFloat(earning.amount.toString()), 0).toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Milestone Rewards:</span>
+                  <span className="font-bold">
+                    ${unclaimedMilestones.reduce((sum: number, milestone: MilestoneReward) => sum + parseFloat(milestone.reward.toString()), 0).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Tabs defaultValue="referrals" className="w-full">
+          <TabsList className="grid grid-cols-4 mb-6">
+            <TabsTrigger value="referrals">Direct Referrals</TabsTrigger>
+            <TabsTrigger value="earnings">Referral Earnings</TabsTrigger>
+            <TabsTrigger value="milestones">Milestone Rewards</TabsTrigger>
+            <TabsTrigger value="salary">Monthly Salary</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="referrals">
+            <Card>
+              <CardHeader>
+                <CardTitle>Your Direct Referrals</CardTitle>
+                <CardDescription>Users who joined using your referral code</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {directReferrals.length > 0 ? (
+                  <div className="space-y-4">
+                    {directReferrals.map((referral: User) => (
+                      <div key={referral.id} className="p-4 border rounded-lg">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="font-medium">{referral.username}</p>
+                            <p className="text-sm text-muted-foreground">
+                              Joined: {formatDistanceToNow(new Date(referral.lastLoginAt || Date.now()), { addSuffix: true })}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm">Balance: ${parseFloat(referral.usdtBalance).toFixed(2)}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">You don't have any direct referrals yet.</p>
+                    <p className="mt-2">Share your referral code to start earning commissions!</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="earnings">
+            <Card>
+              <CardHeader>
+                <CardTitle>Referral Earnings</CardTitle>
+                <CardDescription>Commissions from your referral network</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {unclaimedEarnings.length > 0 && (
+                  <>
+                    <h3 className="font-bold mb-2">Unclaimed Earnings</h3>
+                    <div className="space-y-3 mb-6">
+                      {unclaimedEarnings.map((earning: ReferralEarning) => (
+                        <div key={earning.id} className="p-3 border rounded-lg flex justify-between items-center">
+                          <div>
+                            <p className="font-medium">${parseFloat(earning.amount.toString()).toFixed(2)}</p>
+                            <p className="text-sm text-muted-foreground">{getReferralLevel(earning.level)} commission</p>
+                            <p className="text-xs text-muted-foreground">
+                              {formatDistanceToNow(new Date(earning.createdAt), { addSuffix: true })}
+                            </p>
+                          </div>
+                          <Button
+                            onClick={() => handleClaimReferralEarning(earning.id)}
+                            size="sm"
+                          >
+                            Claim
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                    <Separator className="my-4" />
+                  </>
+                )}
+
+                {referralEarnings.length > 0 ? (
+                  <div className="space-y-3">
+                    <h3 className="font-bold mb-2">Earnings History</h3>
+                    {referralEarnings
+                      .filter((earning: ReferralEarning) => earning.claimed)
+                      .slice(0, 10)
+                      .map((earning: ReferralEarning) => (
+                        <div key={earning.id} className="p-3 border rounded-lg">
+                          <div className="flex justify-between">
+                            <p className="font-medium">${parseFloat(earning.amount.toString()).toFixed(2)}</p>
+                            <p className="text-sm text-green-600">Claimed</p>
+                          </div>
                           <p className="text-sm text-muted-foreground">{getReferralLevel(earning.level)} commission</p>
                           <p className="text-xs text-muted-foreground">
                             {formatDistanceToNow(new Date(earning.createdAt), { addSuffix: true })}
                           </p>
                         </div>
-                        <Button
-                          onClick={() => handleClaimReferralEarning(earning.id)}
-                          size="sm"
-                        >
-                          Claim
-                        </Button>
-                      </div>
-                    ))}
+                      ))}
                   </div>
-                  <Separator className="my-4" />
-                </>
-              )}
-
-              {referralEarnings.length > 0 ? (
-                <div className="space-y-3">
-                  <h3 className="font-bold mb-2">Earnings History</h3>
-                  {referralEarnings
-                    .filter((earning: ReferralEarning) => earning.claimed)
-                    .slice(0, 10)
-                    .map((earning: ReferralEarning) => (
-                      <div key={earning.id} className="p-3 border rounded-lg">
-                        <div className="flex justify-between">
-                          <p className="font-medium">${parseFloat(earning.amount.toString()).toFixed(2)}</p>
-                          <p className="text-sm text-green-600">Claimed</p>
-                        </div>
-                        <p className="text-sm text-muted-foreground">{getReferralLevel(earning.level)} commission</p>
-                        <p className="text-xs text-muted-foreground">
-                          {formatDistanceToNow(new Date(earning.createdAt), { addSuffix: true })}
-                        </p>
-                      </div>
-                    ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">No referral earnings yet.</p>
-                  <p className="mt-2">Share your referral code to start earning commissions!</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="milestones">
-          <Card>
-            <CardHeader>
-              <CardTitle>Team Milestone Rewards</CardTitle>
-              <CardDescription>Bonuses unlocked by your team's performance</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {unclaimedMilestones.length > 0 && (
-                <>
-                  <h3 className="font-bold mb-2">Unclaimed Milestone Rewards</h3>
-                  <div className="space-y-3 mb-6">
-                    {unclaimedMilestones.map((milestone: MilestoneReward) => (
-                      <div key={milestone.id} className="p-3 border rounded-lg flex justify-between items-center">
-                        <div>
-                          <p className="font-medium">${parseFloat(milestone.reward.toString()).toFixed(2)}</p>
-                          <p className="text-sm text-muted-foreground">
-                            For reaching ${parseFloat(milestone.milestone.toString()).toFixed(2)} in team earnings
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {formatDistanceToNow(new Date(milestone.createdAt), { addSuffix: true })}
-                          </p>
-                        </div>
-                        <Button
-                          onClick={() => handleClaimMilestoneReward(milestone.id)}
-                          size="sm"
-                        >
-                          Claim
-                        </Button>
-                      </div>
-                    ))}
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">No referral earnings yet.</p>
+                    <p className="mt-2">Share your referral code to start earning commissions!</p>
                   </div>
-                  <Separator className="my-4" />
-                </>
-              )}
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-              <div className="space-y-6">
-                <div>
-                  <h3 className="font-bold mb-2">Available Milestones</h3>
-                  <div className="space-y-2">
-                    <div className="p-3 border rounded-lg flex justify-between">
-                      <div>
-                        <p className="font-medium">$50 Bonus</p>
-                        <p className="text-sm text-muted-foreground">When team earnings reach $1,000</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-medium">
-                          Progress: {Math.min(100, Math.round((totalTeamEarnings / 1000) * 100))}%
-                        </p>
-                        <div className="w-24 h-2 bg-gray-200 rounded mt-1">
-                          <div
-                            className="h-full bg-primary rounded"
-                            style={{ width: `${Math.min(100, Math.round((totalTeamEarnings / 1000) * 100))}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="p-3 border rounded-lg flex justify-between">
-                      <div>
-                        <p className="font-medium">$500 Bonus</p>
-                        <p className="text-sm text-muted-foreground">When team earnings reach $10,000</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-medium">
-                          Progress: {Math.min(100, Math.round((totalTeamEarnings / 10000) * 100))}%
-                        </p>
-                        <div className="w-24 h-2 bg-gray-200 rounded mt-1">
-                          <div
-                            className="h-full bg-primary rounded"
-                            style={{ width: `${Math.min(100, Math.round((totalTeamEarnings / 10000) * 100))}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="p-3 border rounded-lg flex justify-between">
-                      <div>
-                        <p className="font-medium">$2,500 Bonus</p>
-                        <p className="text-sm text-muted-foreground">When team earnings reach $50,000</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-medium">
-                          Progress: {Math.min(100, Math.round((totalTeamEarnings / 50000) * 100))}%
-                        </p>
-                        <div className="w-24 h-2 bg-gray-200 rounded mt-1">
-                          <div
-                            className="h-full bg-primary rounded"
-                            style={{ width: `${Math.min(100, Math.round((totalTeamEarnings / 50000) * 100))}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="p-3 border rounded-lg flex justify-between">
-                      <div>
-                        <p className="font-medium">$5,000 Bonus</p>
-                        <p className="text-sm text-muted-foreground">When team earnings reach $100,000</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-medium">
-                          Progress: {Math.min(100, Math.round((totalTeamEarnings / 100000) * 100))}%
-                        </p>
-                        <div className="w-24 h-2 bg-gray-200 rounded mt-1">
-                          <div
-                            className="h-full bg-primary rounded"
-                            style={{ width: `${Math.min(100, Math.round((totalTeamEarnings / 100000) * 100))}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {milestones.length > 0 && (
-                  <div>
-                    <h3 className="font-bold mb-2">Claimed Milestone Rewards</h3>
-                    <div className="space-y-2">
-                      {milestones
-                        .filter((milestone: MilestoneReward) => milestone.claimed)
-                        .map((milestone: MilestoneReward) => (
-                          <div key={milestone.id} className="p-3 border rounded-lg">
-                            <div className="flex justify-between">
-                              <p className="font-medium">${parseFloat(milestone.reward.toString()).toFixed(2)}</p>
-                              <p className="text-sm text-green-600">Claimed</p>
-                            </div>
+          <TabsContent value="milestones">
+            <Card>
+              <CardHeader>
+                <CardTitle>Team Milestone Rewards</CardTitle>
+                <CardDescription>Bonuses unlocked by your team's performance</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {unclaimedMilestones.length > 0 && (
+                  <>
+                    <h3 className="font-bold mb-2">Unclaimed Milestone Rewards</h3>
+                    <div className="space-y-3 mb-6">
+                      {unclaimedMilestones.map((milestone: MilestoneReward) => (
+                        <div key={milestone.id} className="p-3 border rounded-lg flex justify-between items-center">
+                          <div>
+                            <p className="font-medium">${parseFloat(milestone.reward.toString()).toFixed(2)}</p>
                             <p className="text-sm text-muted-foreground">
                               For reaching ${parseFloat(milestone.milestone.toString()).toFixed(2)} in team earnings
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              {milestone.claimedAt && formatDistanceToNow(new Date(milestone.claimedAt), { addSuffix: true })}
+                              {formatDistanceToNow(new Date(milestone.createdAt), { addSuffix: true })}
                             </p>
                           </div>
-                        ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="salary">
-          <Card>
-            <CardHeader>
-              <CardTitle>Monthly Team Salary</CardTitle>
-              <CardDescription>Regular income based on your active referrals</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div>
-                  <h3 className="font-bold mb-4">How Monthly Salary Works</h3>
-
-                  <div className="p-4 bg-muted rounded-lg mb-4">
-                    <p className="mb-2">Your monthly salary is directly proportional to the number of your referrals who have made their first deposit:</p>
-                    <ul className="list-disc pl-6 space-y-1">
-                      <li><strong>100 referrals with deposits = $100 monthly salary</strong></li>
-                      <li><strong>500 referrals with deposits = $500 monthly salary</strong></li>
-                      <li>And so on (1 referral = $1 in monthly salary)</li>
-                    </ul>
-                    <p className="mt-2 text-sm text-muted-foreground">Salary is paid automatically at the beginning of each month if you qualify.</p>
-                  </div>
-
-                  <h3 className="font-bold mb-2">Examples</h3>
-                  <div className="space-y-2">
-                    <div className="p-3 border rounded-lg flex justify-between">
-                      <div>
-                        <p className="font-medium">$100 Monthly Salary</p>
-                        <p className="text-sm text-muted-foreground">When you have 100 active referrals with deposits</p>
-                      </div>
-                    </div>
-
-                    <div className="p-3 border rounded-lg flex justify-between">
-                      <div>
-                        <p className="font-medium">$500 Monthly Salary</p>
-                        <p className="text-sm text-muted-foreground">When you have 500 active referrals with deposits</p>
-                      </div>
-                    </div>
-
-                    <div className="p-3 border rounded-lg flex justify-between">
-                      <div>
-                        <p className="font-medium">$1,000 Monthly Salary</p>
-                        <p className="text-sm text-muted-foreground">When you have 1,000 active referrals with deposits</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {salaryPayments.length > 0 ? (
-                  <div>
-                    <h3 className="font-bold mb-2">Salary Payment History</h3>
-                    <div className="space-y-2">
-                      {salaryPayments.map((payment: any) => (
-                        <div key={payment.id} className="p-3 border rounded-lg">
-                          <div className="flex justify-between">
-                            <p className="font-medium">${parseFloat(payment.amount.toString()).toFixed(2)}</p>
-                            <p className="text-sm">{payment.period}</p>
-                          </div>
-                          <p className="text-xs text-muted-foreground">
-                            Paid {formatDistanceToNow(new Date(payment.paidAt), { addSuffix: true })}
-                          </p>
+                          <Button
+                            onClick={() => handleClaimMilestoneReward(milestone.id)}
+                            size="sm"
+                          >
+                            Claim
+                          </Button>
                         </div>
                       ))}
                     </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-4">
-                    <p className="text-muted-foreground">No salary payments yet.</p>
-                    <p className="mt-2">Build your team to start earning monthly income!</p>
-                  </div>
+                    <Separator className="my-4" />
+                  </>
                 )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="font-bold mb-2">Available Milestones</h3>
+                    <div className="space-y-2">
+                      <div className="p-3 border rounded-lg flex justify-between">
+                        <div>
+                          <p className="font-medium">$50 Bonus</p>
+                          <p className="text-sm text-muted-foreground">When team earnings reach $1,000</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-medium">
+                            Progress: {Math.min(100, Math.round((totalTeamEarnings / 1000) * 100))}%
+                          </p>
+                          <div className="w-24 h-2 bg-gray-200 rounded mt-1">
+                            <div
+                              className="h-full bg-primary rounded"
+                              style={{ width: `${Math.min(100, Math.round((totalTeamEarnings / 1000) * 100))}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="p-3 border rounded-lg flex justify-between">
+                        <div>
+                          <p className="font-medium">$500 Bonus</p>
+                          <p className="text-sm text-muted-foreground">When team earnings reach $10,000</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-medium">
+                            Progress: {Math.min(100, Math.round((totalTeamEarnings / 10000) * 100))}%
+                          </p>
+                          <div className="w-24 h-2 bg-gray-200 rounded mt-1">
+                            <div
+                              className="h-full bg-primary rounded"
+                              style={{ width: `${Math.min(100, Math.round((totalTeamEarnings / 10000) * 100))}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="p-3 border rounded-lg flex justify-between">
+                        <div>
+                          <p className="font-medium">$2,500 Bonus</p>
+                          <p className="text-sm text-muted-foreground">When team earnings reach $50,000</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-medium">
+                            Progress: {Math.min(100, Math.round((totalTeamEarnings / 50000) * 100))}%
+                          </p>
+                          <div className="w-24 h-2 bg-gray-200 rounded mt-1">
+                            <div
+                              className="h-full bg-primary rounded"
+                              style={{ width: `${Math.min(100, Math.round((totalTeamEarnings / 50000) * 100))}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="p-3 border rounded-lg flex justify-between">
+                        <div>
+                          <p className="font-medium">$5,000 Bonus</p>
+                          <p className="text-sm text-muted-foreground">When team earnings reach $100,000</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-medium">
+                            Progress: {Math.min(100, Math.round((totalTeamEarnings / 100000) * 100))}%
+                          </p>
+                          <div className="w-24 h-2 bg-gray-200 rounded mt-1">
+                            <div
+                              className="h-full bg-primary rounded"
+                              style={{ width: `${Math.min(100, Math.round((totalTeamEarnings / 100000) * 100))}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {milestones.length > 0 && (
+                    <div>
+                      <h3 className="font-bold mb-2">Claimed Milestone Rewards</h3>
+                      <div className="space-y-2">
+                        {milestones
+                          .filter((milestone: MilestoneReward) => milestone.claimed)
+                          .map((milestone: MilestoneReward) => (
+                            <div key={milestone.id} className="p-3 border rounded-lg">
+                              <div className="flex justify-between">
+                                <p className="font-medium">${parseFloat(milestone.reward.toString()).toFixed(2)}</p>
+                                <p className="text-sm text-green-600">Claimed</p>
+                              </div>
+                              <p className="text-sm text-muted-foreground">
+                                For reaching ${parseFloat(milestone.milestone.toString()).toFixed(2)} in team earnings
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {milestone.claimedAt && formatDistanceToNow(new Date(milestone.claimedAt), { addSuffix: true })}
+                              </p>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="salary">
+            <Card>
+              <CardHeader>
+                <CardTitle>Monthly Team Salary</CardTitle>
+                <CardDescription>Regular income based on your active referrals</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="font-bold mb-4">How Monthly Salary Works</h3>
+
+                    <div className="p-4 bg-muted rounded-lg mb-4">
+                      <p className="mb-2">Your monthly salary is directly proportional to the number of your referrals who have made their first deposit:</p>
+                      <ul className="list-disc pl-6 space-y-1">
+                        <li><strong>100 referrals with deposits = $100 monthly salary</strong></li>
+                        <li><strong>500 referrals with deposits = $500 monthly salary</strong></li>
+                        <li>And so on (1 referral = $1 in monthly salary)</li>
+                      </ul>
+                      <p className="mt-2 text-sm text-muted-foreground">Salary is paid automatically at the beginning of each month if you qualify.</p>
+                    </div>
+
+                    <h3 className="font-bold mb-2">Examples</h3>
+                    <div className="space-y-2">
+                      <div className="p-3 border rounded-lg flex justify-between">
+                        <div>
+                          <p className="font-medium">$100 Monthly Salary</p>
+                          <p className="text-sm text-muted-foreground">When you have 100 active referrals with deposits</p>
+                        </div>
+                      </div>
+
+                      <div className="p-3 border rounded-lg flex justify-between">
+                        <div>
+                          <p className="font-medium">$500 Monthly Salary</p>
+                          <p className="text-sm text-muted-foreground">When you have 500 active referrals with deposits</p>
+                        </div>
+                      </div>
+
+                      <div className="p-3 border rounded-lg flex justify-between">
+                        <div>
+                          <p className="font-medium">$1,000 Monthly Salary</p>
+                          <p className="text-sm text-muted-foreground">When you have 1,000 active referrals with deposits</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {salaryPayments.length > 0 ? (
+                    <div>
+                      <h3 className="font-bold mb-2">Salary Payment History</h3>
+                      <div className="space-y-2">
+                        {salaryPayments.map((payment: any) => (
+                          <div key={payment.id} className="p-3 border rounded-lg">
+                            <div className="flex justify-between">
+                              <p className="font-medium">${parseFloat(payment.amount.toString()).toFixed(2)}</p>
+                              <p className="text-sm">{payment.period}</p>
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              Paid {formatDistanceToNow(new Date(payment.paidAt), { addSuffix: true })}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-4">
+                      <p className="text-muted-foreground">No salary payments yet.</p>
+                      <p className="mt-2">Build your team to start earning monthly income!</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }
