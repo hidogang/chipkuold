@@ -215,6 +215,7 @@ export default function ShopPage() {
       return await apiRequest("POST", "/api/mystery-box/open", {});
     },
     onSuccess: (data: MysteryBoxReward) => {
+      console.log("[MysteryBox] Opening result:", data);
       setMysteryBoxReward(data);
       queryClient.invalidateQueries({ queryKey: ["/api/mystery-box/rewards"] });
       setTimeout(() => {
@@ -836,7 +837,7 @@ export default function ShopPage() {
                       className="w-full h-full object-contain"
                     />
                   )}
-                  {mysteryBoxReward.rewardType === 'resources' && (
+                  {mysteryBoxReward.rewardType === 'resources' && mysteryBoxReward.rewardDetails && (
                     <img
                       src={(mysteryBoxReward.rewardDetails as any).resourceType === 'water_buckets'
                         ? '/assets/waterbucket.png'
@@ -861,14 +862,12 @@ export default function ShopPage() {
                     {mysteryBoxReward.rewardType === 'chicken' && mysteryBoxReward.rewardDetails &&
                       `${(mysteryBoxReward.rewardDetails as any).chickenType} Chicken`}
                     {mysteryBoxReward.rewardType === 'resources' && mysteryBoxReward.rewardDetails &&
-                      `${(mysteryBoxReward.rewardDetails as any).resourceAmount} ${(mysteryBoxReward.rewardDetails as any).resourceType}`
-                    }
+                      `${(mysteryBoxReward.rewardDetails as any).resourceAmount} ${(mysteryBoxReward.rewardDetails as any).resourceType}`}
                     {mysteryBoxReward.rewardType === 'eggs' && mysteryBoxReward.rewardDetails &&
-                      `${(mysteryBoxReward.rewardDetails as any).minEggs} Eggs`
-                    }
+                      `${(mysteryBoxReward.rewardDetails as any).minEggs} Eggs`}
                   </div>
-                  <p className="text-sm text-gray-600">
-                    Check your unclaimed rewards to claim this prize!
+                  <p className="text-sm text-gray-600 mt-4">
+                    Check your unclaimed rewards below to claim this prize!
                   </p>
                 </div>
               </div>
