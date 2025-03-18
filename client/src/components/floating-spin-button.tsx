@@ -11,12 +11,10 @@ import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
 
 export function FloatingSpinButton() {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("daily");
-  const { toast } = useToast();
-  const { user } = useAuth();
-
-  if (!user) return null;
 
   // Get spin status
   const spinStatusQuery = useQuery({
@@ -60,6 +58,8 @@ export function FloatingSpinButton() {
       });
     },
   });
+
+  if (!user) return null;
 
   return (
     <>
