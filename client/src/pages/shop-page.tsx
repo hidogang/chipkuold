@@ -190,8 +190,7 @@ export default function ShopPage() {
 
   const buyMysteryBoxMutation = useMutation({
     mutationFn: async (boxType: string) => {
-      const res = await apiRequest("POST", "/api/mystery-box/buy", { boxType });
-      return res.json();
+      return await apiRequest("POST", "/api/mystery-box/buy", { boxType });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
@@ -213,8 +212,7 @@ export default function ShopPage() {
   const openMysteryBoxMutation = useMutation({
     mutationFn: async () => {
       setIsOpeningBox(true);
-      const res = await apiRequest("POST", "/api/mystery-box/open", {});
-      return res.json();
+      return await apiRequest("POST", "/api/mystery-box/open", {});
     },
     onSuccess: (data: MysteryBoxReward) => {
       setMysteryBoxReward(data);
@@ -235,10 +233,9 @@ export default function ShopPage() {
 
   const claimRewardMutation = useMutation({
     mutationFn: async (rewardId: number) => {
-      const res = await apiRequest("POST", `/api/mystery-box/claim/${rewardId}`, {});
-      return res.json();
+      return await apiRequest("POST", `/api/mystery-box/claim/${rewardId}`, {});
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/mystery-box/rewards"] });
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       queryClient.invalidateQueries({ queryKey: ["/api/chickens"] });
