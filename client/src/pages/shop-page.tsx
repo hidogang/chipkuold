@@ -214,9 +214,11 @@ export default function ShopPage() {
       setIsOpeningBox(true);
       return await apiRequest("POST", "/api/mystery-box/open", {});
     },
-    onSuccess: (data: MysteryBoxReward) => {
+    onSuccess: (data: any) => {
       console.log("[MysteryBox] Opening result:", data);
-      setMysteryBoxReward(data);
+      // Extract the reward from the success response
+      const reward = data.reward || data;
+      setMysteryBoxReward(reward);
       queryClient.invalidateQueries({ queryKey: ["/api/mystery-box/rewards"] });
       setTimeout(() => {
         setIsOpeningBox(false);
@@ -823,10 +825,9 @@ export default function ShopPage() {
                   transition={{ duration: 0.6, y: { repeat: Infinity, duration: 1.5 } }}
                   className="w-32 h-32 mx-auto mb-4 flex items-center justify-center"
                 >
-                  {mysteryBoxReward.rewardType === 'usdt' && (
+                  {mysteryBoxReward.rewardType === 'usdt' ? (
                     <DollarSign size={80} className="text-green-500" />
-                  )}
-                  {mysteryBoxReward.rewardType === 'chicken' && mysteryBoxReward.rewardDetails && (
+                  ) : mysteryBoxReward.rewardType === 'chicken' && mysteryBoxReward.rewardDetails ? (
                     <img
                       src={(mysteryBoxReward.rewardDetails as any).chickenType === 'golden'
                         ? '/assets/goldenchicken.png'
@@ -836,8 +837,7 @@ export default function ShopPage() {
                       alt={`${(mysteryBoxReward.rewardDetails as any).chickenType} Chicken`}
                       className="w-full h-full object-contain"
                     />
-                  )}
-                  {mysteryBoxReward.rewardType === 'resources' && mysteryBoxReward.rewardDetails && (
+                  ) : mysteryBoxReward.rewardType === 'resources' && mysteryBoxReward.rewardDetails ? (
                     <img
                       src={(mysteryBoxReward.rewardDetails as any).resourceType === 'water_buckets'
                         ? '/assets/waterbucket.png'
@@ -845,26 +845,26 @@ export default function ShopPage() {
                       alt={(mysteryBoxReward.rewardDetails as any).resourceType}
                       className="w-full h-full object-contain"
                     />
-                  )}
-                  {mysteryBoxReward.rewardType === 'eggs' && (
+                  ) : mysteryBoxReward.rewardType === 'eggs' ? (
                     <img
                       src="/assets/egg.png"
                       alt="Eggs"
                       className="w-full h-full object-contain"
                     />
-                  )}
+                  ) : null}
                 </motion.div>
 
                 <div className="text-center space-y-4">
                   <div className="text-xl font-bold text-purple-900">
-                    {mysteryBoxReward.rewardType === 'usdt' && mysteryBoxReward.rewardDetails &&
-                      `${(mysteryBoxReward.rewardDetails as any).amount} USDT`}
-                    {mysteryBoxReward.rewardType === 'chicken' && mysteryBoxReward.rewardDetails &&
-                      `${(mysteryBoxReward.rewardDetails as any).chickenType} Chicken`}
-                    {mysteryBoxReward.rewardType === 'resources' && mysteryBoxReward.rewardDetails &&
-                      `${(mysteryBoxReward.rewardDetails as any).resourceAmount} ${(mysteryBoxReward.rewardDetails as any).resourceType}`}
-                    {mysteryBoxReward.rewardType === 'eggs' && mysteryBoxReward.rewardDetails &&
-                      `${(mysteryBoxReward.rewardDetails as any).minEggs} Eggs`}
+                    {mysteryBoxReward.rewardType === 'usdt' && mysteryBoxReward.rewardDetails
+                      ? `${(mysteryBoxReward.rewardDetails as any).amount} USDT`
+                      : mysteryBoxReward.rewardType === 'chicken' && mysteryBoxReward.rewardDetails
+                        ? `${(mysteryBoxReward.rewardDetails as any).chickenType} Chicken`
+                        : mysteryBoxReward.rewardType === 'resources' && mysteryBoxReward.rewardDetails
+                          ? `${(mysteryBoxReward.rewardDetails as any).resourceAmount} ${(mysteryBoxReward.rewardDetails as any).resourceType}`
+                          : mysteryBoxReward.rewardType === 'eggs' && mysteryBoxReward.rewardDetails
+                            ? `${(mysteryBoxReward.rewardDetails as any).minEggs} Eggs`
+                            : 'Unknown Reward'}
                   </div>
                   <p className="text-sm text-gray-600 mt-4">
                     Check your unclaimed rewards below to claim this prize!
