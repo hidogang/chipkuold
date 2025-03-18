@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/components/navigation";
 import ScrollToTop from "@/components/scroll-to-top";
 import { Loader } from "@/components/ui/loader";
+import { FloatingSpinButton } from "@/components/floating-spin-button";
 
 // Import pages
 import HomePage from "@/pages/home-page";
@@ -226,7 +227,12 @@ function App() {
               >
                 <Router />
               </main>
-              {!isLandingPage && <Navigation />}
+              {!isLandingPage && (
+                <>
+                  <Navigation />
+                  <FloatingSpinButton />
+                </>
+              )}
               <Toaster />
             </motion.div>
           )}
