@@ -774,9 +774,9 @@ export default function ShopPage() {
                 <div key={reward.id} className="bg-purple-50 rounded-lg p-3 flex justify-between items-center">
                   <div>
                     <div className="font-semibold text-purple900">
-                      {reward.rewardType === 'usdt' && reward.rewardDetails && 
+                      {reward.rewardType === 'usdt' && reward.rewardDetails &&
                         `${(reward.rewardDetails as any).amount} USDT`}
-                      {reward.rewardType === 'chicken' && reward.rewardDetails && 
+                      {reward.rewardType === 'chicken' && reward.rewardDetails &&
                         `${(reward.rewardDetails as any).chickenType} Chicken`}
                       {reward.rewardType === 'resources' && reward.rewardDetails &&
                         `${(reward.rewardDetails as any).resourceAmount} ${(reward.rewardDetails as any).resourceType}`
@@ -867,22 +867,15 @@ export default function ShopPage() {
                       `${(mysteryBoxReward.rewardDetails as any).minEggs} Eggs`
                     }
                   </div>
-                  <Button
-                    className="w-full bg-green-600 hover:bg-green-700"
-                    onClick={() => {
-                      if (mysteryBoxReward.id) {
-                        claimRewardMutation.mutate(mysteryBoxReward.id);
-                      }
-                    }}
-                    disabled={claimRewardMutation.isPending}
-                  >
-                    {claimRewardMutation.isPending ? "Claiming Reward..." : "Claim Reward"}
-                  </Button>
+                  <p className="text-sm text-gray-600">
+                    Check your unclaimed rewards to claim this prize!
+                  </p>
                 </div>
               </div>
             )}
           </DialogContent>
         </Dialog>
+
       </motion.div>
     </div>
   );
