@@ -26,7 +26,7 @@ import NotFound from "@/pages/not-found";
 import ContactUsPage from "@/pages/contact-us";
 import TermsOfServicePage from "@/pages/terms-of-service";
 import PrivacyPolicyPage from "@/pages/privacy-policy";
-import SpinPage from "@/pages/spin-page";
+
 
 function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
   const [progress, setProgress] = useState(0);
@@ -165,7 +165,6 @@ function Router() {
       <ProtectedRoute path="/referrals" component={ReferralsPage} />
       <ProtectedRoute path="/account" component={AccountPage} />
       <ProtectedRoute path="/admin" component={AdminPage} />
-      <ProtectedRoute path="/spin" component={SpinPage} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -230,7 +229,7 @@ function App() {
               {!isLandingPage && (
                 <>
                   <Navigation />
-                  <FloatingSpinButton />
+                  <FloatingSpinButton /> {/* This remains a full-page view, no changes needed here. */}
                 </>
               )}
               <Toaster />

@@ -50,10 +50,6 @@ function ReferralsIcon() {
   );
 }
 
-function SpinIcon() {
-  return <img src="/assets/spin-wheel-icon.png" className="w-8 h-8 object-contain" alt="Spin" />;
-}
-
 export default function Navigation() {
   const { user, logoutMutation } = useAuth();
   const [location] = useLocation();
@@ -64,7 +60,7 @@ export default function Navigation() {
 
   return (
     <>
-      {/* Desktop navigation - Now at the bottom */}
+      {/* Desktop navigation */}
       <nav className="hidden md:block fixed bottom-0 left-0 right-0 bg-background/90 backdrop-blur-sm border-t shadow-sm z-50">
         <div className="container mx-auto">
           <div className="flex items-center justify-between h-14">
@@ -123,16 +119,6 @@ export default function Navigation() {
                     <span>Referrals</span>
                   </Button>
                 </Link>
-                <Link href="/spin">
-                  <Button 
-                    variant={location === "/spin" ? "default" : "ghost"}
-                    className="flex items-center h-10 gap-2 font-medium" 
-                    size="sm"
-                  >
-                    <SpinIcon />
-                    <span>Spin</span>
-                  </Button>
-                </Link>
               </div>
             </div>
 
@@ -181,7 +167,7 @@ export default function Navigation() {
         </div>
       </nav>
 
-      {/* Mobile navigation - Stays at bottom */}
+      {/* Mobile navigation */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t shadow-lg z-50">
         <div className="container mx-auto px-2">
           <div className="flex items-center justify-between py-1">
@@ -202,16 +188,6 @@ export default function Navigation() {
               >
                 <ShopIcon />
                 <span className="text-xs font-medium">Shop</span>
-              </Button>
-            </Link>
-
-            <Link href="/spin">
-              <Button 
-                variant={location === "/spin" ? "default" : "ghost"}
-                className="flex flex-col items-center space-y-1 h-auto py-1 px-2"
-              >
-                <SpinIcon />
-                <span className="text-xs font-medium">Spin</span>
               </Button>
             </Link>
 

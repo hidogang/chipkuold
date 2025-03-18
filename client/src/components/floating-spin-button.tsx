@@ -1,21 +1,23 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { SpinWheel } from "@/components/ui/spin-wheel";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { dailySpinRewards, superJackpotRewards } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
+import { X } from "lucide-react";
+import BalanceBar from "@/components/balance-bar";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 export function FloatingSpinButton() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("daily");
-  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
 
   // Get spin status
   const spinStatusQuery = useQuery({
@@ -74,7 +76,6 @@ export function FloatingSpinButton() {
         title: "Success!",
         description: "Extra spins purchased successfully.",
       });
-      setShowPurchaseModal(false);
     },
     onError: (error) => {
       toast({
@@ -106,138 +107,150 @@ export function FloatingSpinButton() {
         />
       </motion.button>
 
-      {/* Spin Dialog */}
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-2xl bg-gradient-to-b from-amber-50/90 to-white backdrop-blur-sm border-amber-200">
-          <DialogTitle className="text-2xl font-bold text-amber-900 mb-2">Lucky Spin Wheel</DialogTitle>
-
-          <div className="flex flex-col gap-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-amber-800 font-medium">
-                  {spinStatusQuery.data?.canSpinDaily ? (
-                    "🎉 Free spin available!"
-                  ) : (
-                    `⏳ Next free spin in: ${formatDistanceToNow(Date.now() + (spinStatusQuery.data?.timeUntilNextSpin || 0))}`
-                  )}
-                </p>
-                <p className="text-sm text-amber-700 mt-1">
-                  Extra spins available: {spinStatusQuery.data?.extraSpinsAvailable || 0}
-                </p>
-              </div>
-              <div className="flex gap-2">
+      {/* Full-page Spin View */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed inset-0 bg-background z-[60] overflow-y-auto"
+          >
+            <div className="container mx-auto py-8 px-4">
+              <div className="flex justify-between items-center mb-6">
+                <h1 className="text-3xl font-bold text-amber-900">Lucky Spin Wheel</h1>
                 <Button
-                  variant={activeTab === "daily" ? "default" : "outline"}
-                  onClick={() => setActiveTab("daily")}
-                  className={activeTab === "daily" ? "bg-amber-500 hover:bg-amber-600" : ""}
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsOpen(false)}
+                  className="rounded-full hover:bg-amber-100"
                 >
-                  Daily Spin
-                </Button>
-                <Button
-                  variant={activeTab === "super" ? "default" : "outline"}
-                  onClick={() => setActiveTab("super")}
-                  className={activeTab === "super" ? "bg-amber-500 hover:bg-amber-600" : ""}
-                >
-                  Super Jackpot
+                  <X className="h-6 w-6" />
                 </Button>
               </div>
-            </div>
 
-            <div className="flex justify-center">
-              {activeTab === "daily" ? (
-                <SpinWheel
-                  onSpin={dailySpinMutation.mutateAsync}
-                  rewards={dailySpinRewards}
-                  isSpinning={dailySpinMutation.isPending}
-                  spinType="daily"
-                />
-              ) : (
-                <SpinWheel
-                  onSpin={superSpinMutation.mutateAsync}
-                  rewards={superJackpotRewards}
-                  isSpinning={superSpinMutation.isPending}
-                  spinType="super"
-                />
-              )}
-            </div>
+              <BalanceBar />
 
-            {/* Purchase Options */}
-            <div className="mt-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
-              <h3 className="text-lg font-semibold text-amber-900 mb-2">
-                {activeTab === "daily" ? "Purchase Extra Spins" : "Super Jackpot Entry"}
-              </h3>
-              <p className="text-sm text-amber-700 mb-4">
-                {activeTab === "daily" 
-                  ? "Get more chances to win with extra spins! Each spin costs 2 USDT."
-                  : "Try your luck at amazing rewards! Each super jackpot spin costs 10 USDT."}
-              </p>
-              <div className="flex gap-2">
-                {activeTab === "daily" && (
-                  <>
-                    <Button 
-                      onClick={() => buySpinsMutation.mutate(1)}
-                      className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700"
-                      disabled={buySpinsMutation.isPending}
-                    >
-                      Buy 1 Spin (2 USDT)
-                    </Button>
-                    <Button 
-                      onClick={() => buySpinsMutation.mutate(5)}
-                      className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700"
-                      disabled={buySpinsMutation.isPending}
-                    >
-                      Buy 5 Spins (10 USDT)
-                    </Button>
-                  </>
-                )}
-                {activeTab === "super" && (
-                  <Button 
-                    onClick={() => superSpinMutation.mutate()}
-                    className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700"
-                    disabled={superSpinMutation.isPending}
-                  >
-                    Try Super Jackpot (10 USDT)
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            {/* Spin History */}
-            <div className="mt-4 p-4 bg-white rounded-lg border border-amber-200">
-              <h3 className="text-lg font-semibold text-amber-900 mb-2">Recent Spins</h3>
-              <div className="space-y-4">
-                {spinHistoryQuery.data?.map((spin) => (
-                  <div key={spin.id} className="p-4 border rounded-lg">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="font-medium">
-                          {spin.spinType === "daily" ? "Daily Spin" : "Super Jackpot"}
+              <div className="mt-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Daily Free Spin</CardTitle>
+                      <CardDescription>Get your daily chance to win rewards!</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {spinStatusQuery.data?.canSpinDaily ? (
+                        <p className="text-green-600 font-semibold">Free spin available!</p>
+                      ) : (
+                        <p className="text-muted-foreground">
+                          Next free spin in: {formatDistanceToNow(Date.now() + (spinStatusQuery.data?.timeUntilNextSpin || 0))}
                         </p>
-                        <p className="text-sm text-muted-foreground">
-                          {formatDistanceToNow(new Date(spin.createdAt), { addSuffix: true })}
-                        </p>
+                      )}
+                      <p className="mt-2">Extra spins available: {spinStatusQuery.data?.extraSpinsAvailable || 0}</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Super Jackpot</CardTitle>
+                      <CardDescription>Try your luck for amazing rewards!</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="font-semibold">Cost: 10 USDT per spin</p>
+                      <p className="text-sm text-muted-foreground mt-2">Win Golden Chickens and big USDT prizes!</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Buy Extra Spins</CardTitle>
+                      <CardDescription>Get more chances to win</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="font-semibold">2 USDT per extra spin</p>
+                      <div className="flex gap-2 mt-4">
+                        <Button onClick={() => buySpinsMutation.mutate(1)} disabled={buySpinsMutation.isPending}>
+                          Buy 1
+                        </Button>
+                        <Button onClick={() => buySpinsMutation.mutate(5)} disabled={buySpinsMutation.isPending}>
+                          Buy 5
+                        </Button>
+                        <Button onClick={() => buySpinsMutation.mutate(10)} disabled={buySpinsMutation.isPending}>
+                          Buy 10
+                        </Button>
                       </div>
-                      <div className="text-right">
-                        <p className="font-semibold">
-                          {spin.rewardType === "usdt" ? `$${spin.rewardAmount} USDT` :
-                           spin.rewardType === "chicken" ? `${spin.chickenType} Chicken` :
-                           `${spin.rewardAmount} ${spin.rewardType}`}
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Tabs defaultValue="daily" className="w-full" onValueChange={setActiveTab}>
+                  <TabsList className="grid grid-cols-2 w-[400px] mx-auto mb-8">
+                    <TabsTrigger value="daily">Daily Spin</TabsTrigger>
+                    <TabsTrigger value="super">Super Jackpot</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="daily" className="flex justify-center">
+                    <SpinWheel
+                      onSpin={dailySpinMutation.mutateAsync}
+                      rewards={dailySpinRewards}
+                      isSpinning={dailySpinMutation.isPending}
+                      spinType="daily"
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="super" className="flex justify-center">
+                    <SpinWheel
+                      onSpin={superSpinMutation.mutateAsync}
+                      rewards={superJackpotRewards}
+                      isSpinning={superSpinMutation.isPending}
+                      spinType="super"
+                    />
+                  </TabsContent>
+                </Tabs>
+
+                {/* Spin History */}
+                <Card className="mt-8">
+                  <CardHeader>
+                    <CardTitle>Spin History</CardTitle>
+                    <CardDescription>Your recent spins and rewards</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {spinHistoryQuery.data?.map((spin) => (
+                        <div key={spin.id} className="p-4 border rounded-lg">
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <p className="font-medium">
+                                {spin.spinType === "daily" ? "Daily Spin" : "Super Jackpot"}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                {formatDistanceToNow(new Date(spin.createdAt), { addSuffix: true })}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-semibold">
+                                {spin.rewardType === "usdt" ? `$${spin.rewardAmount} USDT` :
+                                 spin.rewardType === "chicken" ? `${spin.chickenType} Chicken` :
+                                 `${spin.rewardAmount} ${spin.rewardType}`}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+
+                      {!spinHistoryQuery.data?.length && (
+                        <p className="text-center text-muted-foreground py-8">
+                          No spins yet. Try your luck now!
                         </p>
-                      </div>
+                      )}
                     </div>
-                  </div>
-                ))}
-
-                {!spinHistoryQuery.data?.length && (
-                  <p className="text-center text-muted-foreground py-8">
-                    No spins yet. Try your luck now!
-                  </p>
-                )}
+                  </CardContent>
+                </Card>
               </div>
             </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
