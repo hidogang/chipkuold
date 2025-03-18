@@ -12,7 +12,6 @@ declare global {
   }
 }
 
-// Authentication middleware for protected routes
 export const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
   console.log("[Auth Middleware] Checking authentication");
   console.log("[Auth Middleware] Session:", req.session);
@@ -34,17 +33,18 @@ export function setupAuth(app: Express) {
 
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
+    resave: true, // Changed to true to ensure session is saved
+    saveUninitialized: true, // Changed to true to create session for all requests
     store: storage.sessionStore,
     cookie: {
       secure: process.env.NODE_ENV === "production",
-      sameSite: 'lax',
+      sameSite: process.env.NODE_ENV === "production" ? 'strict' : 'lax',
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       path: '/',
-      httpOnly: true
+      httpOnly: true,
     },
-    name: 'chickfarms.sid'
+    name: 'chickfarms.sid',
+    rolling: true, // Resets the cookie maxAge on every response
   };
 
   console.log("[Auth Setup] Session settings:", {
@@ -54,8 +54,13 @@ export function setupAuth(app: Express) {
     nodeEnv: process.env.NODE_ENV
   });
 
-  app.set("trust proxy", 1);
-  app.use(session(sessionSettings));
+  if (process.env.NODE_ENV === "production") {
+    app.set("trust proxy", 1);
+  }
+
+  // Initialize session middleware
+  const sessionMiddleware = session(sessionSettings);
+  app.use(sessionMiddleware);
   app.use(passport.initialize());
   app.use(passport.session());
 
@@ -127,11 +132,18 @@ export function setupAuth(app: Express) {
         console.log("[Auth] Session ID:", req.sessionID);
         console.log("[Auth] Session:", req.session);
 
-        res.json({
-          id: user.id,
-          username: user.username,
-          isAdmin: user.isAdmin,
-          usdtBalance: user.usdtBalance
+        // Save session explicitly
+        req.session.save((err) => {
+          if (err) {
+            console.error("[Auth] Session save error:", err);
+            return next(err);
+          }
+          res.json({
+            id: user.id,
+            username: user.username,
+            isAdmin: user.isAdmin,
+            usdtBalance: user.usdtBalance
+          });
         });
       });
     })(req, res, next);
@@ -167,12 +179,18 @@ export function setupAuth(app: Express) {
           console.error("[Auth] Session destruction error:", err);
           return next(err);
         }
-        res.clearCookie('chickfarms.sid');
+        res.clearCookie('chickfarms.sid', {
+          path: '/',
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: process.env.NODE_ENV === "production" ? 'strict' : 'lax'
+        });
         console.log("[Auth] Logout successful for:", username);
         res.sendStatus(200);
       });
     });
   });
+
   app.post("/api/register", async (req, res, next) => {
     try {
       console.log("[Auth] Registration attempt for:", req.body.username);
@@ -191,9 +209,18 @@ export function setupAuth(app: Express) {
       console.log("[Auth] Registration successful for:", user.username);
       req.login(user, (err) => {
         if (err) return next(err);
-        res.status(201).json({
-          id: user.id,
-          username: user.username
+        // Save session explicitly after registration
+        req.session.save((err) => {
+          if (err) {
+            console.error("[Auth] Session save error after registration:", err);
+            return next(err);
+          }
+          res.status(201).json({
+            id: user.id,
+            username: user.username,
+            isAdmin: user.isAdmin,
+            usdtBalance: user.usdtBalance
+          });
         });
       });
     } catch (err) {

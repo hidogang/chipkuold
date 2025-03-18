@@ -629,9 +629,9 @@ export default function ShopPage() {
                     style={{
                       background: `radial-gradient(circle at 50% 50%, ${
                         type === 'basic' ? '#9333ea40' :
-                        type === 'standard' ? '#1c64f240' :
-                        type === 'advanced' ? '#4f46e540' :
-                        '#f59e0b40'
+                          type === 'standard' ? '#1c64f240' :
+                            type === 'advanced' ? '#4f46e540' :
+                              '#f59e0b40'
                       }, transparent)`
                     }}
                     animate={{
@@ -660,18 +660,18 @@ export default function ShopPage() {
                     >
                       <div className={`absolute inset-0 rounded-full ${
                         type === 'basic' ? 'bg-purple-500/20' :
-                        type === 'standard' ? 'bg-blue-500/20' :
-                        type === 'advanced' ? 'bg-indigo-500/20' :
-                        'bg-amber-500/20'
+                          type === 'standard' ? 'bg-blue-500/20' :
+                            type === 'advanced' ? 'bg-indigo-500/20' :
+                              'bg-amber-500/20'
                       } blur-xl`} />
                       <div className="relative w-full h-full flex items-center justify-center">
                         <Gift
                           size={64}
                           className={`transform transition-transform ${
                             type === 'basic' ? 'text-purple-500' :
-                            type === 'standard' ? 'text-blue-500' :
-                            type === 'advanced' ? 'text-indigo-500' :
-                            'text-amber-500'
+                              type === 'standard' ? 'text-blue-500' :
+                                type === 'advanced' ? 'text-indigo-500' :
+                                  'text-amber-500'
                           }`}
                         />
                       </div>
@@ -681,18 +681,18 @@ export default function ShopPage() {
                     <div className="relative">
                       <h3 className={`text-2xl font-bold text-center mb-2 ${
                         type === 'basic' ? 'text-purple-700' :
-                        type === 'standard' ? 'text-blue-700' :
-                        type === 'advanced' ? 'text-indigo-700' :
-                        'text-amber-700'
+                          type === 'standard' ? 'text-blue-700' :
+                            type === 'advanced' ? 'text-indigo-700' :
+                              'text-amber-700'
                       }`}>
                         {box.name}
                       </h3>
                       <div className="absolute -top-12 right-0">
                         <div className={`px-4 py-2 rounded-full font-bold text-white shadow-lg ${
                           type === 'basic' ? 'bg-purple-500' :
-                          type === 'standard' ? 'bg-blue-500' :
-                          type === 'advanced' ? 'bg-indigo-500' :
-                          'bg-amber-500'
+                            type === 'standard' ? 'bg-blue-500' :
+                              type === 'advanced' ? 'bg-indigo-500' :
+                                'bg-amber-500'
                         }`}>
                           ${box.price} USDT
                         </div>
@@ -707,9 +707,9 @@ export default function ShopPage() {
                     {/* Rewards list */}
                     <div className={`mt-4 p-4 rounded-lg ${
                       type === 'basic' ? 'bg-purple-50 border border-purple-100' :
-                      type === 'standard' ? 'bg-blue-50 border border-blue-100' :
-                      type === 'advanced' ? 'bg-indigo-50 border border-indigo-100' :
-                      'bg-amber-50 border border-amber-100'
+                        type === 'standard' ? 'bg-blue-50 border border-blue-100' :
+                          type === 'advanced' ? 'bg-indigo-50 border border-indigo-100' :
+                            'bg-amber-50 border border-amber-100'
                     }`}>
                       <h4 className="font-semibold text-gray-700 mb-2">Possible Rewards:</h4>
                       <ul className="space-y-2">
@@ -717,9 +717,9 @@ export default function ShopPage() {
                           <li key={idx} className="flex items-center text-sm text-gray-600">
                             <div className={`w-2 h-2 rounded-full mr-2 ${
                               type === 'basic' ? 'bg-purple-400' :
-                              type === 'standard' ? 'bg-blue-400' :
-                              type === 'advanced' ? 'bg-indigo-400' :
-                              'bg-amber-400'
+                                type === 'standard' ? 'bg-blue-400' :
+                                  type === 'advanced' ? 'bg-indigo-400' :
+                                    'bg-amber-400'
                             }`} />
                             {reward}
                           </li>
@@ -770,14 +770,19 @@ export default function ShopPage() {
           <div className="mt-6 border-t border-purple-100 pt-4">
             <h3 className="text-lg font-semibold text-purple-800 mb-3">Your Unclaimed Rewards</h3>
             <div className="space-y-3">
-              {mysteryBoxRewardsQuery.data.map(reward => !reward.opened && (
+              {mysteryBoxRewardsQuery.data.map(reward => !reward.claimedAt && (
                 <div key={reward.id} className="bg-purple-50 rounded-lg p-3 flex justify-between items-center">
                   <div>
-                    <div className="font-semibold text-purple-900">
-                      {reward.rewardType === 'usdt' && `${JSON.parse(reward.rewardValue).amount} USDT`}
-                      {reward.rewardType === 'chicken' && `${JSON.parse(reward.rewardValue).chickenType} Chicken`}
-                      {reward.rewardType === 'resources' &&
-                        `${JSON.parse(reward.rewardValue).resourceAmount} ${JSON.parse(reward.rewardValue).resourceType}`
+                    <div className="font-semibold text-purple900">
+                      {reward.rewardType === 'usdt' && reward.rewardDetails && 
+                        `${(reward.rewardDetails as any).amount} USDT`}
+                      {reward.rewardType === 'chicken' && reward.rewardDetails && 
+                        `${(reward.rewardDetails as any).chickenType} Chicken`}
+                      {reward.rewardType === 'resources' && reward.rewardDetails &&
+                        `${(reward.rewardDetails as any).resourceAmount} ${(reward.rewardDetails as any).resourceType}`
+                      }
+                      {reward.rewardType === 'eggs' && reward.rewardDetails &&
+                        `${(reward.rewardDetails as any).minEggs} Eggs`
                       }
                     </div>
                     <div className="text-xs text-gray-500">
@@ -790,72 +795,95 @@ export default function ShopPage() {
                     onClick={() => claimRewardMutation.mutate(reward.id)}
                     disabled={claimRewardMutation.isPending}
                   >
-                    Claim
+                    {claimRewardMutation.isPending ? "Claiming..." : "Claim"}
                   </Button>
                 </div>
               ))}
             </div>
           </div>
         )}
-      </motion.div>
 
-      <Dialog open={mysteryBoxReward !== null} onOpenChange={() => setMysteryBoxReward(null)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center text-2xl font-bold text-purple-800">
-              Mystery Box Reward!
-            </DialogTitle>
-            <DialogDescription className="text-center text-lg">
-              Congratulations! You've won:
-            </DialogDescription>
-          </DialogHeader>
+        <Dialog open={mysteryBoxReward !== null} onOpenChange={() => setMysteryBoxReward(null)}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-center text-2xl font-bold text-purple-800">
+                Mystery Box Reward!
+              </DialogTitle>
+              <DialogDescription className="text-center text-lg">
+                Congratulations! You've won:
+              </DialogDescription>
+            </DialogHeader>
 
-          {mysteryBoxReward && (
-            <div className="flex flex-col items-center py-6">
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1, y: [0, -10, 0] }}
-                transition={{ duration: 0.6, y: { repeat: Infinity, duration: 1.5 } }}
-                className="w-32 h-32 mb-4 flex items-center justify-center"
-              >
-                {mysteryBoxReward.rewardType === 'usdt' && (
-                  <DollarSign size={80} className="text-green-500" />
-                )}
-                {mysteryBoxReward.rewardType === 'chicken' && (
-                  <img
-                    src={JSON.parse(mysteryBoxReward.rewardValue).chickenType === 'golden'
-                      ? '/assets/goldenchicken.png'
-                      : JSON.parse(mysteryBoxReward.rewardValue).chickenType === 'regular'
-                        ? '/assets/regularchicken.png'
-                        : '/assets/babychicken.png'}
-                    alt={`${JSON.parse(mysteryBoxReward.rewardValue).chickenType} Chicken`}
-                    className="w-full h-full object-contain"
-                  />
-                )}
-              </motion.div>
-
-              <div className="text-center space-y-2">
-                <h3 className="text-xl font-bold text-purple-800">
-                  {mysteryBoxReward.rewardType === 'usdt' &&
-                    `${JSON.parse(mysteryBoxReward.rewardValue).amount} USDT`}
-                  {mysteryBoxReward.rewardType === 'chicken' &&
-                    `${JSON.parse(mysteryBoxReward.rewardValue).chickenType} Chicken`}
-                  {mysteryBoxReward.rewardType === 'resources' &&
-                    `${JSON.parse(mysteryBoxReward.rewardValue).resourceAmount} ${
-                      JSON.parse(mysteryBoxReward.rewardValue).resourceType}`}
-                </h3>
-                <Button
-                  onClick={() => claimRewardMutation.mutate(mysteryBoxReward.id)}
-                  disabled={claimRewardMutation.isPending}
-                  className="w-full bg-green-600 hover:bg-green-700"
+            {mysteryBoxReward && (
+              <div className="py-6">
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1, y: [0, -10, 0] }}
+                  transition={{ duration: 0.6, y: { repeat: Infinity, duration: 1.5 } }}
+                  className="w-32 h-32 mx-auto mb-4 flex items-center justify-center"
                 >
-                  Claim Reward
-                </Button>
+                  {mysteryBoxReward.rewardType === 'usdt' && (
+                    <DollarSign size={80} className="text-green-500" />
+                  )}
+                  {mysteryBoxReward.rewardType === 'chicken' && mysteryBoxReward.rewardDetails && (
+                    <img
+                      src={(mysteryBoxReward.rewardDetails as any).chickenType === 'golden'
+                        ? '/assets/goldenchicken.png'
+                        : (mysteryBoxReward.rewardDetails as any).chickenType === 'regular'
+                          ? '/assets/regularchicken.png'
+                          : '/assets/babychicken.png'}
+                      alt={`${(mysteryBoxReward.rewardDetails as any).chickenType} Chicken`}
+                      className="w-full h-full object-contain"
+                    />
+                  )}
+                  {mysteryBoxReward.rewardType === 'resources' && (
+                    <img
+                      src={(mysteryBoxReward.rewardDetails as any).resourceType === 'water_buckets'
+                        ? '/assets/waterbucket.png'
+                        : '/assets/wheatbag.png'}
+                      alt={(mysteryBoxReward.rewardDetails as any).resourceType}
+                      className="w-full h-full object-contain"
+                    />
+                  )}
+                  {mysteryBoxReward.rewardType === 'eggs' && (
+                    <img
+                      src="/assets/egg.png"
+                      alt="Eggs"
+                      className="w-full h-full object-contain"
+                    />
+                  )}
+                </motion.div>
+
+                <div className="text-center space-y-4">
+                  <div className="text-xl font-bold text-purple-900">
+                    {mysteryBoxReward.rewardType === 'usdt' && mysteryBoxReward.rewardDetails &&
+                      `${(mysteryBoxReward.rewardDetails as any).amount} USDT`}
+                    {mysteryBoxReward.rewardType === 'chicken' && mysteryBoxReward.rewardDetails &&
+                      `${(mysteryBoxReward.rewardDetails as any).chickenType} Chicken`}
+                    {mysteryBoxReward.rewardType === 'resources' && mysteryBoxReward.rewardDetails &&
+                      `${(mysteryBoxReward.rewardDetails as any).resourceAmount} ${(mysteryBoxReward.rewardDetails as any).resourceType}`
+                    }
+                    {mysteryBoxReward.rewardType === 'eggs' && mysteryBoxReward.rewardDetails &&
+                      `${(mysteryBoxReward.rewardDetails as any).minEggs} Eggs`
+                    }
+                  </div>
+                  <Button
+                    className="w-full bg-green-600 hover:bg-green-700"
+                    onClick={() => {
+                      if (mysteryBoxReward.id) {
+                        claimRewardMutation.mutate(mysteryBoxReward.id);
+                      }
+                    }}
+                    disabled={claimRewardMutation.isPending}
+                  >
+                    {claimRewardMutation.isPending ? "Claiming Reward..." : "Claim Reward"}
+                  </Button>
+                </div>
               </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+            )}
+          </DialogContent>
+        </Dialog>
+      </motion.div>
     </div>
   );
 }
