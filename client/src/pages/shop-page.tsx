@@ -216,7 +216,6 @@ export default function ShopPage() {
     },
     onSuccess: (data: any) => {
       console.log("[MysteryBox] Opening result:", data);
-      // Extract the reward from the success response
       const reward = data.reward || data;
       setMysteryBoxReward(reward);
       queryClient.invalidateQueries({ queryKey: ["/api/mystery-box/rewards"] });
@@ -626,7 +625,6 @@ export default function ShopPage() {
                   }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
-                  {/* Animated background glow */}
                   <motion.div
                     className="absolute inset-0 opacity-75"
                     style={{
@@ -649,7 +647,6 @@ export default function ShopPage() {
                   />
 
                   <div className="relative p-6">
-                    {/* Box icon with glow */}
                     <motion.div
                       className="w-32 h-32 mx-auto mb-4 relative"
                       animate={{
@@ -680,7 +677,6 @@ export default function ShopPage() {
                       </div>
                     </motion.div>
 
-                    {/* Box name and price tag */}
                     <div className="relative">
                       <h3 className={`text-2xl font-bold text-center mb-2 ${
                         type === 'basic' ? 'text-purple-700' :
@@ -702,12 +698,10 @@ export default function ShopPage() {
                       </div>
                     </div>
 
-                    {/* Box description */}
                     <p className="text-gray-600 text-center text-sm mb-4">
                       {box.description}
                     </p>
 
-                    {/* Rewards list */}
                     <div className={`mt-4 p-4 rounded-lg ${
                       type === 'basic' ? 'bg-purple-50 border border-purple-100' :
                         type === 'standard' ? 'bg-blue-50 border border-blue-100' :
@@ -730,7 +724,6 @@ export default function ShopPage() {
                       </ul>
                     </div>
 
-                    {/* Buy button */}
                     <motion.button
                       onClick={() => buyMysteryBoxMutation.mutate(type)}
                       disabled={buyMysteryBoxMutation.isPending}
@@ -771,7 +764,52 @@ export default function ShopPage() {
 
         {mysteryBoxRewardsQuery.data && mysteryBoxRewardsQuery.data.length > 0 && (
           <div className="mt-6 border-t border-purple-100 pt-4">
-            <h3 className="text-lg font-semibold text-purple-800 mb-3">Your Unclaimed Rewards</h3>
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h3 className="text-lg font-semibold text-purple-800">Your Unclaimed Rewards</h3>
+                <p className="text-sm text-gray-600">
+                  {mysteryBoxRewardsQuery.data.filter(reward => !reward.claimedAt).length} rewards waiting to be claimed
+                </p>
+              </div>
+              <Button
+                onClick={() => {
+                  const unclaimedRewards = mysteryBoxRewardsQuery.data
+                    .filter(reward => !reward.claimedAt)
+                    .map(reward => reward.id);
+                  if (unclaimedRewards.length> 0) {
+                    Promise.all(unclaimedRewards.map(id => claimRewardMutation.mutateAsync(id)))
+                      .then(() => {
+                        toast({
+                          title: "All Rewards Claimed!",
+                          description: `Successfully claimed ${unclaimedRewards.length} rewards.`,
+                        });
+                      })
+                      .catch((error) => {
+                        toast({
+                          title: "Error",
+                          description: error.message,
+                          variant: "destructive",
+                        });
+                      });
+                  }
+                }}
+                disabled={claimRewardMutation.isPending || !mysteryBoxRewardsQuery.data.some(reward => !reward.claimedAt)}
+                className="bg-green-600 hover:bg-green-700 text-white"
+                size="lg"
+              >
+                {claimRewardMutation.isPending ? (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                    <span>Claiming...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Gift size={18} />
+                    <span>Claim All Rewards</span>
+                  </div>
+                )}
+              </Button>
+            </div>
             <div className="space-y-3">
               {mysteryBoxRewardsQuery.data.map(reward => !reward.claimedAt && (
                 <div key={reward.id} className="bg-purple-50 rounded-lg p-3 flex justify-between items-center">
@@ -782,23 +820,29 @@ export default function ShopPage() {
                       {reward.rewardType === 'chicken' && reward.rewardDetails &&
                         `${(reward.rewardDetails as any).chickenType} Chicken`}
                       {reward.rewardType === 'resources' && reward.rewardDetails &&
-                        `${(reward.rewardDetails as any).resourceAmount} ${(reward.rewardDetails as any).resourceType}`
-                      }
+                        `${(reward.rewardDetails as any).resourceAmount} ${(reward.rewardDetails as any).resourceType}`}
                       {reward.rewardType === 'eggs' && reward.rewardDetails &&
-                        `${(reward.rewardDetails as any).minEggs} Eggs`
-                      }
+                        `${(reward.rewardDetails as any).minEggs} Eggs`}
                     </div>
                     <div className="text-xs text-gray-500">
-                      Received on {new Date(reward.createdAt).toLocaleDateString()}
+                      Reward #{reward.id}
                     </div>
                   </div>
                   <Button
+                    variant="outline"
                     size="sm"
-                    className="bg-green-600 hover:bg-green-700"
                     onClick={() => claimRewardMutation.mutate(reward.id)}
                     disabled={claimRewardMutation.isPending}
+                    className="min-w-[100px]"
                   >
-                    {claimRewardMutation.isPending ? "Claiming..." : "Claim"}
+                    {claimRewardMutation.isPending ? (
+                      <div className="flex items-center gap-2">
+                        <div className="animate-spin rounded-full h-3 w-3 border-2 border-purple-600 border-t-transparent" />
+                        <span>Claiming...</span>
+                      </div>
+                    ) : (
+                      "Claim"
+                    )}
                   </Button>
                 </div>
               ))}
