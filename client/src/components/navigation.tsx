@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Settings } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Logo component
 function Logo() {
@@ -58,10 +59,12 @@ export default function Navigation() {
 
   const initials = user.username.split(" ").map((n) => n[0]).join("").toUpperCase();
 
+  const isActive = (path: string) => location === path;
+
   return (
     <>
       {/* Desktop navigation */}
-      <nav className="hidden md:block fixed bottom-0 left-0 right-0 bg-background/90 backdrop-blur-sm border-t shadow-sm z-50">
+      <nav className="hidden md:block fixed top-0 left-0 right-0 bg-background/90 backdrop-blur-sm border-b shadow-sm z-50">
         <div className="container mx-auto">
           <div className="flex items-center justify-between h-14">
             <div className="flex items-center space-x-4">
@@ -168,63 +171,55 @@ export default function Navigation() {
       </nav>
 
       {/* Mobile navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t shadow-lg z-50">
-        <div className="container mx-auto px-2">
-          <div className="flex items-center justify-between py-1">
-            <Link href="/home">
-              <Button 
-                variant={location === "/home" ? "default" : "ghost"} 
-                className="flex flex-col items-center space-y-1 h-auto py-1 px-2"
-              >
-                <HomeIcon />
-                <span className="text-xs font-medium">Home</span>
-              </Button>
-            </Link>
-
-            <Link href="/shop">
-              <Button 
-                variant={location === "/shop" ? "default" : "ghost"}
-                className="flex flex-col items-center space-y-1 h-auto py-1 px-2"
-              >
-                <ShopIcon />
-                <span className="text-xs font-medium">Shop</span>
-              </Button>
-            </Link>
-
-            <Link href="/market">
-              <Button 
-                variant={location === "/market" ? "default" : "ghost"}
-                className="flex flex-col items-center space-y-1 h-auto py-1 px-2"
-              >
-                <MarketIcon />
-                <span className="text-xs font-medium">Market</span>
-              </Button>
-            </Link>
-
-            <Link href="/wallet">
-              <Button 
-                variant={location === "/wallet" ? "default" : "ghost"}
-                className="flex flex-col items-center space-y-1 h-auto py-1 px-2"
-              >
-                <WalletIcon />
-                <span className="text-xs font-medium">Wallet</span>
-              </Button>
-            </Link>
-
-            <Link href="/account">
-              <Button 
-                variant={location === "/account" ? "default" : "ghost"} 
-                className="flex flex-col items-center space-y-1 h-auto py-1 px-2"
-              >
-                <Avatar className="h-7 w-7 ring-1 ring-primary/20">
-                  <AvatarFallback className="bg-primary/10 text-xs">{initials}</AvatarFallback>
-                </Avatar>
-                <span className="text-xs font-medium">Account</span>
-              </Button>
-            </Link>
+      <AnimatePresence>
+        <motion.nav 
+          initial={{ y: 100 }}
+          animate={{ y: 0 }}
+          exit={{ y: 100 }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          className="block md:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t shadow-lg z-50"
+        >
+          <div className="container mx-auto px-2">
+            <div className="flex items-center justify-between py-2">
+              {[
+                { path: "/home", icon: <HomeIcon />, label: "Home" },
+                { path: "/shop", icon: <ShopIcon />, label: "Shop" },
+                { path: "/market", icon: <MarketIcon />, label: "Market" },
+                { path: "/wallet", icon: <WalletIcon />, label: "Wallet" },
+                { path: "/account", icon: 
+                  <Avatar className="h-8 w-8 ring-1 ring-primary/20">
+                    <AvatarFallback className="bg-primary/10 text-xs">{initials}</AvatarFallback>
+                  </Avatar>, 
+                  label: "Account" 
+                }
+              ].map((item) => (
+                <Link key={item.path} href={item.path}>
+                  <motion.div
+                    whileTap={{ scale: 0.95 }}
+                    className="relative"
+                  >
+                    <Button 
+                      variant={isActive(item.path) ? "default" : "ghost"}
+                      className={`flex flex-col items-center justify-center space-y-1 h-16 w-16 px-0
+                        ${isActive(item.path) ? 'bg-primary/10' : ''}`}
+                    >
+                      {item.icon}
+                      <span className="text-xs font-medium">{item.label}</span>
+                    </Button>
+                    {isActive(item.path) && (
+                      <motion.div
+                        layoutId="activeIndicator"
+                        className="absolute -bottom-2 left-0 right-0 h-0.5 bg-primary"
+                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                      />
+                    )}
+                  </motion.div>
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
-      </nav>
+        </motion.nav>
+      </AnimatePresence>
     </>
   );
 }
