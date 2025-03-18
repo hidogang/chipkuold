@@ -5,16 +5,25 @@ const defaultHeaders = {
   "Content-Type": "application/json",
 };
 
+async function getResponseData(res: Response): Promise<any> {
+  const contentType = res.headers.get("content-type");
+  if (contentType && contentType.includes("application/json")) {
+    try {
+      return await res.json();
+    } catch (error) {
+      console.error("[API] Failed to parse JSON response:", error);
+      throw new Error("Invalid JSON response from server");
+    }
+  } else {
+    return await res.text();
+  }
+}
+
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
-    let errorMessage;
-    try {
-      const errorData = await res.json();
-      errorMessage = errorData.message || res.statusText;
-    } catch {
-      errorMessage = await res.text() || res.statusText;
-    }
-    throw new Error(`${res.status}: ${errorMessage}`);
+    const errorData = await getResponseData(res);
+    const errorMessage = typeof errorData === 'object' ? errorData.message : errorData;
+    throw new Error(`${res.status}: ${errorMessage || res.statusText}`);
   }
 }
 
@@ -22,47 +31,42 @@ export async function apiRequest(
   methodOrUrl: string,
   urlOrData?: string | RequestInit,
   data?: unknown | undefined,
-): Promise<Response> {
-  // Check if first parameter is a method or a URL
+): Promise<any> {
+  let response: Response;
+
   if (methodOrUrl === 'GET' || methodOrUrl === 'POST' || methodOrUrl === 'PUT' || methodOrUrl === 'DELETE' || methodOrUrl === 'PATCH') {
-    // First param is method, second is URL, third is data
     const method = methodOrUrl;
     const url = urlOrData as string;
 
     console.log(`[API Request] ${method} ${url}`);
-    const res = await fetch(url, {
+    response = await fetch(url, {
       method,
       headers: {
         ...defaultHeaders,
         ...(method !== 'GET' && data ? { "Content-Type": "application/json" } : {}),
       },
       body: data ? JSON.stringify(data) : undefined,
-      credentials: "include", // Important: Include credentials for all requests
+      credentials: "include",
     });
-
-    console.log(`[API Response] ${method} ${url} - Status:`, res.status);
-    await throwIfResNotOk(res);
-    return res;
   } else {
-    // First param is URL, second is options
     const url = methodOrUrl;
     const options = urlOrData as RequestInit;
 
     console.log(`[API Request] ${options?.method || 'GET'} ${url}`);
-    const res = await fetch(url, {
+    response = await fetch(url, {
       ...options,
       headers: {
         ...defaultHeaders,
         ...(options?.method !== 'GET' && options?.body ? { "Content-Type": "application/json" } : {}),
         ...(options?.headers || {}),
       },
-      credentials: "include", // Important: Include credentials for all requests
+      credentials: "include",
     });
-
-    console.log(`[API Response] ${options?.method || 'GET'} ${url} - Status:`, res.status);
-    await throwIfResNotOk(res);
-    return res;
   }
+
+  console.log(`[API Response] Status:`, response.status);
+  await throwIfResNotOk(response);
+  return await getResponseData(response);
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
@@ -72,24 +76,19 @@ export const getQueryFn: <T>(options: {
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     console.log(`[Query] Fetching ${queryKey[0]}`);
-    const res = await fetch(queryKey[0] as string, {
+    const response = await fetch(queryKey[0] as string, {
       headers: defaultHeaders,
-      credentials: "include", // Important: Include credentials for all requests
+      credentials: "include",
     });
 
-    console.log(`[Query] ${queryKey[0]} - Status:`, res.status);
-    if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+    console.log(`[Query] ${queryKey[0]} - Status:`, response.status);
+    if (unauthorizedBehavior === "returnNull" && response.status === 401) {
       console.log(`[Query] Returning null for unauthorized request to ${queryKey[0]}`);
       return null;
     }
 
-    await throwIfResNotOk(res);
-    try {
-      return await res.json();
-    } catch (error) {
-      console.error(`[Query] Failed to parse JSON response from ${queryKey[0]}:`, error);
-      throw new Error("Invalid JSON response from server");
-    }
+    await throwIfResNotOk(response);
+    return await getResponseData(response);
   };
 
 export const queryClient = new QueryClient({
@@ -98,9 +97,8 @@ export const queryClient = new QueryClient({
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: 0, // Always fetch fresh data
+      staleTime: 0,
       retry: (failureCount, error) => {
-        // Don't retry on 401 Unauthorized
         if (error instanceof Error && error.message.startsWith("401:")) {
           return false;
         }

@@ -25,7 +25,6 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
 
-  // User query with better error handling
   const {
     data: user,
     error,
@@ -33,16 +32,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   } = useQuery<SelectUser | null>({
     queryKey: ["/api/user"],
     queryFn: getQueryFn({ on401: "returnNull" }),
-    staleTime: 60000, // Cache for 1 minute
-    retry: false, // Don't retry on 401s
+    staleTime: 60000,
+    retry: false,
   });
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
       try {
-        const res = await apiRequest("POST", "/api/login", credentials);
-        const data = await res.json();
-        return data;
+        return await apiRequest("POST", "/api/login", credentials);
       } catch (error) {
         console.error("[Auth] Login error:", error);
         throw error;
@@ -68,10 +65,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const registerMutation = useMutation({
     mutationFn: async (credentials: InsertUser) => {
       try {
-        // Validate credentials before sending
         await insertUserSchema.parseAsync(credentials);
-        const res = await apiRequest("POST", "/api/register", credentials);
-        return await res.json();
+        return await apiRequest("POST", "/api/register", credentials);
       } catch (error) {
         if (error instanceof z.ZodError) {
           throw new Error(error.errors[0].message);
@@ -100,7 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     mutationFn: async () => {
       try {
         await apiRequest("POST", "/api/logout");
-        queryClient.clear(); // Clear all queries from cache
+        queryClient.clear();
       } catch (error) {
         console.error("[Auth] Logout error:", error);
         throw error;
