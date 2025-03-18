@@ -1,9 +1,20 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
+const defaultHeaders = {
+  "Accept": "application/json",
+  "Content-Type": "application/json",
+};
+
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
-    const text = (await res.text()) || res.statusText;
-    throw new Error(`${res.status}: ${text}`);
+    let errorMessage;
+    try {
+      const errorData = await res.json();
+      errorMessage = errorData.message || res.statusText;
+    } catch {
+      errorMessage = await res.text() || res.statusText;
+    }
+    throw new Error(`${res.status}: ${errorMessage}`);
   }
 }
 
@@ -17,13 +28,13 @@ export async function apiRequest(
     // First param is method, second is URL, third is data
     const method = methodOrUrl;
     const url = urlOrData as string;
-    
+
     console.log(`[API Request] ${method} ${url}`);
     const res = await fetch(url, {
       method,
       headers: {
-        ...(data ? { "Content-Type": "application/json" } : {}),
-        "Accept": "application/json",
+        ...defaultHeaders,
+        ...(method !== 'GET' && data ? { "Content-Type": "application/json" } : {}),
       },
       body: data ? JSON.stringify(data) : undefined,
       credentials: "include", // Important: Include credentials for all requests
@@ -36,16 +47,15 @@ export async function apiRequest(
     // First param is URL, second is options
     const url = methodOrUrl;
     const options = urlOrData as RequestInit;
-    
+
     console.log(`[API Request] ${options?.method || 'GET'} ${url}`);
     const res = await fetch(url, {
-      method: options?.method || 'GET',
+      ...options,
       headers: {
-        ...(options?.body ? { "Content-Type": "application/json" } : {}),
-        "Accept": "application/json",
+        ...defaultHeaders,
+        ...(options?.method !== 'GET' && options?.body ? { "Content-Type": "application/json" } : {}),
         ...(options?.headers || {}),
       },
-      body: options?.body ? JSON.stringify(options.body) : undefined,
       credentials: "include", // Important: Include credentials for all requests
     });
 
@@ -63,10 +73,8 @@ export const getQueryFn: <T>(options: {
   async ({ queryKey }) => {
     console.log(`[Query] Fetching ${queryKey[0]}`);
     const res = await fetch(queryKey[0] as string, {
+      headers: defaultHeaders,
       credentials: "include", // Important: Include credentials for all requests
-      headers: {
-        "Accept": "application/json",
-      }
     });
 
     console.log(`[Query] ${queryKey[0]} - Status:`, res.status);
@@ -76,7 +84,12 @@ export const getQueryFn: <T>(options: {
     }
 
     await throwIfResNotOk(res);
-    return await res.json();
+    try {
+      return await res.json();
+    } catch (error) {
+      console.error(`[Query] Failed to parse JSON response from ${queryKey[0]}:`, error);
+      throw new Error("Invalid JSON response from server");
+    }
   };
 
 export const queryClient = new QueryClient({
@@ -86,7 +99,13 @@ export const queryClient = new QueryClient({
       refetchInterval: false,
       refetchOnWindowFocus: false,
       staleTime: 0, // Always fetch fresh data
-      retry: 2,
+      retry: (failureCount, error) => {
+        // Don't retry on 401 Unauthorized
+        if (error instanceof Error && error.message.startsWith("401:")) {
+          return false;
+        }
+        return failureCount < 2;
+      },
     },
     mutations: {
       retry: false,
