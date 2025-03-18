@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Settings, Users } from "lucide-react";
+import { Settings } from "lucide-react";
 
 // Logo component
 function Logo() {
@@ -38,6 +38,16 @@ function MarketIcon() {
 
 function WalletIcon() {
   return <img src="/assets/wallet-icon.png" className="w-8 h-8 object-contain" alt="Wallet" />;
+}
+
+function ReferralsIcon() {
+  return (
+    <img 
+      src="/assets/referrals-icon.png" 
+      className="w-8 h-8 object-contain" 
+      alt="Referrals" 
+    />
+  );
 }
 
 export default function Navigation() {
@@ -105,7 +115,7 @@ export default function Navigation() {
                     className="flex items-center h-10 gap-2 font-medium" 
                     size="sm"
                   >
-                    <Users className="h-5 w-5" />
+                    <ReferralsIcon />
                     <span>Referrals</span>
                   </Button>
                 </Link>
@@ -206,7 +216,7 @@ export default function Navigation() {
                 variant={location === "/referrals" ? "default" : "ghost"}
                 className="flex flex-col items-center space-y-1 h-auto py-1 px-2"
               >
-                <Users className="h-5 w-5" />
+                <ReferralsIcon />
                 <span className="text-xs font-medium">Team</span>
               </Button>
             </Link>
