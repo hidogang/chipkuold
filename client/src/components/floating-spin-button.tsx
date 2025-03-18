@@ -24,6 +24,12 @@ export function FloatingSpinButton() {
     refetchInterval: 1000, // Update countdown every second
   });
 
+  // Get spin history
+  const spinHistoryQuery = useQuery({
+    queryKey: ["/api/spin/history"],
+    queryFn: ({ signal }) => apiRequest("GET", "/api/spin/history", undefined, { signal }),
+  });
+
   // Daily spin mutation
   const dailySpinMutation = useMutation({
     mutationFn: () => apiRequest("POST", "/api/spin/daily"),
@@ -192,6 +198,40 @@ export function FloatingSpinButton() {
                   >
                     Try Super Jackpot (10 USDT)
                   </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Spin History */}
+            <div className="mt-4 p-4 bg-white rounded-lg border border-amber-200">
+              <h3 className="text-lg font-semibold text-amber-900 mb-2">Recent Spins</h3>
+              <div className="space-y-4">
+                {spinHistoryQuery.data?.map((spin) => (
+                  <div key={spin.id} className="p-4 border rounded-lg">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="font-medium">
+                          {spin.spinType === "daily" ? "Daily Spin" : "Super Jackpot"}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {formatDistanceToNow(new Date(spin.createdAt), { addSuffix: true })}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold">
+                          {spin.rewardType === "usdt" ? `$${spin.rewardAmount} USDT` :
+                           spin.rewardType === "chicken" ? `${spin.chickenType} Chicken` :
+                           `${spin.rewardAmount} ${spin.rewardType}`}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {!spinHistoryQuery.data?.length && (
+                  <p className="text-center text-muted-foreground py-8">
+                    No spins yet. Try your luck now!
+                  </p>
                 )}
               </div>
             </div>
