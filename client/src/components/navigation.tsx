@@ -43,7 +43,7 @@ function WalletIcon() {
 function ReferralsIcon() {
   return (
     <img 
-      src="/assets/referrals-icon.png" 
+      src="/attached_assets/DALL_E_2025-03-18_17.02.09_-_A_cartoon-style_chicken_holding_a_megaphone__designed_as_a_game_icon._The_icon_should_be_clean__colorful__and_match_the_style_of_a_fun_farm-themed_gam-removebg-preview.png" 
       className="w-8 h-8 object-contain" 
       alt="Referrals" 
     />
