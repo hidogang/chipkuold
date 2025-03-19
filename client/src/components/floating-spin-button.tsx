@@ -90,9 +90,9 @@ export function FloatingSpinButton() {
 
   return (
     <>
-      {/* Floating Action Button */}
+      {/* Floating Action Button - Lower z-index than navigation */}
       <motion.button
-        className="fixed left-4 bottom-24 md:bottom-20 z-50 w-16 h-16 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group overflow-hidden"
+        className="fixed left-4 bottom-24 md:bottom-20 z-40 w-16 h-16 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group overflow-hidden"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(true)}
@@ -107,14 +107,14 @@ export function FloatingSpinButton() {
         />
       </motion.button>
 
-      {/* Full-page Spin View */}
+      {/* Full-page Spin View - Lower z-index than navigation */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="fixed inset-0 bg-background z-[60] overflow-y-auto"
+            className="fixed inset-0 bg-background/95 z-40 overflow-y-auto"
           >
             <div className="container mx-auto py-8 px-4">
               <div className="flex justify-between items-center mb-6">
@@ -230,8 +230,8 @@ export function FloatingSpinButton() {
                             <div className="text-right">
                               <p className="font-semibold">
                                 {spin.rewardType === "usdt" ? `$${spin.rewardAmount} USDT` :
-                                 spin.rewardType === "chicken" ? `${spin.chickenType} Chicken` :
-                                 `${spin.rewardAmount} ${spin.rewardType}`}
+                                  spin.rewardType === "chicken" ? `${spin.chickenType} Chicken` :
+                                  `${spin.rewardAmount} ${spin.rewardType}`}
                               </p>
                             </div>
                           </div>
