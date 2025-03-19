@@ -186,6 +186,7 @@ export default function Navigation() {
                 { path: "/shop", icon: <ShopIcon />, label: "Shop" },
                 { path: "/market", icon: <MarketIcon />, label: "Market" },
                 { path: "/wallet", icon: <WalletIcon />, label: "Wallet" },
+                { path: "/referrals", icon: <ReferralsIcon />, label: "Referrals" },
                 { path: "/account", icon: 
                   <Avatar className="h-8 w-8 ring-1 ring-primary/20">
                     <AvatarFallback className="bg-primary/10 text-xs">{initials}</AvatarFallback>
