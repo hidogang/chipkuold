@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
+import { LoadingChickens } from "@/components/ui/loading-chickens";
 import {
   ChevronRight, Home, ShoppingCart, BarChart3, Wallet, User
 } from "lucide-react";
@@ -233,6 +234,18 @@ export default function HomePage() {
     window.location.href = `/market?tab=${resourceType}`;
   };
 
+  // Show loading state while data is being fetched
+  if (chickensQuery.isLoading || resourcesQuery.isLoading) {
+    return (
+      <div className={`min-h-screen flex flex-col ${getBgStyle()}`}>
+        <BalanceBar />
+        <div className="flex-1 flex items-center justify-center">
+          <LoadingChickens size="lg" message="Loading your chicken farm..." />
+        </div>
+      </div>
+    );
+  }
+
   if (!chickensQuery.data?.length) {
     return (
       <div className={`h-full flex flex-col ${getBgStyle()}`}>
@@ -268,7 +281,7 @@ export default function HomePage() {
               >
                 <img src="/assets/orange-cloud.png" alt="Orange Cloud" className="w-full h-full" />
               </motion.div>
-              
+
               <motion.div
                 className="absolute bottom-10 right-20 w-28 h-20 opacity-70"
                 animate={{ x: [0, 15, 0] }}
@@ -339,7 +352,8 @@ export default function HomePage() {
         userId: user?.id || 0,
         waterBuckets: 0,
         wheatBags: 0,
-        eggs: 0
+        eggs: 0,
+        mysteryBoxes: 0
       };
 
   return (
@@ -353,7 +367,7 @@ export default function HomePage() {
         >
           <img src="/assets/orange-cloud.png" alt="Orange Cloud" className="w-full h-full" />
         </motion.div>
-        
+
         <motion.div
           className="absolute left-10 top-40 w-40 h-28 opacity-70"
           animate={{ x: [0, 15, 0], y: [0, -5, 0] }}
@@ -361,7 +375,7 @@ export default function HomePage() {
         >
           <img src="/assets/orange-cloud.png" alt="Orange Cloud" className="w-full h-full" />
         </motion.div>
-        
+
         <motion.div
           className="absolute right-20 bottom-32 w-36 h-24 opacity-60"
           animate={{ x: [0, -10, 0], y: [0, 8, 0] }}
@@ -370,7 +384,7 @@ export default function HomePage() {
           <img src="/assets/orange-cloud.png" alt="Orange Cloud" className="w-full h-full" />
         </motion.div>
       </div>
-      
+
       <BalanceBar />
       <div className="flex-1 overflow-auto p-4 pt-6 relative z-10">
         <motion.div
