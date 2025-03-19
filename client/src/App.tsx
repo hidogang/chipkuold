@@ -9,7 +9,7 @@ import { RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/components/navigation";
 import ScrollToTop from "@/components/scroll-to-top";
-import { Loader } from "@/components/ui/loader";
+import { LoadingChickens } from "@/components/ui/loading-chickens";
 import { FloatingSpinButton } from "@/components/floating-spin-button";
 
 // Import pages
@@ -27,108 +27,6 @@ import ContactUsPage from "@/pages/contact-us";
 import TermsOfServicePage from "@/pages/terms-of-service";
 import PrivacyPolicyPage from "@/pages/privacy-policy";
 
-
-function LoadingScreen({ onFinishLoading }: { onFinishLoading: () => void }) {
-  const [progress, setProgress] = useState(0);
-  const [fadeOut, setFadeOut] = useState(false);
-  const logoRef = useRef<HTMLImageElement>(null);
-
-  useEffect(() => {
-    const loadingTime = 2000;
-    const interval = setInterval(() => {
-      setProgress(prev => {
-        const increment = 100 / (loadingTime / 100);
-        const newProgress = Math.min(prev + increment, 100);
-
-        if (newProgress >= 100) {
-          clearInterval(interval);
-          setFadeOut(true);
-          setTimeout(() => onFinishLoading(), 500);
-        }
-
-        return newProgress;
-      });
-    }, 100);
-
-    const safetyTimer = setTimeout(() => {
-      setProgress(100);
-      setFadeOut(true);
-      onFinishLoading();
-    }, 3000);
-
-    return () => {
-      clearInterval(interval);
-      clearTimeout(safetyTimer);
-    };
-  }, [onFinishLoading]);
-
-  return (
-    <div className={`fixed inset-0 z-[9999] overflow-hidden bg-gradient-to-b from-amber-50 to-orange-50 
-      flex flex-col items-center justify-center transition-opacity duration-500 ${fadeOut ? 'opacity-0' : 'opacity-100'}`}>
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="cloud-container">
-          <div className="cloud cloud-1"></div>
-          <div className="cloud cloud-2"></div>
-          <div className="cloud cloud-3"></div>
-          <div className="cloud cloud-4"></div>
-        </div>
-      </div>
-
-      <motion.div
-        className="relative mb-8"
-        initial={{ scale: 0.8, opacity: 0, y: 10 }}
-        animate={{ scale: 1, opacity: 1, y: 0 }}
-        transition={{ type: "spring", duration: 0.8 }}
-      >
-        <img
-          ref={logoRef}
-          src="/assets/chickfarms-logo.png"
-          alt="ChickFarms"
-          className="w-32 h-32 object-contain"
-        />
-
-        <motion.div
-          className="absolute inset-0 rounded-full"
-          animate={{
-            opacity: [0.1, 0.3, 0.1],
-            scale: [0.9, 1.1, 0.9],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-          style={{
-            background: 'radial-gradient(circle, rgba(251, 191, 36, 0.4) 0%, rgba(251, 191, 36, 0) 70%)',
-            filter: 'blur(8px)',
-            zIndex: -1
-          }}
-        />
-      </motion.div>
-
-      <motion.h2
-        className="text-xl font-bold text-amber-800 mb-6"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-      >
-        Loading your chicken farm...
-      </motion.h2>
-
-      <div className="w-64 h-2.5 bg-amber-100 rounded-full overflow-hidden shadow-inner relative z-10">
-        <motion.div
-          className="h-full"
-          style={{
-            width: `${progress}%`,
-            background: 'linear-gradient(90deg, #f59e0b, #ea580c)',
-          }}
-          transition={{ ease: "easeOut" }}
-        />
-      </div>
-    </div>
-  );
-}
-
 function Router() {
   const [locationPath] = useLocation();
   const { isLoading, user } = useAuth();
@@ -138,7 +36,7 @@ function Router() {
   if (isLoading && !isPublicRoute) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader size="default" />
+        <LoadingChickens size="lg" message="Loading ChickFarms..." />
       </div>
     );
   }
@@ -194,10 +92,6 @@ function App() {
     };
   }, []);
 
-  const handleFinishLoading = () => {
-    setIsLoading(false);
-  };
-
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
@@ -212,7 +106,9 @@ function App() {
           )}
 
           {isLoading ? (
-            <LoadingScreen onFinishLoading={handleFinishLoading} />
+            <div className="fixed inset-0 bg-gradient-to-b from-amber-50 to-orange-50 flex items-center justify-center z-[9999]">
+              <LoadingChickens size="lg" message="Loading ChickFarms..." />
+            </div>
           ) : (
             <motion.div
               initial={{ opacity: 0 }}
@@ -229,7 +125,7 @@ function App() {
               {!isLandingPage && (
                 <>
                   <Navigation />
-                  <FloatingSpinButton /> {/* This remains a full-page view, no changes needed here. */}
+                  <FloatingSpinButton />
                 </>
               )}
               <Toaster />
