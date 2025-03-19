@@ -7,10 +7,29 @@ import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import ScrollToTop from "@/components/scroll-to-top";
 import { Link } from "wouter";
+import { LoadingChickens } from "@/components/ui/loading-chickens";
+import { useState, useEffect } from 'react';
 
 export default function LandingPage() {
   const [location, setLocation] = useLocation();
   const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate initial loading for testing the animation
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#FEF3C7] flex items-center justify-center">
+        <LoadingChickens size="lg" message="Preparing your farm..." />
+      </div>
+    );
+  }
 
   const handleGetStarted = () => {
     if (user) {
