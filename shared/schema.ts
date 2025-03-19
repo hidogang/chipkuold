@@ -363,6 +363,23 @@ export const spinHistory = pgTable("spin_history", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Add initialization check query
+export const DEFAULT_PRICES = [
+  { item_type: 'baby_chicken', price: 90.00 },
+  { item_type: 'regular_chicken', price: 150.00 },
+  { item_type: 'golden_chicken', price: 400.00 },
+  { item_type: 'water_bucket', price: 0.50 },
+  { item_type: 'wheat_bag', price: 0.50 },
+  { item_type: 'egg', price: 0.10 }
+];
+
+// Add this after all table definitions but before the exports
+export const initializeDefaultsQuery = `
+  INSERT INTO prices (item_type, price)
+  VALUES ${DEFAULT_PRICES.map(p => `('${p.item_type}', ${p.price})`).join(', ')}
+  ON CONFLICT (item_type) DO NOTHING;
+`;
+
 export const insertUserSchema = createInsertSchema(users)
   .pick({
     username: true,
