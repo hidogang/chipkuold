@@ -12,12 +12,14 @@ import { useAuth } from "@/hooks/use-auth";
 import { X } from "lucide-react";
 import BalanceBar from "@/components/balance-bar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { useLocation } from "wouter";
 
 export function FloatingSpinButton() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("daily");
+  const [, setLocation] = useLocation();
 
   // Get spin status
   const spinStatusQuery = useQuery({
@@ -86,6 +88,12 @@ export function FloatingSpinButton() {
     },
   });
 
+  // Handle navigation
+  const handleNavigation = (path: string) => {
+    setIsOpen(false); // Close the spin overlay
+    setLocation(path); // Navigate to the new path
+  };
+
   if (!user) return null;
 
   return (
@@ -118,7 +126,13 @@ export function FloatingSpinButton() {
           >
             <div className="container mx-auto py-8 px-4">
               <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-amber-900">Lucky Spin Wheel</h1>
+                <Button
+                  variant="ghost"
+                  onClick={() => handleNavigation('/home')}
+                  className="flex items-center gap-2 text-amber-900 hover:text-amber-700"
+                >
+                  <span className="text-lg">← Home</span>
+                </Button>
                 <Button
                   variant="ghost"
                   size="icon"
