@@ -313,85 +313,113 @@ export default function ShopPage() {
       <BalanceBar />
 
       <motion.div
-        className="space-y-6 sm:space-y-8 mt-4 sm:mt-6 px-3 sm:px-6 max-w-6xl mx-auto"
+        className="space-y-6 sm:space-y-8 mt-4 sm:mt-6 px-4 sm:px-6 max-w-6xl mx-auto"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
+        {/* Shop Header */}
         <div className="relative">
           <motion.div
-            className="absolute inset-0 bg-amber-500/10 rounded-lg -z-10"
+            className="absolute inset-0 bg-gradient-to-r from-amber-500/20 to-amber-300/10 rounded-xl -z-10"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.1 }}
           />
-          <div className="flex items-center space-x-2 p-2 sm:p-3">
-            <div className="bg-amber-500 rounded-full p-2 text-white">
-              <ShoppingCart size={20} />
+          <div className="flex flex-col md:flex-row md:items-center justify-between p-4 sm:p-5 rounded-xl border border-amber-200 shadow-sm">
+            <div className="flex items-center gap-3 mb-3 md:mb-0">
+              <div className="bg-gradient-to-r from-amber-500 to-amber-600 rounded-full p-3 text-white shadow-md">
+                <ShoppingCart size={24} />
+              </div>
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-amber-800">ChickFarms Shop</h1>
+                <p className="text-sm text-amber-700">Build your farm with premium chickens and mystery boxes!</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl sm:text-3xl font-bold text-amber-800">ChickFarms Chicken Shop</h1>
-              <p className="text-sm text-amber-700">Build your farm with the perfect chickens!</p>
+            <div className="flex gap-3">
+              <a href="#chickens" className="bg-amber-100 hover:bg-amber-200 text-amber-800 py-2 px-4 rounded-lg font-medium text-sm transition-colors">
+                Chickens
+              </a>
+              <a href="#mysteryboxes" className="bg-purple-100 hover:bg-purple-200 text-purple-800 py-2 px-4 rounded-lg font-medium text-sm transition-colors">
+                Mystery Boxes
+              </a>
             </div>
           </div>
         </div>
 
+        {/* Shop Info Card */}
         <motion.div
-          className="bg-gradient-to-r from-amber-100 to-amber-50 rounded-lg p-3 sm:p-4 border border-amber-200 shadow-sm"
+          className="bg-gradient-to-r from-amber-100 to-amber-50 rounded-lg p-4 sm:p-5 border border-amber-200 shadow-sm"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <div className="flex items-start">
-            <Info className="text-amber-600 mt-0.5 mr-2 flex-shrink-0" size={18} />
-            <p className="text-sm text-amber-800">
-              Chickens are your primary source of income. Each chicken requires different resources to produce eggs,
-              which can be sold in the market. The more valuable chickens produce eggs faster, but require more resources.
-            </p>
+          <div className="flex flex-col sm:flex-row sm:items-start gap-3">
+            <Info className="text-amber-600 mt-0.5 mr-2 flex-shrink-0 hidden sm:block" size={24} />
+            <div className="space-y-2">
+              <div className="flex items-center sm:hidden">
+                <Info className="text-amber-600 mr-2" size={18} />
+                <h3 className="font-bold text-amber-800">Shop Information</h3>
+              </div>
+              <p className="text-sm text-amber-800">
+                Chickens are your primary source of income. Each chicken requires different resources to produce eggs,
+                which can be sold in the market. The more valuable chickens produce eggs faster, but require more resources.
+              </p>
+              <p className="text-sm text-amber-800">
+                Mystery boxes contain valuable rewards including USDT, resources, and even rare chickens!
+              </p>
+            </div>
           </div>
         </motion.div>
 
+        {/* Sell Chickens Section - Only show if user has chickens */}
         {chickensQuery.data && chickensQuery.data.length > 0 && (
           <motion.div
-            className="bg-white rounded-lg border border-amber-200 shadow-sm overflow-hidden"
+            className="bg-white rounded-xl border border-amber-200 shadow-sm overflow-hidden"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <div className="border-b border-amber-100 bg-gradient-to-r from-amber-50 to-white p-3">
-              <div className="flex items-center">
-                <DollarSign className="text-amber-500 mr-2" size={18} />
-                <h2 className="font-bold text-amber-800">Sell Your Chickens</h2>
+            <div className="border-b border-amber-100 bg-gradient-to-r from-amber-50 to-white p-4">
+              <div className="flex items-center gap-2">
+                <DollarSign className="text-amber-500" size={20} />
+                <h2 className="font-bold text-amber-800 text-lg">Sell Your Chickens</h2>
               </div>
               <p className="text-sm text-amber-700 mt-1">
                 You can sell your chickens for 75% of their purchase price. Sold chickens cannot be recovered.
               </p>
             </div>
 
-            <div className="p-3 divide-y divide-amber-100">
+            <div className="p-4 space-y-3">
               {chickensQuery.data.length === 0 ? (
                 <p className="text-center py-4 text-gray-500">You don't have any chickens to sell yet.</p>
               ) : (
                 chickensQuery.data.map((chicken) => (
-                  <div key={chicken.id} className="py-3 flex justify-between items-center">
+                  <div 
+                    key={chicken.id} 
+                    className="p-3 rounded-lg border border-amber-100 hover:border-amber-200 flex flex-col sm:flex-row justify-between sm:items-center gap-3 transition-all bg-gradient-to-r from-amber-50/50 to-white"
+                  >
                     <div className="flex items-center">
-                      <img
-                        src={chicken.type === 'golden'
-                          ? '/assets/goldenchicken.png'
-                          : chicken.type === 'regular'
-                            ? '/assets/regularchicken.png'
-                            : '/assets/babychicken.png'}
-                        alt={`${chicken.type} Chicken`}
-                        className="w-10 h-10 mr-3 object-contain"
-                      />
+                      <div className="relative w-14 h-14 mr-3">
+                        <div className="absolute inset-0 rounded-full bg-amber-100 -z-10 opacity-50"></div>
+                        <img
+                          src={chicken.type === 'golden'
+                            ? '/assets/goldenchicken.png'
+                            : chicken.type === 'regular'
+                              ? '/assets/regularchicken.png'
+                              : '/assets/babychicken.png'}
+                          alt={`${chicken.type} Chicken`}
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
                       <div>
-                        <div className="font-medium capitalize">{chicken.type} Chicken</div>
-                        <div className="text-xs text-gray-500">ID: #{chicken.id}</div>
+                        <div className="font-medium capitalize text-amber-900">{chicken.type} Chicken</div>
+                        <div className="text-xs text-amber-600">ID: #{chicken.id}</div>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                      <div className="text-green-600 font-semibold">
+                    <div className="flex items-center gap-3 justify-end sm:justify-start">
+                      <div className="text-green-600 font-semibold px-3 py-1 bg-green-50 rounded-full border border-green-100">
                         ${(getPrice(chicken.type) * 0.75).toFixed(2)}
                       </div>
                       <Button
@@ -399,6 +427,7 @@ export default function ShopPage() {
                         size="sm"
                         onClick={() => sellChickenMutation.mutate(chicken.id)}
                         disabled={sellChickenMutation.isPending}
+                        className="px-4"
                       >
                         Sell
                       </Button>
@@ -410,7 +439,16 @@ export default function ShopPage() {
           </motion.div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+        {/* Chicken Shop Section */}
+        <div id="chickens" className="scroll-mt-16">
+          <div className="flex items-center gap-3 mb-4 mt-10">
+            <div className="bg-amber-100 p-2 rounded-full">
+              <img src="/assets/chicken-regular.svg" alt="Chicken" className="w-6 h-6" />
+            </div>
+            <h2 className="text-2xl font-bold text-amber-800">Premium Chickens</h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {CHICKEN_TYPES.map((chicken, index) => (
             <motion.div
               key={chicken.type}
@@ -421,20 +459,31 @@ export default function ShopPage() {
               whileHover={{ y: -5, transition: { duration: 0.2 } }}
             >
               <div
-                className="relative overflow-hidden rounded-lg shadow-md border border-gray-100"
-                style={{ background: "white" }}
+                className="relative overflow-hidden rounded-xl shadow-lg border border-amber-200 bg-white h-full"
               >
                 <div
-                  className="absolute top-0 left-0 right-0 h-28 z-0"
+                  className="absolute top-0 left-0 right-0 h-36 z-0"
                   style={{
                     background: `linear-gradient(135deg, ${chicken.color}30, ${chicken.accentColor}20)`
                   }}
                 />
 
-                <div className="relative pt-4 pb-2 px-4 flex flex-col items-center z-10">
+                <div className="relative pt-6 pb-4 px-4 flex flex-col items-center z-10">
+                  <div 
+                    className={`absolute -top-5 right-3 px-3 py-1 rounded-full text-xs font-bold text-white shadow-md ${
+                      chicken.type === 'baby' ? 'bg-amber-400' : 
+                      chicken.type === 'regular' ? 'bg-blue-500' : 
+                      'bg-yellow-500'
+                    }`}
+                  >
+                    {chicken.type === 'baby' ? 'BEGINNER' : 
+                     chicken.type === 'regular' ? 'STANDARD' : 
+                     'PREMIUM'}
+                  </div>
+                  
                   <motion.div
-                    className="w-24 h-24 mb-2"
-                    animate={{ y: [0, -5, 0] }}
+                    className="w-28 h-28 mb-2"
+                    animate={{ y: [0, -6, 0] }}
                     transition={{
                       repeat: Infinity,
                       duration: 2 + (index * 0.3),
@@ -453,16 +502,16 @@ export default function ShopPage() {
                   </motion.div>
 
                   <h3
-                    className="text-lg font-bold mb-1 text-center"
+                    className="text-xl font-bold mb-2 text-center"
                     style={{ color: chicken.type === 'golden' ? '#B07D00' : '#555' }}
                   >
                     {chicken.name}
                   </h3>
 
                   <div
-                    className="text-xs px-3 py-1 rounded-full mb-1 font-semibold"
+                    className="text-sm px-4 py-1.5 rounded-full mb-2 font-medium text-center"
                     style={{
-                      background: `${chicken.accentColor}30`,
+                      background: `${chicken.accentColor}20`,
                       color: chicken.type === 'golden' ? '#B07D00' : '#666'
                     }}
                   >
@@ -470,41 +519,23 @@ export default function ShopPage() {
                   </div>
                 </div>
 
-                <div className="bg-gray-50 p-3 space-y-2">
-                  <div className="grid grid-cols-2 gap-2">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className="bg-white p-2 rounded border border-gray-100 text-center cursor-help">
-                            <div className="text-amber-600 text-xs font-semibold mb-1">ROI Period</div>
-                            <div className="text-amber-900 font-bold">{chicken.roi}</div>
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Time to recover your investment through egg sales</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                <div className="bg-gradient-to-b from-amber-50 to-white p-4 space-y-3 rounded-b-xl">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-white p-3 rounded-lg border border-amber-100 text-center cursor-help hover:border-amber-300 transition-all">
+                      <div className="text-amber-600 text-xs font-semibold mb-1">ROI Period</div>
+                      <div className="text-amber-900 font-bold">{chicken.roi}</div>
+                    </div>
 
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className="bg-white p-2 rounded border border-gray-100 text-center cursor-help">
-                            <div className="text-amber-600 text-xs font-semibold mb-1">Eggs/Day</div>
-                            <div className="text-amber-900 font-bold">{chicken.eggsPerDay}</div>
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Average number of eggs produced per day</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                    <div className="bg-white p-3 rounded-lg border border-amber-100 text-center cursor-help hover:border-amber-300 transition-all">
+                      <div className="text-amber-600 text-xs font-semibold mb-1">Eggs/Day</div>
+                      <div className="text-amber-900 font-bold">{chicken.eggsPerDay}</div>
+                    </div>
                   </div>
 
-                  <div className="bg-white p-2 rounded border border-gray-100 text-center">
-                    <div className="text-amber-600 text-xs font-semibold mb-1">Farm Population</div>
-                    <div className="flex justify-center items-center gap-2">
-                      <Badge variant="outline" className="bg-amber-50">
+                  <div className="bg-white p-3 rounded-lg border border-amber-100 text-center hover:border-amber-300 transition-all">
+                    <div className="text-amber-600 text-xs font-semibold mb-2">Farm Population</div>
+                    <div className="flex flex-wrap justify-center items-center gap-2">
+                      <Badge variant="outline" className="bg-amber-50 whitespace-normal text-center">
                         {chickenCountsQuery.isLoading ?
                           "Loading..." :
                           `${getChickenCount(chicken.type)} owned by all farmers`
@@ -519,88 +550,61 @@ export default function ShopPage() {
                     </div>
                   </div>
 
-                  <div className="bg-white p-2 rounded border border-gray-100">
-                    <div className="text-amber-600 text-xs font-semibold mb-1 text-center">
+                  <div className="bg-white p-3 rounded-lg border border-amber-100 hover:border-amber-300 transition-all">
+                    <div className="text-amber-600 text-xs font-semibold mb-2 text-center">
                       Required Resources per Hatch
                     </div>
-                    <div className="flex justify-center gap-3">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div className="flex items-center cursor-help">
-                              <img src="/assets/waterbucket.png" alt="Water Bucket" width="16" height="16" className="mr-1" style={{ objectFit: "contain" }} />
-                              <span className="text-sm font-semibold">{chicken.requirements.water}</span>
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Water buckets needed per egg hatch</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                    <div className="flex justify-center gap-4">
+                      <div className="flex items-center">
+                        <div className="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center mr-1">
+                          <img src="/assets/waterbucket.png" alt="Water Bucket" width="20" height="20" className="object-contain" />
+                        </div>
+                        <span className="text-sm font-semibold">{chicken.requirements.water}</span>
+                      </div>
 
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div className="flex items-center cursor-help">
-                              <Wheat size={16} className="text-amber-500 mr-1" />
-                              <span className="text-sm font-semibold">{chicken.requirements.wheat}</span>
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Wheat bags needed per egg hatch</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                      <div className="flex items-center">
+                        <div className="w-8 h-8 bg-amber-50 rounded-full flex items-center justify-center mr-1">
+                          <Wheat size={18} className="text-amber-500" />
+                        </div>
+                        <span className="text-sm font-semibold">{chicken.requirements.wheat}</span>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="flex justify-between items-center pt-1">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className="text-lg font-bold cursor-help" style={{ color: "#43a047" }}>
-                            ${getPrice(chicken.type)}
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Current market price for this chicken</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                  <div className="flex justify-between items-center gap-3 pt-2">
+                    <div className="text-xl font-bold text-green-600 bg-green-50 px-4 py-2 rounded-lg border border-green-100">
+                      ${getPrice(chicken.type)}
+                    </div>
 
-                    <motion.button
+                    <Button
                       onClick={() => buyChickenMutation.mutate(chicken.type)}
                       disabled={buyChickenMutation.isPending}
-                      className="chickfarms-buy-button px-4 py-2 rounded-lg text-white font-semibold flex items-center gap-1 relative overflow-hidden"
-                      style={{
-                        background: "linear-gradient(to bottom, #ff9800, #ff7c2e)",
-                        border: "1px solid #ffbc5b",
-                        boxShadow: "0 2px 4px rgba(255, 159, 67, 0.4)"
-                      }}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                      className={`px-4 py-6 rounded-lg text-white font-semibold flex items-center gap-2 relative overflow-hidden ${
+                        buyChickenMutation.isPending ? 'opacity-70' : 'bg-gradient-to-b from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700'
+                      }`}
                     >
-                      <ShoppingCart size={16} />
-                      <span>Buy Now</span>
-                      <motion.div
-                        className="absolute inset-0 bg-white/10"
-                        initial={{ x: "-100%" }}
-                        animate={{ x: "100%" }}
-                        transition={{
-                          repeat: Infinity,
-                          duration: 1.5,
-                          ease: "linear"
-                        }}
-                      />
-                    </motion.button>
+                      {buyChickenMutation.isPending ? (
+                        <div className="flex items-center gap-2">
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                          <span>Buying...</span>
+                        </div>
+                      ) : (
+                        <>
+                          <ShoppingCart size={18} />
+                          <span>Buy Now</span>
+                        </>
+                      )}
+                    </Button>
                   </div>
                 </div>
               </div>
             </motion.div>
           ))}
         </div>
+        </div> {/* Closing for Chicken Shop Section div#chickens */}
 
-        <motion.div className="space-y-6 sm:space-y-8 mt-8">
+        <div id="mysteryboxes" className="scroll-mt-16">
+          <motion.div className="space-y-6 sm:space-y-8 mt-8">
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-amber-600 bg-clip-text text-transparent">
               Mystery Boxes
@@ -814,15 +818,19 @@ export default function ShopPage() {
               {mysteryBoxRewardsQuery.data.map(reward => !reward.claimedAt && (
                 <div key={reward.id} className="bg-purple-50 rounded-lg p-3 flex justify-between items-center">
                   <div>
-                    <div className="font-semibold text-purple900">
-                      {reward.rewardType === 'usdt' && reward.rewardDetails &&
-                        `${(reward.rewardDetails as any).amount} USDT`}
-                      {reward.rewardType === 'chicken' && reward.rewardDetails &&
-                        `${(reward.rewardDetails as any).chickenType} Chicken`}
-                      {reward.rewardType === 'resources' && reward.rewardDetails &&
-                        `${(reward.rewardDetails as any).resourceAmount} ${(reward.rewardDetails as any).resourceType}`}
-                      {reward.rewardType === 'eggs' && reward.rewardDetails &&
-                        `${(reward.rewardDetails as any).minEggs} Eggs`}
+                    <div className="font-semibold text-purple-900">
+                      {reward.rewardType === 'usdt' && reward.rewardDetails && (
+                        <span>{(reward.rewardDetails as any).amount} USDT</span>
+                      )}
+                      {reward.rewardType === 'chicken' && reward.rewardDetails && (
+                        <span>{(reward.rewardDetails as any).chickenType} Chicken</span>
+                      )}
+                      {reward.rewardType === 'resources' && reward.rewardDetails && (
+                        <span>{(reward.rewardDetails as any).resourceAmount} {(reward.rewardDetails as any).resourceType}</span>
+                      )}
+                      {reward.rewardType === 'eggs' && reward.rewardDetails && (
+                        <span>{(reward.rewardDetails as any).minEggs} Eggs</span>
+                      )}
                     </div>
                     <div className="text-xs text-gray-500">
                       Reward #{reward.id}
@@ -918,7 +926,7 @@ export default function ShopPage() {
             )}
           </DialogContent>
         </Dialog>
-
+        </div> {/* Closing for the mysteryboxes div */}
       </motion.div>
     </div>
   );
