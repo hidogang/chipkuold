@@ -6,9 +6,9 @@ import { SpinWheel } from "@/components/ui/spin-wheel";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { dailySpinRewards, superJackpotRewards } from "@shared/schema";
+import { dailySpinRewards, superJackpotRewards, SpinHistory } from "@shared/schema";
 import { formatDistanceToNow } from "date-fns";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import BalanceBar from "@/components/balance-bar";
 
 export default function SpinPage() {
@@ -19,14 +19,14 @@ export default function SpinPage() {
   // Get spin status (daily spin availability, extra spins)
   const spinStatusQuery = useQuery({
     queryKey: ["/api/spin/status"],
-    queryFn: ({ signal }) => apiRequest("GET", "/api/spin/status", undefined, { signal }),
+    queryFn: () => apiRequest("GET", "/api/spin/status"),
     refetchInterval: 1000, // Update countdown every second
   });
 
   // Get spin history
-  const spinHistoryQuery = useQuery({
+  const spinHistoryQuery = useQuery<SpinHistory[]>({
     queryKey: ["/api/spin/history"],
-    queryFn: ({ signal }) => apiRequest("GET", "/api/spin/history", undefined, { signal }),
+    queryFn: () => apiRequest("GET", "/api/spin/history"),
   });
 
   // Daily spin mutation
@@ -198,7 +198,7 @@ export default function SpinPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {spinHistoryQuery.data?.map((spin) => (
+              {spinHistoryQuery.data?.map((spin: SpinHistory) => (
                 <div key={spin.id} className="p-4 border rounded-lg">
                   <div className="flex justify-between items-center">
                     <div>
