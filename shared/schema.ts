@@ -535,11 +535,11 @@ export const possibleMysteryBoxRewards = [
 // Multi-level referral commission rates
 export const referralCommissionRates = {
   level1: 0.10,  // 10% for direct referrals
-  level2: 0.05,  // 5% for second level
-  level3: 0.03,  // 3% for third level
-  level4: 0.02,  // 2% for fourth level
-  level5: 0.01,  // 1% for fifth level
-  level6: 0.005  // 0.5% for sixth level
+  level2: 0.06,  // 6% for second level
+  level3: 0.04,  // 4% for third level
+  level4: 0.03,  // 3% for fourth level
+  level5: 0.02,  // 2% for fifth level
+  level6: 0.01   // 1% for sixth level
 };
 
 // Team milestone thresholds and rewards
