@@ -162,16 +162,16 @@ export default function WalletPage() {
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-amber-50/50 to-white">
       <BalanceBar />
 
-      <div className="flex-grow space-y-4 sm:space-y-6 px-2 sm:px-4 pb-20 md:pb-16 overflow-x-hidden">
+      <div className="flex-grow space-y-4 sm:space-y-6 px-3 sm:px-4 max-w-4xl mx-auto pb-20 md:pb-16 overflow-x-hidden">
         <div className="flex justify-between items-center pt-4">
           <h1 className="text-xl sm:text-2xl font-bold">Wallet</h1>
           <div className="text-right">
             <p className="text-xs sm:text-sm text-muted-foreground">USDT Balance</p>
-            <p className="text-lg sm:text-2xl font-bold flex items-center justify-end gap-2">
+            <p className="text-lg sm:text-2xl font-bold flex items-center justify-end gap-1 sm:gap-2">
               <img 
                 src="/assets/tether-usdt-logo.png" 
                 alt="USDT" 
-                className="w-6 h-6"
+                className="w-5 h-5 sm:w-6 sm:h-6"
                 style={{ objectFit: "contain" }} 
               />
               ${user?.usdtBalance || 0}
@@ -180,14 +180,14 @@ export default function WalletPage() {
         </div>
         
         {/* First Deposit Bonus Banner */}
-        <div className="bg-gradient-to-r from-amber-100 to-yellow-50 border border-amber-200 rounded-lg p-3 shadow-sm">
-          <div className="flex items-start gap-3">
-            <div className="bg-amber-500 text-white p-2 rounded-full shrink-0">
-              <div className="text-xl font-bold">10%</div>
+        <div className="bg-gradient-to-r from-amber-100 to-yellow-50 border border-amber-200 rounded-lg p-2 sm:p-3 shadow-sm">
+          <div className="flex items-start gap-2 sm:gap-3">
+            <div className="bg-amber-500 text-white p-1.5 sm:p-2 rounded-full shrink-0">
+              <div className="text-base sm:text-xl font-bold">10%</div>
             </div>
             <div>
-              <h3 className="font-bold text-amber-800 text-lg">First Deposit Bonus!</h3>
-              <p className="text-sm text-amber-700">
+              <h3 className="font-bold text-amber-800 text-base sm:text-lg">First Deposit Bonus!</h3>
+              <p className="text-xs sm:text-sm text-amber-700">
                 New users get an extra 10% bonus on their first deposit. Bonus is credited instantly to your account!
               </p>
             </div>
@@ -208,13 +208,13 @@ export default function WalletPage() {
               <CardContent className="space-y-4 sm:space-y-6 p-3 sm:p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   <div className="space-y-3 sm:space-y-4">
-                    <div className="bg-primary/10 p-3 sm:p-4 rounded-lg text-center space-y-2">
+                    <div className="bg-primary/10 p-2 sm:p-4 rounded-lg text-center space-y-1 sm:space-y-2">
                       <QRCodeSVG
                         value={qrCodeData}
-                        size={140}
+                        size={120}
                         className="mx-auto"
                       />
-                      <p className="text-sm font-medium">Scan QR to pay with USDT</p>
+                      <p className="text-xs sm:text-sm font-medium">Scan QR to pay with USDT</p>
                       <p className="text-xs text-muted-foreground">Enter your transaction ID after payment</p>
                     </div>
 
@@ -236,15 +236,15 @@ export default function WalletPage() {
                         </SelectContent>
                       </Select>
 
-                      <div className="flex items-center space-x-2 bg-gray-50 p-2 rounded-lg border border-gray-200">
-                        <code className="flex-1 p-2 rounded text-xs sm:text-sm overflow-x-auto font-mono">
+                      <div className="flex items-center space-x-1 sm:space-x-2 bg-gray-50 p-1 sm:p-2 rounded-lg border border-gray-200">
+                        <code className="flex-1 p-1 sm:p-2 rounded text-xs sm:text-sm overflow-x-auto font-mono break-all">
                           {networkAddresses[selectedNetwork as keyof typeof networkAddresses]}
                         </code>
                         <Button
-                          className="h-8 w-8 bg-amber-500 hover:bg-amber-600 text-white"
+                          className="h-7 w-7 sm:h-8 sm:w-8 bg-amber-500 hover:bg-amber-600 text-white"
                           onClick={handleCopyAddress}
                         >
-                          <Copy className="h-4 w-4" />
+                          <Copy className="h-3 w-3 sm:h-4 sm:w-4" />
                         </Button>
                       </div>
                     </div>

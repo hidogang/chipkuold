@@ -819,18 +819,25 @@ export default function ShopPage() {
                 <div key={reward.id} className="bg-purple-50 rounded-lg p-3 flex justify-between items-center">
                   <div>
                     <div className="font-semibold text-purple-900">
-                      {reward.rewardType === 'usdt' && reward.rewardDetails && (
-                        <span>{JSON.parse(reward.rewardDetails as string).amount} USDT</span>
-                      )}
-                      {reward.rewardType === 'chicken' && reward.rewardDetails && (
-                        <span>{JSON.parse(reward.rewardDetails as string).chickenType} Chicken</span>
-                      )}
-                      {reward.rewardType === 'resources' && reward.rewardDetails && (
-                        <span>{JSON.parse(reward.rewardDetails as string).resourceAmount} {JSON.parse(reward.rewardDetails as string).resourceType}</span>
-                      )}
-                      {reward.rewardType === 'eggs' && reward.rewardDetails && (
-                        <span>{JSON.parse(reward.rewardDetails as string).minEggs} Eggs</span>
-                      )}
+                      {reward.rewardType === 'usdt' && reward.rewardDetails && (() => {
+                        const details = JSON.parse(reward.rewardDetails as string) as {amount: number};
+                        return <span>{details.amount} USDT</span>;
+                      })()}
+                      
+                      {reward.rewardType === 'chicken' && reward.rewardDetails && (() => {
+                        const details = JSON.parse(reward.rewardDetails as string) as {chickenType: string};
+                        return <span>{details.chickenType} Chicken</span>;
+                      })()}
+                      
+                      {reward.rewardType === 'resources' && reward.rewardDetails && (() => {
+                        const details = JSON.parse(reward.rewardDetails as string) as {resourceAmount: number, resourceType: string};
+                        return <span>{details.resourceAmount} {details.resourceType}</span>;
+                      })()}
+                      
+                      {reward.rewardType === 'eggs' && reward.rewardDetails && (() => {
+                        const details = JSON.parse(reward.rewardDetails as string) as {minEggs: number};
+                        return <span>{details.minEggs} Eggs</span>;
+                      })()}
                     </div>
                     <div className="text-xs text-gray-500">
                       Reward #{reward.id}
@@ -914,15 +921,27 @@ export default function ShopPage() {
 
                 <div className="text-center space-y-4">
                   <div className="text-xl font-bold text-purple-900">
-                    {mysteryBoxReward.rewardType === 'usdt' && mysteryBoxReward.rewardDetails
-                      ? `${JSON.parse(mysteryBoxReward.rewardDetails as string).amount} USDT`
-                      : mysteryBoxReward.rewardType === 'chicken' && mysteryBoxReward.rewardDetails
-                        ? `${JSON.parse(mysteryBoxReward.rewardDetails as string).chickenType} Chicken`
-                        : mysteryBoxReward.rewardType === 'resources' && mysteryBoxReward.rewardDetails
-                          ? `${JSON.parse(mysteryBoxReward.rewardDetails as string).resourceAmount} ${JSON.parse(mysteryBoxReward.rewardDetails as string).resourceType}`
-                          : mysteryBoxReward.rewardType === 'eggs' && mysteryBoxReward.rewardDetails
-                            ? `${JSON.parse(mysteryBoxReward.rewardDetails as string).minEggs} Eggs`
-                            : 'Unknown Reward'}
+                    {mysteryBoxReward.rewardType === 'usdt' && mysteryBoxReward.rewardDetails ? (() => {
+                        const details = JSON.parse(mysteryBoxReward.rewardDetails as string) as {amount: number};
+                        return `${details.amount} USDT`;
+                      })() : 
+                      
+                      mysteryBoxReward.rewardType === 'chicken' && mysteryBoxReward.rewardDetails ? (() => {
+                        const details = JSON.parse(mysteryBoxReward.rewardDetails as string) as {chickenType: string};
+                        return `${details.chickenType} Chicken`;
+                      })() : 
+                      
+                      mysteryBoxReward.rewardType === 'resources' && mysteryBoxReward.rewardDetails ? (() => {
+                        const details = JSON.parse(mysteryBoxReward.rewardDetails as string) as {resourceAmount: number, resourceType: string};
+                        return `${details.resourceAmount} ${details.resourceType}`;
+                      })() : 
+                      
+                      mysteryBoxReward.rewardType === 'eggs' && mysteryBoxReward.rewardDetails ? (() => {
+                        const details = JSON.parse(mysteryBoxReward.rewardDetails as string) as {minEggs: number};
+                        return `${details.minEggs} Eggs`;
+                      })() : 
+                      
+                      'Unknown Reward'}
                   </div>
                   <p className="text-sm text-gray-600 mt-4">
                     Check your unclaimed rewards below to claim this prize!
