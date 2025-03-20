@@ -75,12 +75,18 @@ export function SpinWheel({ onSpin, rewards, isSpinning, spinType }: SpinWheelPr
       const targetIndex = rewardIndex !== -1 ? rewardIndex : 0;
       
       // Calculate final rotation to land on the correct segment
-      const finalRotation = fullRotations + (360 - (targetIndex * segmentAngle));
+      // We need the arrow to point at the reward segment's center
+      const finalAngle = targetIndex * segmentAngle + segmentAngle / 2;
+      const finalRotation = fullRotations + (360 - finalAngle);
+      
+      console.log("Landing on segment:", targetIndex, "Reward:", result.reward);
       setRotation(finalRotation);
 
-      // Show reward after spin completes
+      // Show reward immediately as we know what it is
+      setCurrentReward(result.reward);
+      
+      // Show confetti after spin completes
       setTimeout(() => {
-        setCurrentReward(result.reward);
         setShowConfetti(true);
         setIsSpinningLocal(false);
       }, 3000);
@@ -195,10 +201,17 @@ export function SpinWheel({ onSpin, rewards, isSpinning, spinType }: SpinWheelPr
           </svg>
         </motion.div>
         
-        {/* Fixed pointer triangle at top */}
-        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-0 w-8 h-8 z-30">
-          <svg width="24" height="24" viewBox="0 0 24 24">
-            <polygon points="2,2 22,2 12,20" fill="red" />
+        {/* Fixed pointer triangle at top - more visible */}
+        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2 w-12 h-12 z-30">
+          <svg width="36" height="36" viewBox="0 0 36 36">
+            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+            <polygon points="3,3 33,3 18,30" fill="#ff0000" stroke="#880000" strokeWidth="1.5" filter="url(#glow)" />
           </svg>
         </div>
       </div>
