@@ -1,4 +1,4 @@
-import { drizzle } from 'drizzle-orm/neon-serverless';
+import { drizzle } from 'drizzle-orm/node-postgres';
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { db } from './db';
 import {
@@ -1001,10 +1001,16 @@ export class DatabaseStorage implements IStorage {
         case "resources":
           if ('resourceType' in rewardData && 'resourceAmount' in rewardData && rewardData.resourceAmount) {
             const userRes = await this.getResourcesByUserId(reward.userId);
+            const resourceMapping = {
+              "wheat_bags": "wheatBags",
+              "water_buckets": "waterBuckets"
+            };
+            
             if (rewardData.resourceType === "wheat_bags" || rewardData.resourceType === "water_buckets") {
+              const propertyName = resourceMapping[rewardData.resourceType as keyof typeof resourceMapping];
               await this.updateResources(reward.userId, {
                 ...userRes,
-                [rewardData.resourceType]: userRes[rewardData.resourceType] + rewardData.resourceAmount
+                [propertyName]: (userRes[propertyName as keyof Resource] as number) + rewardData.resourceAmount
               });
             }
           }
