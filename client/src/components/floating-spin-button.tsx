@@ -8,14 +8,18 @@ import { useAuth } from "@/hooks/use-auth";
 import { SpinWheelModal } from "@/components/ui/spin-wheel-modal";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNowStrict } from "date-fns";
+import { useUIState } from "@/hooks/use-ui-state";
+import { useSoundEffect } from "@/hooks/use-sound-effects";
 
 export function FloatingSpinButton() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { setSpinWheelOpen } = useUIState();
   const [isDailySpinOpen, setIsDailySpinOpen] = useState(false);
   const [isSuperSpinOpen, setIsSuperSpinOpen] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState<string | null>(null);
+  const [spinButtonSound] = useSoundEffect('/assets/spin-start.mp3', { volume: 0.5 });
 
   // Get spin status
   const spinStatusQuery = useQuery({
@@ -132,11 +136,16 @@ export function FloatingSpinButton() {
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           onClick={() => {
+            // Play the spin button sound
+            spinButtonSound.play();
+            
             // If daily spin is available, show that dialog, otherwise show super spin
             if (spinStatusQuery.data?.canSpinDaily || spinStatusQuery.data?.extraSpinsAvailable > 0) {
               setIsDailySpinOpen(true);
+              setSpinWheelOpen(true);
             } else {
               setIsSuperSpinOpen(true);
+              setSpinWheelOpen(true);
             }
           }}
         >
@@ -186,7 +195,10 @@ export function FloatingSpinButton() {
       {/* Daily Spin Modal */}
       <SpinWheelModal
         isOpen={isDailySpinOpen}
-        onClose={() => setIsDailySpinOpen(false)}
+        onClose={() => {
+          setIsDailySpinOpen(false);
+          setSpinWheelOpen(false);
+        }}
         onSpin={dailySpinMutation.mutateAsync}
         rewards={dailySpinRewards}
         isSpinning={dailySpinMutation.isPending}
@@ -196,7 +208,10 @@ export function FloatingSpinButton() {
       {/* Super Jackpot Spin Modal */}
       <SpinWheelModal
         isOpen={isSuperSpinOpen}
-        onClose={() => setIsSuperSpinOpen(false)}
+        onClose={() => {
+          setIsSuperSpinOpen(false);
+          setSpinWheelOpen(false);
+        }}
         onSpin={superSpinMutation.mutateAsync}
         rewards={superJackpotRewards}
         isSpinning={superSpinMutation.isPending}

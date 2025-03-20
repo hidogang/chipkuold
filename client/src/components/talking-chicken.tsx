@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Volume2, VolumeX, XCircle, ChevronLeft, ChevronRight, HelpCircle } from 'lucide-react';
+import { useSoundEffect, useSoundToggle } from '@/hooks/use-sound-effects';
+import { useUIState } from '@/hooks/use-ui-state';
 
 interface TalkingChickenProps {
   showOnMount?: boolean;
@@ -149,12 +151,13 @@ export function TalkingChicken({
   const [isVisible, setIsVisible] = useState(showOnMount);
   const [isOpen, setIsOpen] = useState(autoOpen);
   const [currentStep, setCurrentStep] = useState(step || 1);
-  const [soundEnabled, setSoundEnabled] = useState(true);
   const [isTyping, setIsTyping] = useState(false);
   const [displayedMessage, setDisplayedMessage] = useState('');
   const queryClient = useQueryClient();
   const { user } = useAuth();
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const { hideUIElements } = useUIState();
+  const [isMuted, toggleMute] = useSoundToggle();
+  const [cluckSound] = useSoundEffect('/assets/cluck.mp3', { volume: 0.3 });
 
   // Get tutorial status from the server
   const { data: tutorialStatus } = useQuery({
@@ -227,9 +230,9 @@ export function TalkingChicken({
       if (i < currentMessage.length) {
         setDisplayedMessage(prev => prev + currentMessage.charAt(i));
         
-        // Play cluck sound effect
-        if (soundEnabled && i % 4 === 0) {
-          playCluckSound();
+        // Play cluck sound effect on every 4th character
+        if (!isMuted && i % 4 === 0) {
+          cluckSound.play();
         }
         
         i++;
@@ -240,17 +243,7 @@ export function TalkingChicken({
     }, 30);
     
     return () => clearInterval(intervalId);
-  }, [currentStep, message]);
-
-  // Function to play cluck sound
-  const playCluckSound = () => {
-    if (!audioRef.current) return;
-    
-    // Clone the audio element and play it for overlapping sounds
-    const sound = audioRef.current.cloneNode() as HTMLAudioElement;
-    sound.volume = 0.3;
-    sound.play().catch(err => console.error("Error playing sound:", err));
-  };
+  }, [currentStep, message, isMuted, cluckSound]);
 
   // Function to go to the next step
   const handleNext = () => {
@@ -278,77 +271,68 @@ export function TalkingChicken({
     disableTutorialMutation.mutate();
   };
 
-  // Function to toggle sound
-  const toggleSound = () => {
-    setSoundEnabled(!soundEnabled);
-  };
-
-  // Early return if not visible
-  if (!isVisible) return null;
+  // Early return if not visible or if spin wheel is open
+  if (!isVisible || hideUIElements) return null;
 
   return (
-    <>
-      {/* Hidden audio element for clucking sound */}
-      <audio ref={audioRef} preload="auto" src="/assets/cluck.mp3" />
-      
-      <div className="fixed bottom-20 left-4 z-50 flex flex-col items-start">
-        {/* Chicken character */}
-        <motion.div 
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.8, opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          onClick={() => setIsOpen(!isOpen)}
-          className="cursor-pointer"
-        >
-          <img 
-            src={`/assets/chicken-assistant-${TUTORIAL_STEPS.find(s => s.step === currentStep)?.emotion || 'normal'}.svg`} 
-            alt="Talking Chicken" 
-            className="w-24 h-24"
-          />
-        </motion.div>
+    <div className="fixed bottom-20 left-4 z-50 flex flex-col items-start">
+      {/* Chicken character */}
+      <motion.div 
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.8, opacity: 0 }}
+        transition={{ duration: 0.3 }}
+        onClick={() => setIsOpen(!isOpen)}
+        className="cursor-pointer"
+      >
+        <img 
+          src={`/assets/chicken-assistant-${TUTORIAL_STEPS.find(s => s.step === currentStep)?.emotion || 'normal'}.svg`} 
+          alt="Talking Chicken" 
+          className="w-24 h-24"
+        />
+      </motion.div>
 
-        {/* Speech bubble */}
-        <AnimatePresence>
-          {isOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.8 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.8 }}
-              className="bg-white border-2 border-amber-400 rounded-2xl p-4 mt-2 shadow-lg relative max-w-sm"
-            >
-              {/* Triangle connector to chicken */}
-              <div className="absolute -left-2 top-4 w-0 h-0 border-t-8 border-r-8 border-b-8 border-amber-400 border-t-transparent border-b-transparent"></div>
-              
-              {/* Message */}
-              <p className="text-gray-800 min-h-[80px]">
-                {displayedMessage}
-                {isTyping && <span className="animate-pulse">|</span>}
-              </p>
-              
-              {/* Controls */}
-              {showControls && (
-                <div className="flex justify-between mt-4 pt-2 border-t border-gray-200">
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={toggleSound}
-                      aria-label={soundEnabled ? "Mute" : "Unmute"}
-                    >
-                      {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
-                    </Button>
-                    
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={handleSkip}
-                      aria-label="Skip tutorial"
-                    >
-                      <XCircle size={16} className="mr-1" />
-                      Skip
-                    </Button>
-                  </div>
+      {/* Speech bubble */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.8 }}
+            className="bg-white border-2 border-amber-400 rounded-2xl p-4 mt-2 shadow-lg relative max-w-sm"
+          >
+            {/* Triangle connector to chicken */}
+            <div className="absolute -left-2 top-4 w-0 h-0 border-t-8 border-r-8 border-b-8 border-amber-400 border-t-transparent border-b-transparent"></div>
+            
+            {/* Message */}
+            <p className="text-gray-800 min-h-[80px]">
+              {displayedMessage}
+              {isTyping && <span className="animate-pulse">|</span>}
+            </p>
+            
+            {/* Controls */}
+            {showControls && (
+              <div className="flex justify-between mt-4 pt-2 border-t border-gray-200">
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={toggleMute}
+                    aria-label={isMuted ? "Unmute" : "Mute"}
+                  >
+                    {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                  </Button>
+                  
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleSkip}
+                    aria-label="Skip tutorial"
+                  >
+                    <XCircle size={16} className="mr-1" />
+                    Skip
+                  </Button>
+                </div>
                   
                   <div className="flex gap-2">
                     <Button
@@ -378,8 +362,7 @@ export function TalkingChicken({
           )}
         </AnimatePresence>
       </div>
-    </>
-  );
+    );
 }
 
 export default TalkingChicken;

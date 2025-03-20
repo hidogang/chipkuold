@@ -30,8 +30,7 @@ export function SpinWheel({ onSpin, rewards, isSpinning, spinType }: SpinWheelPr
   
   // Sound effects
   const [spinStartSound] = useSoundEffect('/assets/cluck.mp3', { volume: 0.7 });
-  const [spinTickSound] = useSoundEffect('/assets/spin-tick.mp3', { volume: 0.3 });
-  const [winSound] = useSoundEffect('/assets/win-sound.mp3', { volume: 0.7 });
+  const [winSound] = useSoundEffect('/assets/cluck.mp3', { volume: 0.7 });
   
   const segmentAngle = 360 / rewards.length;
 
