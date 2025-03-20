@@ -820,16 +820,16 @@ export default function ShopPage() {
                   <div>
                     <div className="font-semibold text-purple-900">
                       {reward.rewardType === 'usdt' && reward.rewardDetails && (
-                        <span>{(reward.rewardDetails as any).amount} USDT</span>
+                        <span>{JSON.parse(reward.rewardDetails as string).amount} USDT</span>
                       )}
                       {reward.rewardType === 'chicken' && reward.rewardDetails && (
-                        <span>{(reward.rewardDetails as any).chickenType} Chicken</span>
+                        <span>{JSON.parse(reward.rewardDetails as string).chickenType} Chicken</span>
                       )}
                       {reward.rewardType === 'resources' && reward.rewardDetails && (
-                        <span>{(reward.rewardDetails as any).resourceAmount} {(reward.rewardDetails as any).resourceType}</span>
+                        <span>{JSON.parse(reward.rewardDetails as string).resourceAmount} {JSON.parse(reward.rewardDetails as string).resourceType}</span>
                       )}
                       {reward.rewardType === 'eggs' && reward.rewardDetails && (
-                        <span>{(reward.rewardDetails as any).minEggs} Eggs</span>
+                        <span>{JSON.parse(reward.rewardDetails as string).minEggs} Eggs</span>
                       )}
                     </div>
                     <div className="text-xs text-gray-500">
@@ -881,20 +881,26 @@ export default function ShopPage() {
                     <DollarSign size={80} className="text-green-500" />
                   ) : mysteryBoxReward.rewardType === 'chicken' && mysteryBoxReward.rewardDetails ? (
                     <img
-                      src={(mysteryBoxReward.rewardDetails as any).chickenType === 'golden'
-                        ? '/assets/goldenchicken.png'
-                        : (mysteryBoxReward.rewardDetails as any).chickenType === 'regular'
-                          ? '/assets/regularchicken.png'
-                          : '/assets/babychicken.png'}
-                      alt={`${(mysteryBoxReward.rewardDetails as any).chickenType} Chicken`}
+                      src={(() => {
+                        const details = JSON.parse(mysteryBoxReward.rewardDetails as string);
+                        return details.chickenType === 'golden'
+                          ? '/assets/goldenchicken.png'
+                          : details.chickenType === 'regular'
+                            ? '/assets/regularchicken.png'
+                            : '/assets/babychicken.png';
+                      })()}
+                      alt={`${JSON.parse(mysteryBoxReward.rewardDetails as string).chickenType} Chicken`}
                       className="w-full h-full object-contain"
                     />
                   ) : mysteryBoxReward.rewardType === 'resources' && mysteryBoxReward.rewardDetails ? (
                     <img
-                      src={(mysteryBoxReward.rewardDetails as any).resourceType === 'water_buckets'
-                        ? '/assets/waterbucket.png'
-                        : '/assets/wheatbag.png'}
-                      alt={(mysteryBoxReward.rewardDetails as any).resourceType}
+                      src={(() => {
+                        const details = JSON.parse(mysteryBoxReward.rewardDetails as string);
+                        return details.resourceType === 'water_buckets'
+                          ? '/assets/waterbucket.png'
+                          : '/assets/wheatbag.png';
+                      })()}
+                      alt={JSON.parse(mysteryBoxReward.rewardDetails as string).resourceType}
                       className="w-full h-full object-contain"
                     />
                   ) : mysteryBoxReward.rewardType === 'eggs' ? (
@@ -909,13 +915,13 @@ export default function ShopPage() {
                 <div className="text-center space-y-4">
                   <div className="text-xl font-bold text-purple-900">
                     {mysteryBoxReward.rewardType === 'usdt' && mysteryBoxReward.rewardDetails
-                      ? `${(mysteryBoxReward.rewardDetails as any).amount} USDT`
+                      ? `${JSON.parse(mysteryBoxReward.rewardDetails as string).amount} USDT`
                       : mysteryBoxReward.rewardType === 'chicken' && mysteryBoxReward.rewardDetails
-                        ? `${(mysteryBoxReward.rewardDetails as any).chickenType} Chicken`
+                        ? `${JSON.parse(mysteryBoxReward.rewardDetails as string).chickenType} Chicken`
                         : mysteryBoxReward.rewardType === 'resources' && mysteryBoxReward.rewardDetails
-                          ? `${(mysteryBoxReward.rewardDetails as any).resourceAmount} ${(mysteryBoxReward.rewardDetails as any).resourceType}`
+                          ? `${JSON.parse(mysteryBoxReward.rewardDetails as string).resourceAmount} ${JSON.parse(mysteryBoxReward.rewardDetails as string).resourceType}`
                           : mysteryBoxReward.rewardType === 'eggs' && mysteryBoxReward.rewardDetails
-                            ? `${(mysteryBoxReward.rewardDetails as any).minEggs} Eggs`
+                            ? `${JSON.parse(mysteryBoxReward.rewardDetails as string).minEggs} Eggs`
                             : 'Unknown Reward'}
                   </div>
                   <p className="text-sm text-gray-600 mt-4">
