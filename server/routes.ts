@@ -162,6 +162,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (!result.success) return res.status(400).json(result.error);
 
     try {
+      console.log(`[Admin] Updating transaction ${result.data.transactionId} to status: ${result.data.status}`);
+      
       await storage.updateTransactionStatus(
         result.data.transactionId,
         result.data.status
@@ -169,16 +171,112 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const transaction = await storage.getTransactionByTransactionId(result.data.transactionId);
       if (!transaction) {
+        console.error(`[Admin] Transaction not found: ${result.data.transactionId}`);
         return res.status(404).send("Transaction not found");
       }
 
+      console.log(`[Admin] Found transaction:`, JSON.stringify(transaction));
+      
+      let isFirstDeposit = false;
+      let bonusAmount = 0;
+
       // If approved deposit, update user's balance
       if (result.data.status === "completed" && transaction.type === "recharge") {
-        await storage.updateUserBalance(transaction.userId, parseFloat(transaction.amount));
+        const finalAmount = parseFloat(transaction.amount);
+        console.log(`[Admin] Processing approved recharge: $${finalAmount}`);
+        
+        // Add the main deposit amount to user's balance
+        await storage.updateUserBalance(transaction.userId, finalAmount);
+        console.log(`[Admin] Added $${finalAmount} to user ${transaction.userId} balance`);
+        
+        // Check if this is user's first deposit
+        try {
+          const userTransactions = await storage.getTransactionsByUserId(transaction.userId);
+          console.log(`[Admin] Found ${userTransactions.length} transactions for user ${transaction.userId}`);
+          
+          const previousDeposits = userTransactions.filter(t => 
+            t.type === "recharge" && 
+            t.status === "completed" && 
+            t.id !== transaction.id  // Exclude current transaction
+          );
+          isFirstDeposit = previousDeposits.length === 0;
+          console.log(`[Admin] Is first deposit: ${isFirstDeposit}`);
+          
+          // Apply 10% first deposit bonus
+          if (isFirstDeposit) {
+            bonusAmount = finalAmount * 0.1; // 10% bonus
+            console.log(`[Admin] Applying first deposit bonus: $${bonusAmount}`);
+            
+            // Create bonus transaction
+            await storage.createTransaction(
+              transaction.userId,
+              "bonus",
+              bonusAmount,
+              `bonus-${transaction.transactionId}`,
+              undefined,
+              JSON.stringify({ reason: "First deposit bonus" })
+            );
+            
+            // Add the bonus to user's balance
+            await storage.updateUserBalance(transaction.userId, bonusAmount);
+            console.log(`[Admin] Added bonus $${bonusAmount} to user ${transaction.userId} balance`);
+          }
+        } catch (depositCheckError) {
+          console.error("[Admin] Error checking first deposit status:", depositCheckError);
+          // Continue execution - don't fail because of bonus check
+        }
+
+        // Process referral commission if applicable
+        try {
+          const user = await storage.getUser(transaction.userId);
+          console.log(`[Admin] Checking referrals for user:`, JSON.stringify(user));
+          
+          if (user && user.referredBy) {
+            console.log(`[Admin] User was referred by: ${user.referredBy}`);
+            try {
+              const referrer = await storage.getUserByReferralCode(user.referredBy);
+              if (referrer) {
+                console.log(`[Admin] Found referrer: ${referrer.id}`);
+                // Apply referral commission calculation
+                const commission = finalAmount * 0.05; // 5% referral commission
+                await storage.updateUserBalance(referrer.id, commission);
+                await storage.updateUserReferralEarnings(referrer.id, commission);
+                console.log(`[Admin] Added commission $${commission} to referrer ${referrer.id}`);
+                
+                try {
+                  // Record the referral earning
+                  await storage.createReferralEarning({
+                    userId: referrer.id,
+                    referredUserId: transaction.userId,
+                    amount: commission,
+                    createdAt: new Date(),
+                    claimed: false
+                  });
+                  console.log(`[Admin] Created referral earning record`);
+                } catch (referralEarningError) {
+                  console.error("[Admin] Error creating referral earning:", referralEarningError);
+                }
+              }
+            } catch (referrerLookupError) {
+              console.error("[Admin] Error finding referrer:", referrerLookupError);
+            }
+          }
+        } catch (referralError) {
+          console.error("[Admin] Error processing referral commissions:", referralError);
+          // Continue execution - don't fail the deposit because of referral issues
+        }
       }
 
-      res.json({ success: true });
+      console.log(`[Admin] Transaction update completed successfully`);
+      res.json({ 
+        success: true, 
+        status: result.data.status,
+        isFirstDeposit, 
+        bonusAmount,
+        transactionId: transaction.transactionId 
+      });
     } catch (err) {
+      console.error("[Admin] Error updating transaction:", err);
       if (err instanceof Error) {
         res.status(400).send(err.message);
       } else {
