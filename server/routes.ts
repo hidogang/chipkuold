@@ -1338,6 +1338,88 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Tutorial routes
+  app.get("/api/tutorial/status", isAuthenticated, async (req, res) => {
+    try {
+      if (!req.user || !req.user.id) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      
+      const userProfile = await storage.getUserProfile(req.user.id);
+      if (!userProfile) {
+        return res.status(404).json({ error: "User profile not found" });
+      }
+      
+      res.json({
+        tutorialStep: userProfile.tutorialStep,
+        tutorialCompleted: userProfile.tutorialCompleted,
+        tutorialDisabled: userProfile.tutorialDisabled
+      });
+    } catch (err) {
+      console.error("Error fetching tutorial status:", err);
+      res.status(500).json({ error: "Failed to fetch tutorial status" });
+    }
+  });
+  
+  app.post("/api/tutorial/update-step", isAuthenticated, async (req, res) => {
+    try {
+      if (!req.user || !req.user.id) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      
+      const { step } = req.body;
+      if (typeof step !== "number" || step < 0) {
+        return res.status(400).json({ error: "Invalid tutorial step" });
+      }
+      
+      const updatedProfile = await storage.updateTutorialProgress(req.user.id, step);
+      res.json({
+        tutorialStep: updatedProfile.tutorialStep,
+        tutorialCompleted: updatedProfile.tutorialCompleted,
+        tutorialDisabled: updatedProfile.tutorialDisabled
+      });
+    } catch (err) {
+      console.error("Error updating tutorial step:", err);
+      res.status(500).json({ error: "Failed to update tutorial step" });
+    }
+  });
+  
+  app.post("/api/tutorial/complete", isAuthenticated, async (req, res) => {
+    try {
+      if (!req.user || !req.user.id) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      
+      const updatedProfile = await storage.completeTutorial(req.user.id);
+      res.json({
+        tutorialStep: updatedProfile.tutorialStep,
+        tutorialCompleted: updatedProfile.tutorialCompleted,
+        tutorialDisabled: updatedProfile.tutorialDisabled
+      });
+    } catch (err) {
+      console.error("Error completing tutorial:", err);
+      res.status(500).json({ error: "Failed to complete tutorial" });
+    }
+  });
+  
+  app.post("/api/tutorial/disable", isAuthenticated, async (req, res) => {
+    try {
+      if (!req.user || !req.user.id) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      
+      const updatedProfile = await storage.disableTutorial(req.user.id);
+      res.json({
+        tutorialStep: updatedProfile.tutorialStep,
+        tutorialCompleted: updatedProfile.tutorialCompleted,
+        tutorialDisabled: updatedProfile.tutorialDisabled
+      });
+    } catch (err) {
+      console.error("Error disabling tutorial:", err);
+      res.status(500).json({ error: "Failed to disable tutorial" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
