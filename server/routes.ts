@@ -250,7 +250,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
                     referredUserId: transaction.userId,
                     level: 1, // Direct referral level
                     amount: commission.toString(), // Convert to string for decimal type
-                    createdAt: new Date(),
                     claimed: false
                   });
                   console.log(`[Admin] Created referral earning record`);
@@ -1069,7 +1068,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId: req.user!.id,
         spinType: "daily",
         rewardType: selectedReward.reward.type,
-        rewardAmount: selectedReward.reward.amount,
+        rewardAmount: selectedReward.reward.amount.toString(), // Convert to string for decimal type
         chickenType: selectedReward.reward.chickenType
       });
 
@@ -1164,7 +1163,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId: req.user!.id,
         spinType: "super",
         rewardType: selectedReward.reward.type,
-        rewardAmount: selectedReward.reward.amount,
+        rewardAmount: selectedReward.reward.amount.toString(), // Convert to string for decimal type
         chickenType: selectedReward.reward.chickenType
       });
 
