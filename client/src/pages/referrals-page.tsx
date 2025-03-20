@@ -124,11 +124,11 @@ export default function ReferralsPage() {
   const getReferralLevel = (level: number): string => {
     switch (level) {
       case 1: return "Direct (Level 1) - 10%";
-      case 2: return "Level 2 - 5%";
-      case 3: return "Level 3 - 3%";
-      case 4: return "Level 4 - 2%";
-      case 5: return "Level 5 - 1%";
-      case 6: return "Level 6 - 0.5%";
+      case 2: return "Level 2 - 6%";
+      case 3: return "Level 3 - 4%";
+      case 4: return "Level 4 - 3%";
+      case 5: return "Level 5 - 2%";
+      case 6: return "Level 6 - 1%";
       default: return `Level ${level}`;
     }
   };
@@ -253,11 +253,12 @@ export default function ReferralsPage() {
         </div>
 
         <Tabs defaultValue="referrals" className="w-full">
-          <TabsList className="grid grid-cols-4 mb-6">
+          <TabsList className="grid grid-cols-5 mb-6">
             <TabsTrigger value="referrals">Direct Referrals</TabsTrigger>
             <TabsTrigger value="earnings">Referral Earnings</TabsTrigger>
             <TabsTrigger value="milestones">Milestone Rewards</TabsTrigger>
             <TabsTrigger value="salary">Monthly Salary</TabsTrigger>
+            <TabsTrigger value="program">Program Details</TabsTrigger>
           </TabsList>
 
           <TabsContent value="referrals">

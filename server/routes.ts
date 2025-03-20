@@ -249,6 +249,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               const commission = finalAmount * 0.10; // 10% referral commission
               await storage.updateUserBalance(referrer.id, commission);
               await storage.updateUserReferralEarnings(referrer.id, commission);
+              await storage.updateUserTeamEarnings(referrer.id, commission);
               console.log(`[Admin] Added commission $${commission} to referrer ${referrer.id}`);
               
               try {
@@ -261,6 +262,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   claimed: false
                 });
                 console.log(`[Admin] Created referral earning record`);
+                
+                // Process higher level referrals (up to 6 levels)
+                let currentReferrer = referrer;
+                
+                for (let level = 2; level <= 6; level++) {
+                  if (!currentReferrer.referredBy) break;
+                  
+                  // Find the next level referrer
+                  const nextReferrer = await storage.getUserByReferralCode(currentReferrer.referredBy);
+                  if (!nextReferrer) break;
+                  
+                  // Get commission rate for this level
+                  let commissionRate = 0;
+                  switch (level) {
+                    case 2: commissionRate = 0.06; break; // 6% for level 2
+                    case 3: commissionRate = 0.04; break; // 4% for level 3
+                    case 4: commissionRate = 0.03; break; // 3% for level 4
+                    case 5: commissionRate = 0.02; break; // 2% for level 5
+                    case 6: commissionRate = 0.01; break; // 1% for level 6
+                  }
+                  
+                  // Calculate commission amount
+                  const higherLevelCommission = finalAmount * commissionRate;
+                  
+                  // Create earnings record
+                  await storage.createReferralEarning({
+                    userId: nextReferrer.id,
+                    referredUserId: transaction.userId,
+                    level,
+                    amount: higherLevelCommission.toFixed(2),
+                    claimed: false
+                  });
+                  
+                  // Update referrer's total earnings
+                  await storage.updateUserReferralEarnings(nextReferrer.id, higherLevelCommission);
+                  await storage.updateUserTeamEarnings(nextReferrer.id, higherLevelCommission);
+                  console.log(`[Admin] Added level ${level} commission $${higherLevelCommission.toFixed(2)} to referrer ${nextReferrer.id}`);
+                  
+                  // Move to next level referrer
+                  currentReferrer = nextReferrer;
+                }
               } catch (referralEarningError) {
                 console.error("[Admin] Error creating referral earning:", referralEarningError);
               }
