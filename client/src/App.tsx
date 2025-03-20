@@ -3,6 +3,7 @@ import { queryClient } from "./lib/queryClient";
 import { Switch, Route, useLocation, Redirect } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider, useAuth } from "./hooks/use-auth";
+import { UIStateProvider, useUIState } from "@/hooks/use-ui-state";
 import { ProtectedRoute } from "./lib/protected-route";
 import { useState, useEffect, useRef } from "react";
 import { RotateCcw } from "lucide-react";
@@ -178,6 +179,7 @@ function AppContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [location] = useLocation();
   const { user } = useAuth();
+  const { hideUIElements } = useUIState();
   const isLandingPage = location === "/" || location === "/landing";
 
   useEffect(() => {
@@ -228,11 +230,16 @@ function AppContent() {
           >
             <Router />
           </main>
+          
+          {/* Don't show UI elements on landing page or when wheel is open */}
           {!isLandingPage && (
             <>
+              {/* Always show navigation and spin button */}
               <Navigation />
               <FloatingSpinButton />
-              {user && (
+              
+              {/* Only show help and balance when user is logged in and wheel is not open */}
+              {user && !hideUIElements && (
                 <>
                   <BalanceBar />
                   <HelpMenu />
@@ -252,7 +259,9 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <AppContent />
+        <UIStateProvider>
+          <AppContent />
+        </UIStateProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
