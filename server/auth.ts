@@ -142,7 +142,14 @@ export function setupAuth(app: Express) {
             id: user.id,
             username: user.username,
             isAdmin: user.isAdmin,
-            usdtBalance: user.usdtBalance
+            usdtBalance: user.usdtBalance,
+            referralCode: user.referralCode,
+            totalReferralEarnings: user.totalReferralEarnings,
+            totalTeamEarnings: user.totalTeamEarnings,
+            lastDailyRewardAt: user.lastDailyRewardAt,
+            currentStreak: user.currentStreak,
+            lastSpinAt: user.lastSpinAt,
+            extraSpinsAvailable: user.extraSpinsAvailable
           });
         });
       });
@@ -162,7 +169,14 @@ export function setupAuth(app: Express) {
       id: user.id,
       username: user.username,
       isAdmin: user.isAdmin,
-      usdtBalance: user.usdtBalance
+      usdtBalance: user.usdtBalance,
+      referralCode: user.referralCode,
+      totalReferralEarnings: user.totalReferralEarnings,
+      totalTeamEarnings: user.totalTeamEarnings,
+      lastDailyRewardAt: user.lastDailyRewardAt,
+      currentStreak: user.currentStreak,
+      lastSpinAt: user.lastSpinAt,
+      extraSpinsAvailable: user.extraSpinsAvailable
     });
   });
 
@@ -219,7 +233,14 @@ export function setupAuth(app: Express) {
             id: user.id,
             username: user.username,
             isAdmin: user.isAdmin,
-            usdtBalance: user.usdtBalance
+            usdtBalance: user.usdtBalance,
+            referralCode: user.referralCode,
+            totalReferralEarnings: user.totalReferralEarnings,
+            totalTeamEarnings: user.totalTeamEarnings,
+            lastDailyRewardAt: user.lastDailyRewardAt,
+            currentStreak: user.currentStreak,
+            lastSpinAt: user.lastSpinAt,
+            extraSpinsAvailable: user.extraSpinsAvailable
           });
         });
       });

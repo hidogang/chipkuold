@@ -34,6 +34,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryFn: getQueryFn({ on401: "returnNull" }),
     staleTime: 60000,
     retry: false,
+    onSuccess: (data) => {
+      console.log("[Auth] User data fetched:", data);
+    },
+    onError: (err) => {
+      console.error("[Auth] Error fetching user data:", err);
+    }
   });
 
   const loginMutation = useMutation({
