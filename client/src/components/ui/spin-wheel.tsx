@@ -109,47 +109,98 @@ export function SpinWheel({ onSpin, rewards, isSpinning, spinType }: SpinWheelPr
         </div>
       )}
 
-      {/* Wheel Container with Glowing Effect */}
+      {/* SVG Wheel using the provided design */}
       <div className="relative w-80 h-80">
-        {/* Center Point */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 z-20 shadow-lg border-2 border-white" />
-
-        {/* Pointer */}
-        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-4 w-8 h-8 z-10">
-          <div className="w-0 h-0 border-l-[15px] border-r-[15px] border-t-[20px] border-l-transparent border-r-transparent border-t-amber-600 filter drop-shadow-lg" />
-        </div>
-
-        {/* Wheel */}
+        {/* Outer glow effect */}
+        <div
+          className="absolute inset-0 rounded-full animate-pulse"
+          style={{
+            background: 'radial-gradient(circle, rgba(255,215,0,0.3) 0%, rgba(255,165,0,0.1) 70%, rgba(255,165,0,0) 100%)',
+            filter: 'blur(10px)',
+            transform: 'scale(1.2)',
+          }}
+        />
+        
         <motion.div
-          className="w-full h-full rounded-full border-8 border-amber-600/20 overflow-hidden relative shadow-[0_0_15px_rgba(251,191,36,0.3)] backdrop-blur-sm"
           style={{
             transform: `rotate(${rotation}deg)`,
             transition: "transform 3s cubic-bezier(0.2, 0.8, 0.2, 1)"
           }}
+          className="relative"
         >
-          {rewards.map((reward, index) => (
-            <div
-              key={index}
-              className={cn(
-                "absolute w-1/2 h-1/2 origin-bottom-right transform -translate-y-1/2",
-                segmentColors[index % segmentColors.length]
-              )}
-              style={{
-                transform: `rotate(${index * segmentAngle}deg)`,
-                transformOrigin: "0% 100%"
-              }}
-            >
-              <div 
-                className="absolute bottom-1/2 left-1/2 transform -translate-x-1/2 translate-y-1/2 text-white text-xs font-bold text-center whitespace-nowrap rotate-90 drop-shadow-md"
-                style={{ width: "120px" }}
-              >
-                {reward.reward.type === "usdt" ? `$${reward.reward.amount}` :
-                 reward.reward.type === "chicken" ? `${reward.reward.chickenType} Chicken` :
-                 `${reward.reward.amount} ${reward.reward.type}`}
-              </div>
-            </div>
-          ))}
+          <svg
+            version="1.1"
+            id="spinWheel"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 400 400"
+            width="320"
+            height="320"
+            className="drop-shadow-xl"
+          >
+            {/* Wheel Circle */}
+            <circle cx="200" cy="200" r="180" fill="#f1c40f" stroke="#e67e22" strokeWidth="10" />
+
+            {/* Dynamic Wheel Sections based on rewards */}
+            {rewards.map((reward, index) => {
+              const startAngle = index * segmentAngle;
+              const endAngle = (index + 1) * segmentAngle;
+              
+              // Convert to radians
+              const startRad = (startAngle - 90) * Math.PI / 180;
+              const endRad = (endAngle - 90) * Math.PI / 180;
+              
+              // Calculate path
+              const x1 = 200 + 180 * Math.cos(startRad);
+              const y1 = 200 + 180 * Math.sin(startRad);
+              const x2 = 200 + 180 * Math.cos(endRad);
+              const y2 = 200 + 180 * Math.sin(endRad);
+              
+              // Define a unique color for each segment
+              const colors = [
+                "#e74c3c", "#2ecc71", "#3498db", "#9b59b6", 
+                "#1abc9c", "#f39c12", "#d35400", "#34495e"
+              ];
+              
+              const path = `M200,200 L${x1},${y1} A180,180 0 0,1 ${x2},${y2} Z`;
+              
+              return (
+                <g key={index}>
+                  <path d={path} fill={colors[index % colors.length]} />
+                  <text
+                    x="200"
+                    y="200"
+                    textAnchor="middle"
+                    fill="white"
+                    fontSize="14"
+                    fontWeight="bold"
+                    transform={`rotate(${startAngle + segmentAngle/2}, 200, 200) translate(0, -120)`}
+                  >
+                    {reward.reward.type === "usdt" ? `$${reward.reward.amount}` :
+                    reward.reward.type === "chicken" ? `${reward.reward.chickenType}` :
+                    `${reward.reward.amount} ${reward.reward.type}`}
+                  </text>
+                </g>
+              );
+            })}
+
+            {/* Center Button - Interactive */}
+            <g onClick={handleSpin} style={{ cursor: isSpinning ? 'not-allowed' : 'pointer' }}>
+              <circle cx="200" cy="200" r="30" fill="#fff" stroke="#333" strokeWidth="5" />
+              <text x="183" y="206" fontSize="16" fontWeight="bold" fill="#333">
+                {isSpinning ? "..." : "SPIN"}
+              </text>
+            </g>
+
+            {/* Arrow Indicator - We keep it fixed outside of rotation */}
+          </svg>
         </motion.div>
+        
+        {/* Fixed pointer triangle at top */}
+        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-0 w-8 h-8 z-30">
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <polygon points="2,2 22,2 12,20" fill="red" />
+          </svg>
+        </div>
       </div>
 
       {/* Spin Button */}
