@@ -973,18 +973,18 @@ export default function LandingPage() {
 
       {/* Referral Program */}
       <section className="py-20 bg-white relative overflow-hidden">
-        <div className="absolute -top-20 -left-20 w-64 h-64 bg-green-300 rounded-full opacity-20 blur-3xl"></div>
-        <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-green-400 rounded-full opacity-20 blur-3xl"></div>
+        <div className="absolute -top-20 -left-20 w-64 h-64 bg-amber-300 rounded-full opacity-20 blur-3xl"></div>
+        <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-amber-400 rounded-full opacity-20 blur-3xl"></div>
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
-            <Badge className="mb-4 bg-green-100 text-green-800 hover:bg-green-200">
+            <Badge className="mb-4 bg-amber-100 text-amber-800 hover:bg-amber-200">
               Multi-Level Rewards
             </Badge>
-            <h2 className="text-3xl md:text-4xl font-bold text-green-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-amber-900 mb-4">
               6-Tier Referral Program
             </h2>
-            <p className="text-lg text-green-700 max-w-2xl mx-auto">
+            <p className="text-lg text-amber-700 max-w-2xl mx-auto">
               Invite friends, build your team, and earn recurring commissions through 6 levels
             </p>
           </div>
@@ -1000,10 +1000,10 @@ export default function LandingPage() {
                 <img
                   src="/assets/referral-screen.svg"
                   alt="Referral Program Interface"
-                  className="w-full h-auto rounded-lg shadow-lg border border-green-100"
+                  className="w-full h-auto rounded-lg shadow-lg border border-amber-100"
                 />
                 <motion.div 
-                  className="absolute top-1/3 right-0 transform translate-x-1/2 -translate-y-1/2 bg-green-500 text-white rounded-full p-4 shadow-lg"
+                  className="absolute top-1/3 right-0 transform translate-x-1/2 -translate-y-1/2 bg-amber-500 text-white rounded-full p-4 shadow-lg"
                   animate={{ y: [0, -10, 0] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 >
@@ -1012,8 +1012,8 @@ export default function LandingPage() {
               </div>
 
               {/* Referral Tiers */}
-              <div className="mt-8 bg-white p-6 rounded-lg shadow-md border border-green-100">
-                <h3 className="text-xl font-bold text-green-800 mb-4 flex items-center gap-2">
+              <div className="mt-8 bg-white p-6 rounded-lg shadow-md border border-amber-100">
+                <h3 className="text-xl font-bold text-amber-800 mb-4 flex items-center gap-2">
                   <Share2 className="h-5 w-5" /> Commission Structure
                 </h3>
                 
@@ -1028,20 +1028,20 @@ export default function LandingPage() {
                   ].map((tier, i) => (
                     <motion.div 
                       key={i}
-                      className={`flex items-center bg-gradient-to-r from-green-50 to-green-100 p-3 rounded-lg border border-green-200`}
+                      className={`flex items-center bg-gradient-to-r from-amber-50 to-amber-100 p-3 rounded-lg border border-amber-200`}
                       initial={{ opacity: 0, x: -20 }}
                       whileInView={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.1, duration: 0.3 }}
                       viewport={{ once: true }}
                     >
-                      <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center font-bold text-green-700 mr-3 flex-shrink-0">
+                      <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center font-bold text-amber-700 mr-3 flex-shrink-0">
                         {tier.level}
                       </div>
                       <div className="flex-grow">
-                        <div className="text-green-800 font-medium">Level {tier.level}</div>
-                        <div className="text-green-600 text-sm">{tier.description}</div>
+                        <div className="text-amber-800 font-medium">Level {tier.level}</div>
+                        <div className="text-amber-600 text-sm">{tier.description}</div>
                       </div>
-                      <div className="text-lg font-bold text-green-700">{tier.rate}</div>
+                      <div className="text-lg font-bold text-amber-700">{tier.rate}</div>
                     </motion.div>
                   ))}
                 </div>
@@ -1054,28 +1054,28 @@ export default function LandingPage() {
               transition={{ duration: 0.5 }}
               viewport={{ once: true }}
             >
-              <div className="bg-white p-8 rounded-xl shadow-lg border border-green-100">
-                <h3 className="text-2xl font-bold text-green-900 mb-6 flex items-center gap-3">
-                  <Users className="h-6 w-6 text-green-700" />
+              <div className="bg-white p-8 rounded-xl shadow-lg border border-amber-100">
+                <h3 className="text-2xl font-bold text-amber-900 mb-6 flex items-center gap-3">
+                  <Users className="h-6 w-6 text-amber-700" />
                   <span>Build Your Network</span>
                 </h3>
                 
                 <div className="space-y-6">
-                  <p className="text-green-800">
+                  <p className="text-amber-800">
                     Invite your friends to join ChickFarms and earn commissions on their deposits. 
                     Our multi-level structure means you also earn from your referrals' referrals - up to 6 levels deep!
                   </p>
                   
                   <div className="grid grid-cols-2 gap-4 mt-6">
                     {[
-                      { icon: <Users className="h-10 w-10 text-green-600" />, title: "Build Team", desc: "Invite friends to grow your network" },
-                      { icon: <DollarSign className="h-10 w-10 text-green-600" />, title: "Earn USDT", desc: "Get commissions from all 6 levels" },
-                      { icon: <LineChartIcon className="h-10 w-10 text-green-600" />, title: "Track Progress", desc: "Monitor your team's performance" },
-                      { icon: <WalletIcon className="h-10 w-10 text-green-600" />, title: "Monthly Salary", desc: "Earn based on team performance" }
+                      { icon: <Users className="h-10 w-10 text-amber-600" />, title: "Build Team", desc: "Invite friends to grow your network" },
+                      { icon: <DollarSign className="h-10 w-10 text-amber-600" />, title: "Earn USDT", desc: "Get commissions from all 6 levels" },
+                      { icon: <LineChartIcon className="h-10 w-10 text-amber-600" />, title: "Track Progress", desc: "Monitor your team's performance" },
+                      { icon: <WalletIcon className="h-10 w-10 text-amber-600" />, title: "Monthly Salary", desc: "Earn based on team performance" }
                     ].map((item, i) => (
                       <motion.div
                         key={i}
-                        className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg border border-green-200"
+                        className="bg-gradient-to-r from-amber-50 to-amber-100 p-4 rounded-lg border border-amber-200"
                         initial={{ opacity: 0, y: 10 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.1, duration: 0.3 }}
@@ -1085,15 +1085,15 @@ export default function LandingPage() {
                         <div className="flex items-center gap-3 mb-2">
                           {item.icon}
                         </div>
-                        <h4 className="font-bold text-green-800">{item.title}</h4>
-                        <p className="text-sm text-green-700">{item.desc}</p>
+                        <h4 className="font-bold text-amber-800">{item.title}</h4>
+                        <p className="text-sm text-amber-700">{item.desc}</p>
                       </motion.div>
                     ))}
                   </div>
                   
-                  <div className="bg-green-50 p-4 rounded-lg border border-green-200 mt-6">
-                    <h4 className="font-bold text-green-800 mb-2">Team Milestone Rewards</h4>
-                    <p className="text-sm text-green-700 mb-4">
+                  <div className="bg-amber-50 p-4 rounded-lg border border-amber-200 mt-6">
+                    <h4 className="font-bold text-amber-800 mb-2">Team Milestone Rewards</h4>
+                    <p className="text-sm text-amber-700 mb-4">
                       Unlock bonus rewards when your team reaches certain earnings milestones:
                     </p>
                     <ul className="space-y-2 text-sm">
@@ -1105,8 +1105,8 @@ export default function LandingPage() {
                         { milestone: "$10,000 team earnings", reward: "$1,000 bonus" }
                       ].map((item, i) => (
                         <li key={i} className="flex justify-between">
-                          <span className="text-green-800"><span className="font-medium">→</span> {item.milestone}</span>
-                          <span className="font-bold text-green-700">{item.reward}</span>
+                          <span className="text-amber-800"><span className="font-medium">→</span> {item.milestone}</span>
+                          <span className="font-bold text-amber-700">{item.reward}</span>
                         </li>
                       ))}
                     </ul>
@@ -1117,7 +1117,7 @@ export default function LandingPage() {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={handleGetStarted}
-                      className="px-8 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg shadow-md font-medium border border-green-400 flex items-center gap-2"
+                      className="px-8 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-lg shadow-md font-medium border border-amber-400 flex items-center gap-2"
                     >
                       <Users className="h-5 w-5" />
                       Start Building Your Team
