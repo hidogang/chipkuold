@@ -13,6 +13,7 @@ import { LoadingChickens } from "@/components/ui/loading-chickens";
 import { FloatingSpinButton } from "@/components/floating-spin-button";
 import HelpMenu from "@/components/help-menu";
 import ContextSensitiveHelp from "@/components/context-sensitive-help";
+import BalanceBar from "@/components/balance-bar";
 
 // Import pages
 import HomePage from "@/pages/home-page";
@@ -233,6 +234,7 @@ function AppContent() {
               <FloatingSpinButton />
               {user && (
                 <>
+                  <BalanceBar />
                   <HelpMenu />
                   <ContextSensitiveHelp />
                 </>
