@@ -248,7 +248,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   await storage.createReferralEarning({
                     userId: referrer.id,
                     referredUserId: transaction.userId,
-                    amount: commission,
+                    level: 1, // Direct referral level
+                    amount: commission.toString(), // Convert to string for decimal type
                     createdAt: new Date(),
                     claimed: false
                   });
