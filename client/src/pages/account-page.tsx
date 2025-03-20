@@ -19,6 +19,10 @@ import BalanceBar from "@/components/balance-bar";
 export default function AccountPage() {
   const { toast } = useToast();
   const { user } = useAuth();
+  
+  // Debug user object and referral code
+  console.log("AccountPage - User object:", user);
+  console.log("AccountPage - Referral code:", user?.referralCode);
 
   const transactionsQuery = useQuery<Transaction[]>({
     queryKey: ["/api/transactions"],

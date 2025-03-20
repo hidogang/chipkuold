@@ -14,6 +14,10 @@ import BalanceBar from "@/components/balance-bar";
 export default function ReferralsPage() {
   const { user } = useAuth();
   const { toast } = useToast();
+  
+  // Debug user object and referral code
+  console.log("ReferralsPage - User object:", user);
+  console.log("ReferralsPage - Referral code:", user?.referralCode);
 
   // Get direct referrals
   const referralsQuery = useQuery<User[]>({
