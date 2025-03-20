@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
-import { Volume2, Volume2Off, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Volume2, VolumeX, XCircle, ChevronLeft, ChevronRight, HelpCircle } from 'lucide-react';
 
 interface TalkingChickenProps {
   showOnMount?: boolean;
@@ -16,31 +16,124 @@ interface TalkingChickenProps {
   showControls?: boolean;
 }
 
+interface TutorialStatus {
+  tutorialStep: number;
+  tutorialCompleted: boolean;
+  tutorialDisabled: boolean;
+}
+
+// Intro tutorial steps (first-time players)
 const TUTORIAL_STEPS = [
   {
     step: 1,
     message: "Welcome to ChickFarms! I'm your guide, Clucky! 🐔 I'll help you learn the basics of farming and earning.",
-    emotion: "happy",
+    emotion: "excited",
+    page: "any"
   },
   {
     step: 2,
-    message: "Start by buying a chicken from the Shop tab. Chickens will lay eggs that you can sell for profits!",
-    emotion: "excited",
+    message: "This is your farm! Here you can see all your chickens. They'll produce eggs that you can sell for profits! 🥚",
+    emotion: "happy",
+    page: "home"
   },
   {
     step: 3,
-    message: "Remember to feed your chickens with wheat and give them water to keep them productive!",
+    message: "Let's visit the Shop where you can buy different types of chickens, wheat bags, and water buckets.",
     emotion: "normal",
+    page: "shop"
   },
   {
-    step: 4, 
-    message: "Don't forget to collect your daily rewards and invite friends with your referral link!",
-    emotion: "happy",
+    step: 4,
+    message: "Baby chickens are cheapest, but regular and golden chickens produce more eggs! Don't forget to feed them!",
+    emotion: "excited",
+    page: "shop"
   },
   {
     step: 5,
-    message: "That's the basics! You can always find me if you need help. Happy farming!",
+    message: "The Market is where you can sell eggs for USDT and make deposits or withdrawals. 💰",
+    emotion: "happy",
+    page: "market"
+  },
+  {
+    step: 6,
+    message: "Try your luck at the Spin Wheel to win awesome rewards like eggs, resources, or even USDT! 🎰",
     emotion: "excited",
+    page: "spin"
+  },
+  {
+    step: 7,
+    message: "The Referrals page lets you invite friends and earn commissions on their deposits. Share your code! 📢",
+    emotion: "happy",
+    page: "referrals"
+  },
+  {
+    step: 8,
+    message: "That's the basics! You can always click the help icon to bring me back if you need assistance. Happy farming!",
+    emotion: "excited",
+    page: "any"
+  }
+];
+
+// Context-based help messages
+const CONTEXT_MESSAGES = {
+  lowResources: {
+    lowWater: {
+      message: "Oh no! Your chickens are thirsty! 💧 Visit the Shop to buy water buckets before egg production slows down.",
+      emotion: "normal"
+    },
+    lowWheat: {
+      message: "Your chickens are hungry! 🌾 Head to the Shop to buy wheat bags to keep them fed and productive.",
+      emotion: "normal"
+    },
+    lowBoth: {
+      message: "Your chickens need both food and water! 🌾💧 Visit the Shop to restock on supplies right away.",
+      emotion: "normal"
+    }
+  },
+  readyEggs: {
+    message: "Your eggs are ready to be collected! 🥚 Tap on your chickens to gather them and sell at the Market.",
+    emotion: "excited"
+  },
+  unclaimedReferrals: {
+    message: "You have unclaimed referral earnings! 💰 Visit the Referrals page to claim your rewards.",
+    emotion: "excited"
+  },
+  spinAvailable: {
+    message: "Your daily spin is available! 🎡 Try your luck at the Spin Wheel to win great rewards.",
+    emotion: "happy"
+  },
+  mysteryBoxAvailable: {
+    message: "You have unopened Mystery Boxes! 📦 Open them to discover valuable rewards inside.",
+    emotion: "excited"
+  }
+};
+
+// FAQ help topics
+const FAQ_TOPICS = [
+  {
+    question: "How do I buy chickens?",
+    answer: "Go to the Shop tab and select the chicken type you want to buy. You'll need enough USDT balance to make the purchase.",
+    emotion: "normal"
+  },
+  {
+    question: "How do I earn USDT?",
+    answer: "You can earn USDT by selling eggs in the Market, inviting friends with your referral code, winning on the Spin Wheel, or depositing funds.",
+    emotion: "happy"
+  },
+  {
+    question: "How to withdraw earnings?",
+    answer: "Go to the Market tab, select the Withdraw section, enter the amount you want to withdraw and your USDT wallet address.",
+    emotion: "normal"
+  },
+  {
+    question: "How do chickens produce eggs?",
+    answer: "Chickens automatically produce eggs over time. Regular chickens produce more than baby chickens, and golden chickens produce the most!",
+    emotion: "excited"
+  },
+  {
+    question: "What are referral bonuses?",
+    answer: "When someone uses your referral code and makes a deposit, you earn commission on their deposit amount. You can earn from up to 6 levels of referrals!",
+    emotion: "happy"
   }
 ];
 
@@ -67,16 +160,8 @@ export function TalkingChicken({
   const { data: tutorialStatus } = useQuery({
     queryKey: ['/api/tutorial/status'],
     queryFn: async () => {
-      if (!user) return null;
-      const data = await apiRequest<{
-        tutorialStep: number;
-        tutorialCompleted: boolean;
-        tutorialDisabled: boolean;
-      }>({ 
-        url: '/api/tutorial/status',
-        method: 'GET',
-      });
-      return data;
+      if (!user) return { tutorialStep: 1, tutorialCompleted: false, tutorialDisabled: false };
+      return await apiRequest('/api/tutorial/status');
     },
     enabled: !!user,
   });
@@ -84,11 +169,7 @@ export function TalkingChicken({
   // Update tutorial step mutation
   const updateStepMutation = useMutation({
     mutationFn: async (step: number) => {
-      return apiRequest({
-        url: '/api/tutorial/update-step',
-        method: 'POST',
-        body: { step },
-      });
+      return await apiRequest('POST', '/api/tutorial/update-step', { step });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/tutorial/status'] });
@@ -98,10 +179,7 @@ export function TalkingChicken({
   // Complete tutorial mutation
   const completeTutorialMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest({
-        url: '/api/tutorial/complete',
-        method: 'POST',
-      });
+      return await apiRequest('POST', '/api/tutorial/complete');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/tutorial/status'] });
@@ -112,10 +190,7 @@ export function TalkingChicken({
   // Disable tutorial mutation
   const disableTutorialMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest({
-        url: '/api/tutorial/disable',
-        method: 'POST',
-      });
+      return await apiRequest('POST', '/api/tutorial/disable');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/tutorial/status'] });
@@ -261,7 +336,7 @@ export function TalkingChicken({
                       onClick={toggleSound}
                       aria-label={soundEnabled ? "Mute" : "Unmute"}
                     >
-                      {soundEnabled ? <Volume2 size={16} /> : <Volume2Off size={16} />}
+                      {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
                     </Button>
                     
                     <Button

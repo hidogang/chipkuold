@@ -11,6 +11,8 @@ import Navigation from "@/components/navigation";
 import ScrollToTop from "@/components/scroll-to-top";
 import { LoadingChickens } from "@/components/ui/loading-chickens";
 import { FloatingSpinButton } from "@/components/floating-spin-button";
+import HelpMenu from "@/components/help-menu";
+import ContextSensitiveHelp from "@/components/context-sensitive-help";
 
 // Import pages
 import HomePage from "@/pages/home-page";
@@ -169,10 +171,12 @@ function Router() {
   );
 }
 
-function App() {
+// Separate component that can safely use useAuth since it's inside the AuthProvider
+function AppContent() {
   const [isPortrait, setIsPortrait] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [location] = useLocation();
+  const { user } = useAuth();
   const isLandingPage = location === "/" || location === "/landing";
 
   useEffect(() => {
@@ -198,43 +202,55 @@ function App() {
   };
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <div className="township-app min-h-screen bg-background text-foreground overflow-x-hidden">
-          <ScrollToTop />
-          {isPortrait && !isLandingPage && (
-            <div className="rotate-device-message fixed inset-0 bg-amber-900/90 flex flex-col items-center justify-center z-[9000] text-white p-8">
-              <RotateCcw className="w-12 h-12 mb-4 animate-spin" />
-              <h2 className="text-2xl font-bold mb-2">Please Rotate Your Device</h2>
-              <p className="text-center">ChickFarms works best in landscape mode. Please rotate your device for the best experience.</p>
-            </div>
-          )}
+    <div className="township-app min-h-screen bg-background text-foreground overflow-x-hidden">
+      <ScrollToTop />
+      {isPortrait && !isLandingPage && (
+        <div className="rotate-device-message fixed inset-0 bg-amber-900/90 flex flex-col items-center justify-center z-[9000] text-white p-8">
+          <RotateCcw className="w-12 h-12 mb-4 animate-spin" />
+          <h2 className="text-2xl font-bold mb-2">Please Rotate Your Device</h2>
+          <p className="text-center">ChickFarms works best in landscape mode. Please rotate your device for the best experience.</p>
+        </div>
+      )}
 
-          {isLoading ? (
-            <LoadingScreen onFinishLoading={handleFinishLoading} />
-          ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
-              className="relative flex flex-col min-h-screen"
-            >
-              <main
-                id="main-content"
-                className={`flex-grow bg-gradient-to-b from-amber-50/50 to-white overflow-x-hidden ${!isLandingPage ? "pt-20 pb-20 md:pb-16" : ""}`}
-              >
-                <Router />
-              </main>
-              {!isLandingPage && (
+      {isLoading ? (
+        <LoadingScreen onFinishLoading={handleFinishLoading} />
+      ) : (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="relative flex flex-col min-h-screen"
+        >
+          <main
+            id="main-content"
+            className={`flex-grow bg-gradient-to-b from-amber-50/50 to-white overflow-x-hidden ${!isLandingPage ? "pt-20 pb-20 md:pb-16" : ""}`}
+          >
+            <Router />
+          </main>
+          {!isLandingPage && (
+            <>
+              <Navigation />
+              <FloatingSpinButton />
+              {user && (
                 <>
-                  <Navigation />
-                  <FloatingSpinButton />
+                  <HelpMenu />
+                  <ContextSensitiveHelp />
                 </>
               )}
-              <Toaster />
-            </motion.div>
+            </>
           )}
-        </div>
+          <Toaster />
+        </motion.div>
+      )}
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <AppContent />
       </AuthProvider>
     </QueryClientProvider>
   );
