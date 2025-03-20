@@ -189,6 +189,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await storage.updateUserBalance(transaction.userId, finalAmount);
         console.log(`[Admin] Added $${finalAmount} to user ${transaction.userId} balance`);
         
+        // Get user info first to check for referrals
+        let user;
+        try {
+          user = await storage.getUser(transaction.userId);
+          console.log(`[Admin] Retrieved user:`, JSON.stringify(user));
+        } catch (userLookupError) {
+          console.error("[Admin] Error retrieving user:", userLookupError);
+          // Continue execution - we'll try to process what we can
+        }
+        
         // Check if this is user's first deposit
         try {
           const userTransactions = await storage.getTransactionsByUserId(transaction.userId);
@@ -227,43 +237,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         // Process referral commission if applicable
-        try {
-          const user = await storage.getUser(transaction.userId);
-          console.log(`[Admin] Checking referrals for user:`, JSON.stringify(user));
-          
-          if (user && user.referredBy) {
+        if (user && user.referredBy) {
+          try {
             console.log(`[Admin] User was referred by: ${user.referredBy}`);
-            try {
-              const referrer = await storage.getUserByReferralCode(user.referredBy);
-              if (referrer) {
-                console.log(`[Admin] Found referrer: ${referrer.id}`);
-                // Apply referral commission calculation
-                const commission = finalAmount * 0.05; // 5% referral commission
-                await storage.updateUserBalance(referrer.id, commission);
-                await storage.updateUserReferralEarnings(referrer.id, commission);
-                console.log(`[Admin] Added commission $${commission} to referrer ${referrer.id}`);
+            const referrer = await storage.getUserByReferralCode(user.referredBy);
+            
+            if (referrer) {
+              console.log(`[Admin] Found referrer: ${referrer.id}`);
+              
+              // Apply referral commission calculation
+              const commission = finalAmount * 0.05; // 5% referral commission
+              await storage.updateUserBalance(referrer.id, commission);
+              await storage.updateUserReferralEarnings(referrer.id, commission);
+              console.log(`[Admin] Added commission $${commission} to referrer ${referrer.id}`);
+              
+              try {
+                // Record the referral earning
+                await storage.createReferralEarning({
+                  userId: referrer.id,
+                  referredUserId: transaction.userId,
+                  level: 1, // Direct referral level
+                  amount: commission.toString(), // Convert to string for decimal type
+                  claimed: false
+                });
+                console.log(`[Admin] Created referral earning record`);
+              } catch (referralEarningError) {
+                console.error("[Admin] Error creating referral earning:", referralEarningError);
+              }
+              
+              // Give a 10% bonus to the referred user if they haven't received the first deposit bonus yet
+              // This handles edge cases where the first deposit check might have failed
+              if (!isFirstDeposit) {
+                console.log(`[Admin] Double checking to ensure referral bonus is applied`);
+                // Check if any bonus transactions exist for this user
+                const userBonuses = await storage.getTransactionsByUserId(transaction.userId);
+                const hasReceivedBonus = userBonuses.some(t => t.type === "bonus" && t.status === "completed");
                 
-                try {
-                  // Record the referral earning
-                  await storage.createReferralEarning({
-                    userId: referrer.id,
-                    referredUserId: transaction.userId,
-                    level: 1, // Direct referral level
-                    amount: commission.toString(), // Convert to string for decimal type
-                    claimed: false
-                  });
-                  console.log(`[Admin] Created referral earning record`);
-                } catch (referralEarningError) {
-                  console.error("[Admin] Error creating referral earning:", referralEarningError);
+                if (!hasReceivedBonus) {
+                  console.log(`[Admin] No prior bonus found, applying referral bonus`);
+                  // Apply the bonus now
+                  bonusAmount = finalAmount * 0.1; // 10% bonus
+                  
+                  // Create bonus transaction
+                  await storage.createTransaction(
+                    transaction.userId,
+                    "bonus",
+                    bonusAmount,
+                    `bonus-ref-${transaction.transactionId}`,
+                    undefined,
+                    JSON.stringify({ reason: "Referral deposit bonus" })
+                  );
+                  
+                  // Add the bonus to user's balance
+                  await storage.updateUserBalance(transaction.userId, bonusAmount);
+                  console.log(`[Admin] Added bonus $${bonusAmount} to referred user ${transaction.userId} balance`);
+                  
+                  // Set isFirstDeposit flag to true so it's included in the response
+                  isFirstDeposit = true;
                 }
               }
-            } catch (referrerLookupError) {
-              console.error("[Admin] Error finding referrer:", referrerLookupError);
             }
+          } catch (referralError) {
+            console.error("[Admin] Error processing referral commissions:", referralError);
+            // Continue execution - don't fail the deposit because of referral issues
           }
-        } catch (referralError) {
-          console.error("[Admin] Error processing referral commissions:", referralError);
-          // Continue execution - don't fail the deposit because of referral issues
         }
       }
 
