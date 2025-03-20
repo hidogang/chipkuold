@@ -47,11 +47,11 @@ export default function SocialShare({
       
       <div className="flex flex-wrap gap-3 justify-center">
         {/* Always visible platforms */}
-        <FacebookShareButton url={shareUrl} quote={description} hashtag={`#${hashtags[0]}`} className={roundedClass}>
+        <FacebookShareButton url={shareUrl} hashtag={`#${hashtags[0]}`} className={roundedClass}>
           <FacebookIcon size={iconSize} round />
         </FacebookShareButton>
         
-        <TwitterShareButton url={shareUrl} title={title} hashtags={hashtags} className={roundedClass}>
+        <TwitterShareButton url={shareUrl} title={title} className={roundedClass}>
           <TwitterIcon size={iconSize} round />
         </TwitterShareButton>
         
@@ -66,7 +66,7 @@ export default function SocialShare({
         {/* Expandable options */}
         {showAllOptions && (
           <>
-            <LinkedinShareButton url={shareUrl} title={title} summary={description} className={roundedClass}>
+            <LinkedinShareButton url={shareUrl} className={roundedClass}>
               <LinkedinIcon size={iconSize} round />
             </LinkedinShareButton>
             
