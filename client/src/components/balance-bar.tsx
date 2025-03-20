@@ -3,9 +3,11 @@ import { useAuth } from "@/hooks/use-auth";
 import { Resource } from "@shared/schema";
 import { motion } from "framer-motion";
 import React from "react";
+import { useUIState } from "@/hooks/use-ui-state";
 
 export default function BalanceBar() {
   const { user } = useAuth();
+  const { hideUIElements } = useUIState();
 
   const resourcesQuery = useQuery<Resource>({
     queryKey: ["/api/resources"],
@@ -13,11 +15,8 @@ export default function BalanceBar() {
     retry: 2, // Retry failed requests twice
   });
 
-  if (!user || resourcesQuery.isLoading) {
-    return null;
-  }
-
-  if (resourcesQuery.error) {
+  // Hide when loading, no user, error, or when spin wheel is open
+  if (!user || resourcesQuery.isLoading || resourcesQuery.error || hideUIElements) {
     return null;
   }
 

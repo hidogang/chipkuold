@@ -12,6 +12,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Settings } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useUIState } from "@/hooks/use-ui-state";
 
 // Logo component
 function Logo() {
@@ -54,8 +55,12 @@ function ReferralsIcon() {
 export default function Navigation() {
   const { user, logoutMutation } = useAuth();
   const [location] = useLocation();
+  const { hideUIElements } = useUIState();
 
   if (!user) return null;
+  
+  // Hide navigation when spin wheel is active
+  if (hideUIElements) return null;
 
   const initials = user.username.split(" ").map((n) => n[0]).join("").toUpperCase();
 
