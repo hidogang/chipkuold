@@ -4,11 +4,24 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import ScrollToTop from "@/components/scroll-to-top";
 import { Link } from "wouter";
 import { LoadingChickens } from "@/components/ui/loading-chickens";
 import { useState, useEffect } from 'react';
+import { 
+  Droplets, 
+  Wheat, 
+  Egg, 
+  Gift, 
+  Sparkles, 
+  BarChart3, 
+  Users, 
+  DollarSign, 
+  PiggyBank,
+  Hash,
+  RefreshCw 
+} from "lucide-react";
 
 export default function LandingPage() {
   const [location, setLocation] = useLocation();
@@ -441,7 +454,167 @@ export default function LandingPage() {
           </div>
 
           {/* Mystery Boxes & Daily Rewards Section */}
-          <div className="mt-20"> </div>
+          <div className="mt-20"> 
+            <div className="text-center mb-12">
+              <Badge className="mb-4 bg-blue-100 text-blue-800 hover:bg-blue-200">
+                Exciting Rewards
+              </Badge>
+              <h2 className="text-3xl font-bold text-blue-900 mb-4">
+                Mystery Boxes & Daily Rewards
+              </h2>
+              <p className="text-lg text-blue-700 max-w-2xl mx-auto">
+                Spin the wheel daily and open mystery boxes for amazing rewards
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Mystery Boxes */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+                className="bg-white rounded-xl overflow-hidden shadow-xl"
+              >
+                <div className="bg-gradient-to-r from-purple-600 to-blue-600 py-4 px-6">
+                  <h3 className="text-2xl font-bold text-white flex items-center gap-3">
+                    <Gift className="h-7 w-7" />
+                    <span className="text-3xl">🎁</span> Mystery Boxes
+                  </h3>
+                </div>
+
+                <div className="p-6">
+                  <p className="text-gray-700 mb-6">
+                    Purchase mystery boxes and open them to receive valuable rewards including USDT, chickens, resources, and more!
+                  </p>
+
+                  <div className="space-y-4">
+                    {[
+                      {
+                        name: "Basic Box",
+                        price: "$10",
+                        features: ["Eggs", "Wheat", "Water", "Small USDT rewards"],
+                        color: "from-blue-50 to-blue-100 border-blue-200"
+                      },
+                      {
+                        name: "Premium Box",
+                        price: "$50",
+                        features: ["Higher rewards", "Chicken chance", "More resources", "USDT bonus"],
+                        color: "from-purple-50 to-purple-100 border-purple-200"
+                      },
+                      {
+                        name: "Gold Box",
+                        price: "$100",
+                        features: ["Golden Chicken chance", "Major USDT rewards", "Egg multipliers", "VIP Resources"],
+                        color: "from-amber-50 to-amber-100 border-amber-200"
+                      }
+                    ].map((box, i) => (
+                      <motion.div
+                        key={i}
+                        className={`rounded-lg border p-4 bg-gradient-to-r ${box.color}`}
+                        initial={{ opacity: 0, y: 10 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.1, duration: 0.3 }}
+                        viewport={{ once: true }}
+                        whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                      >
+                        <div className="flex justify-between items-center mb-2">
+                          <h4 className="font-bold text-lg">{box.name}</h4>
+                          <PriceDisplay amount={box.price} />
+                        </div>
+                        <ul className="text-sm space-y-1">
+                          {box.features.map((feature, j) => (
+                            <li key={j} className="flex items-center">
+                              <span className="text-blue-600 mr-2">✓</span> {feature}
+                            </li>
+                          ))}
+                        </ul>
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <p className="text-blue-800 text-sm">
+                      <span className="font-semibold">Pro Tip:</span> Daily login rewards can include free mystery boxes. Don't miss a day!
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Daily Rewards & Spin Wheel */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+                className="bg-white rounded-xl overflow-hidden shadow-xl"
+              >
+                <div className="bg-gradient-to-r from-amber-500 to-orange-500 py-4 px-6">
+                  <h3 className="text-2xl font-bold text-white flex items-center gap-3">
+                    <RefreshCw className="h-7 w-7" />
+                    <span className="text-3xl">🎡</span> Daily Spin Wheel
+                  </h3>
+                </div>
+
+                <div className="p-6">
+                  <p className="text-gray-700 mb-6">
+                    Spin the wheel once daily for a chance to win eggs, resources, USDT, and even extra spins and chickens!
+                  </p>
+
+                  <div className="relative mb-8">
+                    <div className="aspect-square max-w-xs mx-auto rounded-full overflow-hidden border-4 border-amber-300 shadow-lg">
+                      <img
+                        src="/assets/spin-wheel-preview.png"
+                        alt="Spin Wheel Preview"
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                    </div>
+                    <motion.div 
+                      className="absolute -top-5 -right-5 bg-amber-500 text-white rounded-full p-3 shadow-lg z-10"
+                      animate={{ rotate: [0, 15, -15, 0] }}
+                      transition={{ repeat: Infinity, duration: 1.5 }}
+                    >
+                      <Sparkles className="h-6 w-6" />
+                    </motion.div>
+                  </div>
+
+                  <div className="space-y-3 mb-6">
+                    <h4 className="font-bold text-lg text-amber-800">Daily Login Rewards</h4>
+                    <div className="grid grid-cols-7 gap-2">
+                      {[
+                        { day: 1, reward: "5 Eggs", color: "bg-gradient-to-r from-amber-50 to-amber-100" },
+                        { day: 2, reward: "10 Eggs", color: "bg-gradient-to-r from-yellow-50 to-yellow-100" },
+                        { day: 3, reward: "1 Free Basic Mystery Box", color: "bg-gradient-to-r from-teal-50 to-teal-100" },
+                        { day: 4, reward: "10 Water + 10 Wheat", color: "bg-gradient-to-r from-blue-50 to-blue-100" },
+                        { day: 5, reward: "$1 USDT", color: "bg-gradient-to-r from-green-50 to-green-100" },
+                        { day: 6, reward: "1 Free Silver Mystery Box", color: "bg-gradient-to-r from-blue-50 to-blue-100" },
+                        { day: 7, reward: "$5 USDT + 1 Extra Spin", color: "bg-gradient-to-r from-purple-50 to-purple-100" },
+                      ].map((item, i) => (
+                        <motion.div
+                          key={i}
+                          className={`p-2 rounded border border-amber-200 flex flex-col items-center justify-center ${item.color} text-center`}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          whileInView={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: i * 0.05, duration: 0.2 }}
+                          viewport={{ once: true }}
+                          whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
+                        >
+                          <div className="font-bold text-amber-900">Day {item.day}</div>
+                          <div className="text-xs text-amber-800 mt-1">{item.reward}</div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
+                    <p className="text-amber-800 text-sm">
+                      <span className="font-semibold">Tip:</span> Maintain a login streak for bonus rewards. 7-day streaks give you special prizes!
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </div>
         </div>
       </section>
 
