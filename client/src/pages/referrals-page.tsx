@@ -172,21 +172,23 @@ export default function ReferralsPage() {
                 </div>
                 <div className="border p-3 rounded-md bg-white">
                   <QRCode
-                    value={`https://chickfarms.com/signup?ref=${user?.referralCode}`}
+                    value={`https://chickfarms.com/signup?ref=${user?.referralCode || ''}`}
                     style={{ width: "100%", maxWidth: "120px", height: "auto" }}
                   />
                 </div>
                 <div className="text-sm text-center text-muted-foreground mt-2">
                   Scan QR code or share your referral link:<br />
                   <span className="font-semibold break-all">
-                    https://chickfarms.com/signup?ref={user?.referralCode}
+                    https://chickfarms.com/signup?ref={user?.referralCode || ''}
                   </span>
                 </div>
                 <Button
                   size="sm"
                   className="mt-2"
                   onClick={() => {
-                    navigator.clipboard.writeText(`https://chickfarms.com/signup?ref=${user?.referralCode}`);
+                    const referralLink = `https://chickfarms.com/signup?ref=${user?.referralCode || ''}`;
+                    navigator.clipboard.writeText(referralLink);
+                    console.log("Copied referral link:", referralLink); // Debug log
                     toast({
                       title: "Copied!",
                       description: "Referral link copied to clipboard."
