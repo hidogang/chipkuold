@@ -302,6 +302,9 @@ export const userProfiles = pgTable("user_profiles", {
   avatarColor: text("avatar_color").default("#6366F1"), // Default indigo color
   avatarStyle: text("avatar_style").default("default"),
   farmBackground: text("farm_background").default("default"),
+  tutorialCompleted: boolean("tutorial_completed").notNull().default(false),
+  tutorialStep: integer("tutorial_step").notNull().default(0),
+  tutorialDisabled: boolean("tutorial_disabled").notNull().default(false),
   lastUpdated: timestamp("last_updated").notNull().defaultNow(),
 });
 

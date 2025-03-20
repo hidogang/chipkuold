@@ -73,6 +73,9 @@ export interface IStorage {
   getUserProfile(userId: number): Promise<UserProfile | undefined>;
   createUserProfile(profile: InsertUserProfile): Promise<UserProfile>;
   updateUserProfile(userId: number, updates: Partial<InsertUserProfile>): Promise<UserProfile>;
+  updateTutorialProgress(userId: number, step: number): Promise<UserProfile>;
+  completeTutorial(userId: number): Promise<UserProfile>;
+  disableTutorial(userId: number): Promise<UserProfile>;
 
   // Mystery Box operations
   purchaseMysteryBox(userId: number, boxType?: string): Promise<void>;
@@ -654,6 +657,90 @@ export class DatabaseStorage implements IStorage {
       .returning();
 
     return updatedProfile;
+  }
+
+  async updateTutorialProgress(userId: number, step: number): Promise<UserProfile> {
+    try {
+      const [currentProfile] = await db.select()
+        .from(userProfiles)
+        .where(eq(userProfiles.userId, userId));
+
+      if (!currentProfile) {
+        return this.createUserProfile({
+          userId,
+          tutorialStep: step,
+        });
+      }
+      
+      const [updatedProfile] = await db.update(userProfiles)
+        .set({
+          tutorialStep: step,
+          lastUpdated: new Date()
+        })
+        .where(eq(userProfiles.userId, userId))
+        .returning();
+
+      return updatedProfile;
+    } catch (error) {
+      console.error("Error updating tutorial progress:", error);
+      throw error;
+    }
+  }
+
+  async completeTutorial(userId: number): Promise<UserProfile> {
+    try {
+      const [currentProfile] = await db.select()
+        .from(userProfiles)
+        .where(eq(userProfiles.userId, userId));
+
+      if (!currentProfile) {
+        return this.createUserProfile({
+          userId,
+          tutorialCompleted: true,
+        });
+      }
+      
+      const [updatedProfile] = await db.update(userProfiles)
+        .set({
+          tutorialCompleted: true,
+          lastUpdated: new Date()
+        })
+        .where(eq(userProfiles.userId, userId))
+        .returning();
+
+      return updatedProfile;
+    } catch (error) {
+      console.error("Error completing tutorial:", error);
+      throw error;
+    }
+  }
+
+  async disableTutorial(userId: number): Promise<UserProfile> {
+    try {
+      const [currentProfile] = await db.select()
+        .from(userProfiles)
+        .where(eq(userProfiles.userId, userId));
+
+      if (!currentProfile) {
+        return this.createUserProfile({
+          userId,
+          tutorialDisabled: true,
+        });
+      }
+      
+      const [updatedProfile] = await db.update(userProfiles)
+        .set({
+          tutorialDisabled: true,
+          lastUpdated: new Date()
+        })
+        .where(eq(userProfiles.userId, userId))
+        .returning();
+
+      return updatedProfile;
+    } catch (error) {
+      console.error("Error disabling tutorial:", error);
+      throw error;
+    }
   }
 
   // Mystery Box operations
