@@ -117,8 +117,7 @@ export default function WalletPage() {
 
   const withdrawalMutation = useMutation({
     mutationFn: async (data: z.infer<typeof withdrawalSchema>) => {
-      const res = await apiRequest("POST", "/api/wallet/withdraw", data);
-      return res.json();
+      return await apiRequest("POST", "/api/wallet/withdraw", data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
