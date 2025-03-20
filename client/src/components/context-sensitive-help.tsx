@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
+import { useUIState } from '@/hooks/use-ui-state';
 import TalkingChicken from './talking-chicken';
 
 // Import context messages from the Talking Chicken constants
