@@ -10,6 +10,7 @@ import { formatDistanceToNow } from "date-fns";
 import { User, ReferralEarning, MilestoneReward } from "@shared/schema";
 import QRCode from "react-qr-code";
 import BalanceBar from "@/components/balance-bar";
+import SocialShare from "@/components/social-share";
 
 export default function ReferralsPage() {
   const { user } = useAuth();
@@ -170,7 +171,7 @@ export default function ReferralsPage() {
               <CardDescription>Share with friends to earn commissions</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col items-center space-y-3">
+              <div className="flex flex-col items-center space-y-4">
                 <div className="bg-muted p-3 rounded-md text-center font-mono font-bold text-lg">
                   {user?.referralCode}
                 </div>
@@ -181,26 +182,14 @@ export default function ReferralsPage() {
                   />
                 </div>
                 <div className="text-sm text-center text-muted-foreground mt-2">
-                  Scan QR code or share your referral link:<br />
-                  <span className="font-semibold break-all">
-                    https://chickfarms.com/signup?ref={user?.referralCode || ''}
-                  </span>
+                  Scan QR code or share your referral link:
                 </div>
-                <Button
-                  size="sm"
-                  className="mt-2"
-                  onClick={() => {
-                    const referralLink = `https://chickfarms.com/signup?ref=${user?.referralCode || ''}`;
-                    navigator.clipboard.writeText(referralLink);
-                    console.log("Copied referral link:", referralLink); // Debug log
-                    toast({
-                      title: "Copied!",
-                      description: "Referral link copied to clipboard."
-                    });
-                  }}
-                >
-                  Copy Link
-                </Button>
+                <div className="w-full">
+                  <SocialShare 
+                    referralCode={user?.referralCode || ''} 
+                    showTitle={false}
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>

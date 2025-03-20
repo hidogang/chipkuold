@@ -1,12 +1,53 @@
 [
   {
+    "id": 2,
+    "username": "testuser",
+    "password": "82d1b94d3cee9f940218a491c95fdfa6246cb9b1a2d2508812c645c2037261a5d6529b5d35146a31642fc84b436d81914c4a9c15c198ba9c3fd08c9b53c412dd.32cfe4508cf98eb37f398ca59aff91b7",
+    "usdt_balance": "0.00",
+    "referral_code": "3162283e",
+    "referred_by": null,
+    "is_admin": false,
+    "last_login_at": null,
+    "total_referral_earnings": "0.00",
+    "total_team_earnings": "0.00",
+    "last_salary_paid_at": null,
+    "last_daily_reward_at": null,
+    "current_streak": 0,
+    "last_spin_at": null,
+    "extra_spins_available": 0
+  },
+  {
     "id": 1,
     "username": "adminraja",
-    "password": "98d75bdbfdc150081e99b86a400c8dcf9c4fa47f9e2848fd07d3bc8f75be037b8a486565c40199caec051a07df6028ed8061a6659994024d988dba596c24850a.691ee6cd4a8529044bb1651ef0e87807",
-    "usdt_balance": "160.00",
+    "password": "2a806ec9c83ac26562c663f9752be3542ddc3ee8b0a10c0c51bacc1083ce3aec5fe4cda737a8cfa88af20cddf5b9d9cb83a0f742492682c79decbb30fed4a57a.408cf32f50eaad5164f42e8c40765d37",
+    "usdt_balance": "7900.00",
     "referral_code": "ADMIN",
     "referred_by": null,
     "is_admin": true,
-    "last_login_at": null
+    "last_login_at": null,
+    "total_referral_earnings": "0.00",
+    "total_team_earnings": "0.00",
+    "last_salary_paid_at": null,
+    "last_daily_reward_at": null,
+    "current_streak": 0,
+    "last_spin_at": "2025-03-20T08:10:50.087Z",
+    "extra_spins_available": 0
+  },
+  {
+    "id": 3,
+    "username": "raja",
+    "password": "4219602f149ebcaf5fb5f6d4a198e2b9b7f97a1537b60d01cb208585517671e62193011e7458ed908a6cc92f8d9cc309ce4fe2b30ac677c2dfe9de6fa6cfcb9e.a69770f15b7ed1770da93852f5338d83",
+    "usdt_balance": "7800.00",
+    "referral_code": "294e287a",
+    "referred_by": "admin",
+    "is_admin": false,
+    "last_login_at": null,
+    "total_referral_earnings": "0.00",
+    "total_team_earnings": "0.00",
+    "last_salary_paid_at": null,
+    "last_daily_reward_at": null,
+    "current_streak": 0,
+    "last_spin_at": null,
+    "extra_spins_available": 0
   }
 ]

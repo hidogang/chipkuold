@@ -1,9 +1,26 @@
 [
   {
+    "id": 2,
+    "user_id": 2,
+    "water_buckets": 0,
+    "wheat_bags": 0,
+    "eggs": 0,
+    "mystery_boxes": 0
+  },
+  {
     "id": 1,
     "user_id": 1,
-    "water_buckets": 37,
-    "wheat_bags": 37,
-    "eggs": 7
+    "water_buckets": 0,
+    "wheat_bags": 0,
+    "eggs": 20,
+    "mystery_boxes": 0
+  },
+  {
+    "id": 3,
+    "user_id": 3,
+    "water_buckets": 0,
+    "wheat_bags": 0,
+    "eggs": 0,
+    "mystery_boxes": 0
   }
 ]
