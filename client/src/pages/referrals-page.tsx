@@ -572,6 +572,146 @@ export default function ReferralsPage() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="program">
+            <Card>
+              <CardHeader>
+                <CardTitle>Referral Program Details</CardTitle>
+                <CardDescription>Complete overview of our multi-level referral system</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-8">
+                  {/* 6-Level Commission Structure */}
+                  <div>
+                    <h3 className="font-bold text-lg mb-4">6-Level Commission Structure</h3>
+                    <div className="overflow-hidden rounded-lg border">
+                      <table className="w-full">
+                        <thead className="bg-muted">
+                          <tr>
+                            <th className="p-3 text-left">Level</th>
+                            <th className="p-3 text-center">Commission Rate</th>
+                            <th className="p-3 text-left">Description</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr className="border-t">
+                            <td className="p-3 font-medium">Level 1</td>
+                            <td className="p-3 text-center font-bold text-primary">10%</td>
+                            <td className="p-3">Your direct referrals</td>
+                          </tr>
+                          <tr className="border-t">
+                            <td className="p-3 font-medium">Level 2</td>
+                            <td className="p-3 text-center font-bold">6%</td>
+                            <td className="p-3">Referrals of your direct referrals</td>
+                          </tr>
+                          <tr className="border-t">
+                            <td className="p-3 font-medium">Level 3</td>
+                            <td className="p-3 text-center font-bold">4%</td>
+                            <td className="p-3">3rd level referrals</td>
+                          </tr>
+                          <tr className="border-t">
+                            <td className="p-3 font-medium">Level 4</td>
+                            <td className="p-3 text-center font-bold">3%</td>
+                            <td className="p-3">4th level referrals</td>
+                          </tr>
+                          <tr className="border-t">
+                            <td className="p-3 font-medium">Level 5</td>
+                            <td className="p-3 text-center font-bold">2%</td>
+                            <td className="p-3">5th level referrals</td>
+                          </tr>
+                          <tr className="border-t">
+                            <td className="p-3 font-medium">Level 6</td>
+                            <td className="p-3 text-center font-bold">1%</td>
+                            <td className="p-3">6th level referrals</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Example: If your Level 2 referral deposits $100 USDT, you earn $6 USDT commission.
+                    </p>
+                  </div>
+
+                  {/* Team Milestone Rewards */}
+                  <div>
+                    <h3 className="font-bold text-lg mb-4">Team Milestone Rewards</h3>
+                    <div className="overflow-hidden rounded-lg border">
+                      <table className="w-full">
+                        <thead className="bg-muted">
+                          <tr>
+                            <th className="p-3 text-left">Team Earnings</th>
+                            <th className="p-3 text-center">Bonus Reward</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr className="border-t">
+                            <td className="p-3 font-medium">$1,000</td>
+                            <td className="p-3 text-center font-bold">$50</td>
+                          </tr>
+                          <tr className="border-t">
+                            <td className="p-3 font-medium">$10,000</td>
+                            <td className="p-3 text-center font-bold">$500</td>
+                          </tr>
+                          <tr className="border-t">
+                            <td className="p-3 font-medium">$50,000</td>
+                            <td className="p-3 text-center font-bold">$2,500</td>
+                          </tr>
+                          <tr className="border-t">
+                            <td className="p-3 font-medium">$100,000</td>
+                            <td className="p-3 text-center font-bold text-primary">$5,000</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Monthly Salary System */}
+                  <div>
+                    <h3 className="font-bold text-lg mb-4">Monthly Salary System</h3>
+                    <div className="p-4 bg-muted rounded-lg">
+                      <p className="mb-2">Earn a steady monthly income based on your team size:</p>
+                      <ul className="list-disc pl-6 space-y-1">
+                        <li>Each active referral with at least one deposit adds $1 to your monthly salary</li>
+                        <li>Paid automatically at the beginning of each month</li>
+                        <li>No cap on earnings - scale your network to increase your income</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  {/* How to Maximize Earnings */}
+                  <div>
+                    <h3 className="font-bold text-lg mb-4">How to Maximize Your Earnings</h3>
+                    <div className="space-y-3">
+                      <div className="p-3 border rounded-lg">
+                        <p className="font-medium">1. Focus on quality referrals</p>
+                        <p className="text-sm text-muted-foreground">
+                          Refer users who are likely to deposit and actively participate.
+                        </p>
+                      </div>
+                      <div className="p-3 border rounded-lg">
+                        <p className="font-medium">2. Help your direct referrals succeed</p>
+                        <p className="text-sm text-muted-foreground">
+                          The more your team earns, the more you earn through the multi-level structure.
+                        </p>
+                      </div>
+                      <div className="p-3 border rounded-lg">
+                        <p className="font-medium">3. Build a large team for monthly salary</p>
+                        <p className="text-sm text-muted-foreground">
+                          Each active referral contributes $1 to your monthly passive income.
+                        </p>
+                      </div>
+                      <div className="p-3 border rounded-lg">
+                        <p className="font-medium">4. Aim for milestone bonuses</p>
+                        <p className="text-sm text-muted-foreground">
+                          Target the $5,000 bonus by building a team that reaches $100,000 in earnings.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
     </div>
