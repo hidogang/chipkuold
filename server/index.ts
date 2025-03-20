@@ -43,8 +43,15 @@ app.use((req, res, next) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
+    // Make sure the content type is set to application/json for API error responses
     res.status(status).json({ message });
     throw err;
+  });
+
+  // Make sure we're setting the correct Content-Type header for API responses
+  app.use('/api', (req, res, next) => {
+    res.setHeader('Content-Type', 'application/json');
+    next();
   });
 
   // importantly only setup vite in development and after
