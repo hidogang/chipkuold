@@ -63,15 +63,15 @@ export default function Navigation() {
 
   return (
     <>
-      {/* Desktop navigation */}
-      <nav className="hidden md:block fixed top-0 left-0 right-0 bg-background/90 backdrop-blur-sm border-b shadow-sm z-50">
+      {/* Desktop navigation - now at the bottom for all devices */}
+      <nav className="hidden md:block fixed bottom-0 left-0 right-0 bg-background/90 backdrop-blur-sm border-t shadow-sm z-50">
         <div className="container mx-auto">
-          <div className="flex items-center justify-between h-14">
+          <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
               <Link href="/home">
                 <Logo />
               </Link>
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center space-x-2">
                 <Link href="/home">
                   <Button 
                     variant={location === "/home" ? "default" : "ghost"} 
@@ -170,7 +170,7 @@ export default function Navigation() {
         </div>
       </nav>
 
-      {/* Mobile navigation */}
+      {/* Mobile navigation - always at the bottom */}
       <AnimatePresence>
         <motion.nav 
           initial={{ y: 100 }}

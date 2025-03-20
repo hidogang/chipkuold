@@ -32,11 +32,23 @@ export default function SpinPage() {
   // Daily spin mutation
   const dailySpinMutation = useMutation({
     mutationFn: () => apiRequest("POST", "/api/spin/daily"),
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast({
         title: "Spin successful!",
         description: "Check your rewards below.",
       });
+      // Invalidate relevant queries to refresh data
+      spinStatusQuery.refetch();
+      spinHistoryQuery.refetch();
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      
+      if (data.reward.type === "chicken") {
+        queryClient.invalidateQueries({ queryKey: ["/api/chickens"] });
+      } else if (data.reward.type === "usdt") {
+        queryClient.invalidateQueries({ queryKey: ["/api/transactions"] });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["/api/resources"] });
+      }
     },
     onError: (error) => {
       toast({
@@ -50,11 +62,23 @@ export default function SpinPage() {
   // Super jackpot spin mutation
   const superSpinMutation = useMutation({
     mutationFn: () => apiRequest("POST", "/api/spin/super"),
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast({
         title: "Super Jackpot Spin successful!",
         description: "Check your rewards below.",
       });
+      // Invalidate relevant queries to refresh data
+      spinStatusQuery.refetch();
+      spinHistoryQuery.refetch();
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      
+      if (data.reward.type === "chicken") {
+        queryClient.invalidateQueries({ queryKey: ["/api/chickens"] });
+      } else if (data.reward.type === "usdt") {
+        queryClient.invalidateQueries({ queryKey: ["/api/transactions"] });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["/api/resources"] });
+      }
     },
     onError: (error) => {
       toast({

@@ -24,7 +24,8 @@ export function SpinWheel({ onSpin, rewards, isSpinning, spinType }: SpinWheelPr
   const [rotation, setRotation] = useState(0);
   const [showConfetti, setShowConfetti] = useState(false);
   const [currentReward, setCurrentReward] = useState<{ type: string; amount: number; chickenType?: string } | null>(null);
-
+  const [isSpinningLocal, setIsSpinningLocal] = useState(false);
+  
   const segmentAngle = 360 / rewards.length;
 
   // Calculate colors for segments - Updated with more vibrant colors
@@ -40,7 +41,13 @@ export function SpinWheel({ onSpin, rewards, isSpinning, spinType }: SpinWheelPr
   ];
 
   const handleSpin = async () => {
+    if (isSpinningLocal || isSpinning) return;
+    
     try {
+      setIsSpinningLocal(true);
+      setCurrentReward(null);
+      setShowConfetti(false);
+      
       // Calculate random number of full rotations (between 5 and 8)
       const fullRotations = Math.floor(Math.random() * 3 + 5) * 360;
 
@@ -49,21 +56,33 @@ export function SpinWheel({ onSpin, rewards, isSpinning, spinType }: SpinWheelPr
 
       // Get the actual reward from the server
       const result = await onSpin();
+      
+      if (!result || !result.reward) {
+        console.error("Invalid reward returned from server");
+        setIsSpinningLocal(false);
+        return;
+      }
 
       // Find the segment index for this reward
       const rewardIndex = rewards.findIndex(r => 
         r.reward.type === result.reward.type && 
+        (r.reward.chickenType === result.reward.chickenType || 
+         (!r.reward.chickenType && !result.reward.chickenType)) &&
         r.reward.amount === result.reward.amount
       );
 
+      // Use a default segment if the reward isn't found
+      const targetIndex = rewardIndex !== -1 ? rewardIndex : 0;
+      
       // Calculate final rotation to land on the correct segment
-      const finalRotation = fullRotations + (360 - (rewardIndex * segmentAngle));
+      const finalRotation = fullRotations + (360 - (targetIndex * segmentAngle));
       setRotation(finalRotation);
 
       // Show reward after spin completes
       setTimeout(() => {
         setCurrentReward(result.reward);
         setShowConfetti(true);
+        setIsSpinningLocal(false);
       }, 3000);
 
       // Hide confetti after 5 seconds
@@ -73,6 +92,7 @@ export function SpinWheel({ onSpin, rewards, isSpinning, spinType }: SpinWheelPr
 
     } catch (error) {
       console.error("Error during spin:", error);
+      setIsSpinningLocal(false);
     }
   };
 
