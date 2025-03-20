@@ -567,7 +567,7 @@ export default function LandingPage() {
                   <div className="relative mb-8">
                     <div className="aspect-square max-w-xs mx-auto rounded-full overflow-hidden border-4 border-amber-300 shadow-lg">
                       <img
-                        src="/assets/spin-wheel-preview.png"
+                        src="/assets/spin-wheel-preview.svg"
                         alt="Spin Wheel Preview"
                         className="w-full h-full object-cover rounded-full"
                       />
@@ -579,6 +579,28 @@ export default function LandingPage() {
                     >
                       <Sparkles className="h-6 w-6" />
                     </motion.div>
+                  </div>
+                  
+                  <div className="bg-amber-100 p-4 rounded-lg border border-amber-200 mb-6">
+                    <h4 className="font-bold text-lg text-amber-800 mb-2 flex items-center gap-2">
+                      <RefreshCw className="h-5 w-5" /> Spin Types
+                    </h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-3 bg-white rounded-lg shadow border border-amber-200">
+                        <div className="flex justify-between items-center mb-2">
+                          <h5 className="font-bold text-amber-800">Daily Spin</h5>
+                          <Badge className="bg-green-100 text-green-700">Free</Badge>
+                        </div>
+                        <p className="text-sm text-amber-700">One free spin every 24 hours. Never miss your daily chance!</p>
+                      </div>
+                      <div className="p-3 bg-white rounded-lg shadow border border-amber-200">
+                        <div className="flex justify-between items-center mb-2">
+                          <h5 className="font-bold text-amber-800">Super Jackpot</h5>
+                          <Badge className="bg-purple-100 text-purple-700">Premium</Badge>
+                        </div>
+                        <p className="text-sm text-amber-700">Higher rewards with better chances of winning big prizes!</p>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="space-y-3 mb-6">
@@ -617,6 +639,121 @@ export default function LandingPage() {
                 </div>
               </motion.div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Dedicated Spin Wheel Section */}
+      <section className="py-20 bg-gradient-to-br from-amber-50 to-orange-50 relative overflow-hidden">
+        <div className="absolute -top-20 -right-20 w-64 h-64 bg-amber-300 rounded-full opacity-20 blur-3xl"></div>
+        <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-orange-300 rounded-full opacity-20 blur-3xl"></div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-amber-100 text-amber-800 hover:bg-amber-200">
+              Exciting Feature
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-amber-900 mb-4">
+              Daily Spin Wheel
+            </h2>
+            <p className="text-lg text-amber-700 max-w-2xl mx-auto">
+              Spin daily for amazing rewards and bonuses
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-8 items-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+            >
+              <div className="bg-white p-6 rounded-xl shadow-lg border border-amber-100">
+                <h3 className="text-2xl font-bold text-amber-900 mb-6 flex items-center gap-3">
+                  <span className="text-3xl">🎮</span> How It Works
+                </h3>
+                
+                <div className="space-y-4">
+                  <div className="p-4 bg-amber-50 rounded-lg">
+                    <h4 className="font-bold text-amber-800 text-lg mb-2">Daily Free Spin</h4>
+                    <p className="text-amber-700">
+                      Log in daily to get a free spin every 24 hours. The wheel contains various rewards including:
+                    </p>
+                    <div className="grid grid-cols-3 gap-3 mt-3">
+                      {[
+                        { icon: "💰", label: "USDT" },
+                        { icon: "🥚", label: "Eggs" },
+                        { icon: "🌾", label: "Wheat" },
+                        { icon: "💧", label: "Water" },
+                        { icon: "🐔", label: "Chickens" },
+                        { icon: "🎡", label: "Extra Spins" }
+                      ].map((item, i) => (
+                        <div key={i} className="bg-white p-2 rounded border border-amber-200 text-center">
+                          <div className="text-2xl mb-1">{item.icon}</div>
+                          <div className="text-xs font-medium text-amber-800">{item.label}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="p-4 bg-gradient-to-r from-purple-50 to-fuchsia-50 rounded-lg border border-purple-100">
+                    <h4 className="font-bold text-purple-800 text-lg mb-2">Super Jackpot Spin</h4>
+                    <div className="flex gap-4 items-center">
+                      <div className="text-5xl">🏆</div>
+                      <div>
+                        <p className="text-purple-800">Premium spin with higher-value rewards and better chances at rare prizes!</p>
+                        <div className="mt-2 flex items-center gap-2">
+                          <Badge className="bg-purple-100 text-purple-800">Premium</Badge>
+                          <span className="text-purple-700 text-sm">Higher Rewards</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-6 grid grid-cols-2 gap-4">
+                    <div className="p-4 bg-amber-100 rounded-lg">
+                      <h5 className="font-bold text-amber-800 mb-1">Winning Streak</h5>
+                      <p className="text-sm text-amber-700">Maintain a login streak to earn bonus prizes and extra spins!</p>
+                    </div>
+                    <div className="p-4 bg-amber-100 rounded-lg">
+                      <h5 className="font-bold text-amber-800 mb-1">Special Events</h5>
+                      <p className="text-sm text-amber-700">Look out for special event wheels with unique limited-time rewards!</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+              className="flex justify-center"
+            >
+              <div className="relative">
+                <motion.div 
+                  className="relative"
+                  animate={{ rotate: [0, 720] }}
+                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", repeatType: "reverse" }}
+                >
+                  <img
+                    src="/assets/spin-wheel-preview.svg"
+                    alt="Spin Wheel"
+                    className="max-w-full rounded-full shadow-2xl border-4 border-amber-300"
+                  />
+                </motion.div>
+                <motion.div
+                  className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-amber-500 to-amber-600 rounded-full p-5 shadow-lg z-10 border-2 border-white"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  animate={{ boxShadow: ["0px 0px 0px rgba(245, 158, 11, 0)", "0px 0px 20px rgba(245, 158, 11, 0.7)", "0px 0px 0px rgba(245, 158, 11, 0)"] }}
+                  transition={{ boxShadow: { repeat: Infinity, duration: 2 } }}
+                >
+                  <span className="text-white font-bold text-xl">SPIN</span>
+                </motion.div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
