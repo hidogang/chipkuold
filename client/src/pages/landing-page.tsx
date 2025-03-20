@@ -20,7 +20,10 @@ import {
   DollarSign, 
   PiggyBank,
   Hash,
-  RefreshCw 
+  RefreshCw,
+  LineChart as LineChartIcon,
+  Wallet as WalletIcon,
+  Share2
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -832,8 +835,23 @@ export default function LandingPage() {
       </section>
 
       {/* Referral Program */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
+      <section className="py-20 bg-white relative overflow-hidden">
+        <div className="absolute -top-20 -left-20 w-64 h-64 bg-green-300 rounded-full opacity-20 blur-3xl"></div>
+        <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-green-400 rounded-full opacity-20 blur-3xl"></div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-green-100 text-green-800 hover:bg-green-200">
+              Multi-Level Rewards
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-green-900 mb-4">
+              6-Tier Referral Program
+            </h2>
+            <p className="text-lg text-green-700 max-w-2xl mx-auto">
+              Invite friends, build your team, and earn recurring commissions through 6 levels
+            </p>
+          </div>
+
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -841,53 +859,132 @@ export default function LandingPage() {
               transition={{ duration: 0.5 }}
               viewport={{ once: true }}
             >
-              <img
-                src="/assets/referral-screen.svg"
-                alt="Referral Program Interface"
-                className="w-full h-auto rounded-lg shadow-lg"
-              />
+              <div className="relative">
+                <img
+                  src="/assets/referral-screen.svg"
+                  alt="Referral Program Interface"
+                  className="w-full h-auto rounded-lg shadow-lg border border-green-100"
+                />
+                <motion.div 
+                  className="absolute top-1/3 right-0 transform translate-x-1/2 -translate-y-1/2 bg-green-500 text-white rounded-full p-4 shadow-lg"
+                  animate={{ y: [0, -10, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <Users className="h-8 w-8" />
+                </motion.div>
+              </div>
+
+              {/* Referral Tiers */}
+              <div className="mt-8 bg-white p-6 rounded-lg shadow-md border border-green-100">
+                <h3 className="text-xl font-bold text-green-800 mb-4 flex items-center gap-2">
+                  <Share2 className="h-5 w-5" /> Commission Structure
+                </h3>
+                
+                <div className="space-y-3 mt-4">
+                  {[
+                    { level: 1, rate: "10%", description: "Direct referrals" },
+                    { level: 2, rate: "5%", description: "Your referrals' referrals" },
+                    { level: 3, rate: "3%", description: "3rd generation" },
+                    { level: 4, rate: "2%", description: "4th generation" },
+                    { level: 5, rate: "1%", description: "5th generation" },
+                    { level: 6, rate: "0.5%", description: "6th generation" }
+                  ].map((tier, i) => (
+                    <motion.div 
+                      key={i}
+                      className={`flex items-center bg-gradient-to-r from-green-50 to-green-100 p-3 rounded-lg border border-green-200`}
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.1, duration: 0.3 }}
+                      viewport={{ once: true }}
+                    >
+                      <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center font-bold text-green-700 mr-3 flex-shrink-0">
+                        {tier.level}
+                      </div>
+                      <div className="flex-grow">
+                        <div className="text-green-800 font-medium">Level {tier.level}</div>
+                        <div className="text-green-600 text-sm">{tier.description}</div>
+                      </div>
+                      <div className="text-lg font-bold text-green-700">{tier.rate}</div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
             </motion.div>
+
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               viewport={{ once: true }}
             >
-              <Badge className="mb-4 bg-amber-100 text-amber-800 hover:bg-amber-200">
-                Earn More
-              </Badge>
-              <h2 className="text-3xl font-bold text-amber-900 mb-6">
-                Referral Program
-              </h2>
-              <p className="text-lg text-amber-700 mb-8">
-                Invite friends to join ChickFarms and earn a commission on their deposits forever.
-              </p>
-              <div className="space-y-6">
-                <div className="p-6 rounded-lg bg-amber-50 border border-amber-100">
-                  <h4 className="text-xl font-semibold text-amber-900 mb-2">10% Commission</h4>
-                  <p className="text-amber-700">
-                    Earn 10% of every deposit your referrals make. The more active referrals you have, the more passive income you generate.
+              <div className="bg-white p-8 rounded-xl shadow-lg border border-green-100">
+                <h3 className="text-2xl font-bold text-green-900 mb-6 flex items-center gap-3">
+                  <Users className="h-6 w-6 text-green-700" />
+                  <span>Build Your Network</span>
+                </h3>
+                
+                <div className="space-y-6">
+                  <p className="text-green-800">
+                    Invite your friends to join ChickFarms and earn commissions on their deposits. 
+                    Our multi-level structure means you also earn from your referrals' referrals - up to 6 levels deep!
                   </p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center text-2xl">
-                    🔗
+                  
+                  <div className="grid grid-cols-2 gap-4 mt-6">
+                    {[
+                      { icon: <Users className="h-10 w-10 text-green-600" />, title: "Build Team", desc: "Invite friends to grow your network" },
+                      { icon: <DollarSign className="h-10 w-10 text-green-600" />, title: "Earn USDT", desc: "Get commissions from all 6 levels" },
+                      { icon: <LineChartIcon className="h-10 w-10 text-green-600" />, title: "Track Progress", desc: "Monitor your team's performance" },
+                      { icon: <WalletIcon className="h-10 w-10 text-green-600" />, title: "Monthly Salary", desc: "Earn based on team performance" }
+                    ].map((item, i) => (
+                      <motion.div
+                        key={i}
+                        className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg border border-green-200"
+                        initial={{ opacity: 0, y: 10 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.1, duration: 0.3 }}
+                        viewport={{ once: true }}
+                        whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                      >
+                        <div className="flex items-center gap-3 mb-2">
+                          {item.icon}
+                        </div>
+                        <h4 className="font-bold text-green-800">{item.title}</h4>
+                        <p className="text-sm text-green-700">{item.desc}</p>
+                      </motion.div>
+                    ))}
                   </div>
-                  <div>
-                    <h4 className="font-semibold text-amber-900">Share Your Link</h4>
-                    <p className="text-amber-700">
-                      Every account gets a unique referral link to share.
+                  
+                  <div className="bg-green-50 p-4 rounded-lg border border-green-200 mt-6">
+                    <h4 className="font-bold text-green-800 mb-2">Team Milestone Rewards</h4>
+                    <p className="text-sm text-green-700 mb-4">
+                      Unlock bonus rewards when your team reaches certain earnings milestones:
                     </p>
+                    <ul className="space-y-2 text-sm">
+                      {[
+                        { milestone: "$100 team earnings", reward: "$5 bonus" },
+                        { milestone: "$500 team earnings", reward: "$30 bonus" },
+                        { milestone: "$1,000 team earnings", reward: "$75 bonus" },
+                        { milestone: "$5,000 team earnings", reward: "$400 bonus" },
+                        { milestone: "$10,000 team earnings", reward: "$1,000 bonus" }
+                      ].map((item, i) => (
+                        <li key={i} className="flex justify-between">
+                          <span className="text-green-800"><span className="font-medium">→</span> {item.milestone}</span>
+                          <span className="font-bold text-green-700">{item.reward}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center text-2xl">
-                    📊
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-amber-900">Track Performance</h4>
-                    <p className="text-amber700">                    Monitor your referrals and earnings in real-time.
-                    </p>
+                  
+                  <div className="mt-8 flex justify-center">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={handleGetStarted}
+                      className="px-8 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg shadow-md font-medium border border-green-400 flex items-center gap-2"
+                    >
+                      <Users className="h-5 w-5" />
+                      Start Building Your Team
+                    </motion.button>
                   </div>
                 </div>
               </div>
