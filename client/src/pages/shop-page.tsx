@@ -448,18 +448,18 @@ export default function ShopPage() {
             <h2 className="text-2xl font-bold text-amber-800">Premium Chickens</h2>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {CHICKEN_TYPES.map((chicken, index) => (
             <motion.div
               key={chicken.type}
-              className="chickfarms-shop-item"
+              className="w-full mx-auto max-w-xs sm:max-w-full chickfarms-shop-item"
               initial={{ opacity: 0, y: 30, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ delay: 0.1 + (index * 0.1), duration: 0.5 }}
               whileHover={{ y: -5, transition: { duration: 0.2 } }}
             >
               <div
-                className="relative overflow-hidden rounded-xl shadow-lg border border-amber-200 bg-white h-full"
+                className="relative overflow-hidden rounded-xl shadow-lg border border-amber-200 bg-white h-full flex flex-col"
               >
                 <div
                   className="absolute top-0 left-0 right-0 h-36 z-0"
