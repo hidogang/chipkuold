@@ -25,8 +25,9 @@ export default function AccountPage() {
   });
 
   const handleCopyReferral = () => {
-    const referralLink = `${window.location.origin}?ref=${user?.referralCode}`;
+    const referralLink = `https://chickfarms.com/signup?ref=${user?.referralCode || ''}`;
     navigator.clipboard.writeText(referralLink);
+    console.log("Copied referral link:", referralLink); // Debug log
     toast({
       title: "Referral Link Copied",
       description: "The referral link has been copied to your clipboard.",
@@ -96,7 +97,7 @@ export default function AccountPage() {
                     <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
                     <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                   </svg>
-                  Township Referral Program
+                  ChickFarms Referral Program
                 </span>
               </CardTitle>
             </CardHeader>
@@ -135,12 +136,12 @@ export default function AccountPage() {
               </div>
               
               <p className="text-xs sm:text-sm text-muted-foreground">
-                Share your unique Township referral link with friends and earn 10% commission when they make deposits!
+                Share your unique ChickFarms referral link with friends and earn 10% commission when they make deposits!
               </p>
               
               <div className="flex items-center space-x-2 bg-gray-50 p-1 rounded-lg border border-gray-200">
                 <code className="flex-1 p-2 rounded text-xs sm:text-sm overflow-x-auto font-mono">
-                  {window.location.origin}?ref={user?.referralCode}
+                  https://chickfarms.com/signup?ref={user?.referralCode || ''}
                 </code>
                 <Button 
                   className="h-8 w-8 bg-amber-500 hover:bg-amber-600 text-white" 
