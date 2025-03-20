@@ -470,7 +470,7 @@ export default function ReferralsPage() {
                             <div key={milestone.id} className="p-3 border rounded-lg">
                               <div className="flex justify-between">
                                 <p className="font-medium">${parseFloat(milestone.reward.toString()).toFixed(2)}</p>
-                                <p className="text-sm text-green-600">Claimed</p>
+                                <p className="text-sm text-amber-600">Claimed</p>
                               </div>
                               <p className="text-sm text-muted-foreground">
                                 For reaching ${parseFloat(milestone.milestone.toString()).toFixed(2)} in team earnings
@@ -585,32 +585,32 @@ export default function ReferralsPage() {
                         <tbody>
                           <tr className="border-t">
                             <td className="p-3 font-medium">Level 1</td>
-                            <td className="p-3 text-center font-bold text-primary">10%</td>
+                            <td className="p-3 text-center font-bold text-amber-600">10%</td>
                             <td className="p-3">Your direct referrals</td>
                           </tr>
                           <tr className="border-t">
                             <td className="p-3 font-medium">Level 2</td>
-                            <td className="p-3 text-center font-bold">6%</td>
+                            <td className="p-3 text-center font-bold text-amber-500">6%</td>
                             <td className="p-3">Referrals of your direct referrals</td>
                           </tr>
                           <tr className="border-t">
                             <td className="p-3 font-medium">Level 3</td>
-                            <td className="p-3 text-center font-bold">4%</td>
+                            <td className="p-3 text-center font-bold text-amber-500">4%</td>
                             <td className="p-3">3rd level referrals</td>
                           </tr>
                           <tr className="border-t">
                             <td className="p-3 font-medium">Level 4</td>
-                            <td className="p-3 text-center font-bold">3%</td>
+                            <td className="p-3 text-center font-bold text-amber-400">3%</td>
                             <td className="p-3">4th level referrals</td>
                           </tr>
                           <tr className="border-t">
                             <td className="p-3 font-medium">Level 5</td>
-                            <td className="p-3 text-center font-bold">2%</td>
+                            <td className="p-3 text-center font-bold text-amber-400">2%</td>
                             <td className="p-3">5th level referrals</td>
                           </tr>
                           <tr className="border-t">
                             <td className="p-3 font-medium">Level 6</td>
-                            <td className="p-3 text-center font-bold">1%</td>
+                            <td className="p-3 text-center font-bold text-amber-300">1%</td>
                             <td className="p-3">6th level referrals</td>
                           </tr>
                         </tbody>
@@ -635,19 +635,19 @@ export default function ReferralsPage() {
                         <tbody>
                           <tr className="border-t">
                             <td className="p-3 font-medium">$1,000</td>
-                            <td className="p-3 text-center font-bold">$50</td>
+                            <td className="p-3 text-center font-bold text-amber-400">$50</td>
                           </tr>
                           <tr className="border-t">
                             <td className="p-3 font-medium">$10,000</td>
-                            <td className="p-3 text-center font-bold">$500</td>
+                            <td className="p-3 text-center font-bold text-amber-500">$500</td>
                           </tr>
                           <tr className="border-t">
                             <td className="p-3 font-medium">$50,000</td>
-                            <td className="p-3 text-center font-bold">$2,500</td>
+                            <td className="p-3 text-center font-bold text-amber-500">$2,500</td>
                           </tr>
                           <tr className="border-t">
                             <td className="p-3 font-medium">$100,000</td>
-                            <td className="p-3 text-center font-bold text-primary">$5,000</td>
+                            <td className="p-3 text-center font-bold text-amber-600">$5,000</td>
                           </tr>
                         </tbody>
                       </table>

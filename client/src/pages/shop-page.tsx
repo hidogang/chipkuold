@@ -1,3 +1,4 @@
+import * as React from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,6 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import React from "react";
 import ReactConfetti from 'react-confetti';
 import { useWindowSize } from '@/hooks/use-window-size';
 
@@ -819,22 +819,22 @@ export default function ShopPage() {
                 <div key={reward.id} className="bg-purple-50 rounded-lg p-3 flex justify-between items-center">
                   <div>
                     <div className="font-semibold text-purple-900">
-                      {reward.rewardType === 'usdt' && reward.rewardDetails && (() => {
+                      {reward.rewardType === 'usdt' && reward.rewardDetails && ((): React.ReactNode => {
                         const details = JSON.parse(reward.rewardDetails as string) as {amount: number};
                         return <span>{details.amount} USDT</span>;
                       })()}
                       
-                      {reward.rewardType === 'chicken' && reward.rewardDetails && (() => {
+                      {reward.rewardType === 'chicken' && reward.rewardDetails && ((): React.ReactNode => {
                         const details = JSON.parse(reward.rewardDetails as string) as {chickenType: string};
                         return <span>{details.chickenType} Chicken</span>;
                       })()}
                       
-                      {reward.rewardType === 'resources' && reward.rewardDetails && (() => {
+                      {reward.rewardType === 'resources' && reward.rewardDetails && ((): React.ReactNode => {
                         const details = JSON.parse(reward.rewardDetails as string) as {resourceAmount: number, resourceType: string};
                         return <span>{details.resourceAmount} {details.resourceType}</span>;
                       })()}
                       
-                      {reward.rewardType === 'eggs' && reward.rewardDetails && (() => {
+                      {reward.rewardType === 'eggs' && reward.rewardDetails && ((): React.ReactNode => {
                         const details = JSON.parse(reward.rewardDetails as string) as {minEggs: number};
                         return <span>{details.minEggs} Eggs</span>;
                       })()}
