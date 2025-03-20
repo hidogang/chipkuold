@@ -35,10 +35,8 @@ export function SpinWheelModal({
   // Get UI context to notify when the wheel is open
   const { setSpinWheelOpen } = useUIState();
 
+  // First effect just for the animation delay
   useEffect(() => {
-    // Notify UI context when spin wheel modal opens or closes
-    setSpinWheelOpen(isOpen);
-    
     // When dialog opens, set a small delay to show the wheel
     // This prevents animation glitches
     if (isOpen) {
@@ -49,6 +47,12 @@ export function SpinWheelModal({
     } else {
       setShowWheel(false);
     }
+  }, [isOpen]);
+
+  // Separate effect for UI state updates
+  useEffect(() => {
+    // Notify UI context when spin wheel modal opens or closes
+    setSpinWheelOpen(isOpen);
   }, [isOpen, setSpinWheelOpen]);
 
   return (

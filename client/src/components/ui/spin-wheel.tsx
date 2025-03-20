@@ -4,8 +4,9 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { dailySpinRewards, superJackpotRewards, type SpinRewardType } from "@shared/schema";
-import { Loader2 } from "lucide-react";
+import { Loader2, Volume2, VolumeX } from "lucide-react";
 import Confetti from "react-confetti";
+import { useSoundEffect, useSoundToggle } from "@/hooks/use-sound-effects";
 
 interface SpinWheelProps {
   onSpin: () => Promise<{
@@ -25,25 +26,22 @@ export function SpinWheel({ onSpin, rewards, isSpinning, spinType }: SpinWheelPr
   const [showConfetti, setShowConfetti] = useState(false);
   const [currentReward, setCurrentReward] = useState<{ type: string; amount: number; chickenType?: string } | null>(null);
   const [isSpinningLocal, setIsSpinningLocal] = useState(false);
+  const [isMuted, toggleMute] = useSoundToggle();
+  
+  // Sound effects
+  const [spinStartSound] = useSoundEffect('/assets/cluck.mp3', { volume: 0.7 });
+  const [spinTickSound] = useSoundEffect('/assets/spin-tick.mp3', { volume: 0.3 });
+  const [winSound] = useSoundEffect('/assets/win-sound.mp3', { volume: 0.7 });
   
   const segmentAngle = 360 / rewards.length;
-
-  // Calculate colors for segments - Updated with more vibrant colors
-  const segmentColors = [
-    "bg-gradient-to-r from-blue-500 to-blue-600",
-    "bg-gradient-to-r from-green-500 to-green-600",
-    "bg-gradient-to-r from-yellow-500 to-yellow-600",
-    "bg-gradient-to-r from-purple-500 to-purple-600",
-    "bg-gradient-to-r from-pink-500 to-pink-600",
-    "bg-gradient-to-r from-indigo-500 to-indigo-600",
-    "bg-gradient-to-r from-red-500 to-red-600",
-    "bg-gradient-to-r from-orange-500 to-orange-600",
-  ];
 
   const handleSpin = async () => {
     if (isSpinningLocal || isSpinning) return;
     
     try {
+      // Play spin start sound
+      spinStartSound.play();
+      
       setIsSpinningLocal(true);
       setCurrentReward(null);
       setShowConfetti(false);
@@ -79,14 +77,14 @@ export function SpinWheel({ onSpin, rewards, isSpinning, spinType }: SpinWheelPr
       const finalAngle = targetIndex * segmentAngle + segmentAngle / 2;
       const finalRotation = fullRotations + (360 - finalAngle);
       
-      console.log("Landing on segment:", targetIndex, "Reward:", result.reward);
       setRotation(finalRotation);
 
       // Show reward immediately as we know what it is
       setCurrentReward(result.reward);
       
-      // Show confetti after spin completes
+      // Play win sound and show confetti after spin completes
       setTimeout(() => {
+        winSound.play();
         setShowConfetti(true);
         setIsSpinningLocal(false);
       }, 3000);
@@ -104,6 +102,15 @@ export function SpinWheel({ onSpin, rewards, isSpinning, spinType }: SpinWheelPr
 
   return (
     <div className="relative flex flex-col items-center justify-center">
+      {/* Sound toggle button */}
+      <button
+        onClick={toggleMute}
+        className="absolute top-0 right-0 p-2 text-amber-700 hover:text-amber-900 transition-colors z-10"
+        aria-label={isMuted ? "Unmute sounds" : "Mute sounds"}
+      >
+        {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
+      </button>
+      
       {showConfetti && (
         <div className="fixed inset-0 z-50 pointer-events-none">
           <Confetti

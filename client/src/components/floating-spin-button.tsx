@@ -1,17 +1,21 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { dailySpinRewards, superJackpotRewards } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
 import { SpinWheelModal } from "@/components/ui/spin-wheel-modal";
+import { Badge } from "@/components/ui/badge";
+import { formatDistanceToNowStrict } from "date-fns";
 
 export function FloatingSpinButton() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isDailySpinOpen, setIsDailySpinOpen] = useState(false);
   const [isSuperSpinOpen, setIsSuperSpinOpen] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState<string | null>(null);
 
   // Get spin status
   const spinStatusQuery = useQuery({
@@ -19,6 +23,28 @@ export function FloatingSpinButton() {
     queryFn: () => apiRequest("GET", "/api/spin/status"),
     refetchInterval: 1000, // Update countdown every second
   });
+
+  // Format time remaining for spin
+  useEffect(() => {
+    if (spinStatusQuery.data?.timeUntilNextSpin && !spinStatusQuery.data?.canSpinDaily) {
+      const timeString = formatDistanceToNowStrict(
+        Date.now() + spinStatusQuery.data.timeUntilNextSpin,
+        { addSuffix: false }
+      );
+      setTimeRemaining(timeString);
+    } else {
+      setTimeRemaining(null);
+    }
+  }, [spinStatusQuery.data]);
+
+  // Show notification when spin is available
+  useEffect(() => {
+    if (spinStatusQuery.data?.canSpinDaily) {
+      setShowNotification(true);
+    } else {
+      setShowNotification(false);
+    }
+  }, [spinStatusQuery.data?.canSpinDaily]);
 
   // Daily spin mutation
   const dailySpinMutation = useMutation({
@@ -87,28 +113,75 @@ export function FloatingSpinButton() {
   return (
     <>
       {/* Floating Action Button */}
-      <motion.button
-        className="fixed left-4 bottom-24 md:bottom-20 z-40 w-16 h-16 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group overflow-hidden"
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={() => {
-          // If daily spin is available, show that dialog, otherwise show super spin
-          if (spinStatusQuery.data?.canSpinDaily || spinStatusQuery.data?.extraSpinsAvailable > 0) {
-            setIsDailySpinOpen(true);
-          } else {
-            setIsSuperSpinOpen(true);
-          }
-        }}
-      >
-        <motion.div
-          className="absolute inset-0 bg-gradient-to-r from-amber-400 to-amber-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-        />
-        <img 
-          src="/assets/spin-wheel-icon.png" 
-          className="w-10 h-10 relative z-10 transform group-hover:rotate-180 transition-transform duration-500" 
-          alt="Spin" 
-        />
-      </motion.button>
+      <div className="fixed left-4 bottom-24 md:bottom-20 z-40 flex flex-col items-center">
+        <AnimatePresence>
+          {timeRemaining && !showNotification && (
+            <motion.div
+              initial={{ opacity: 0, y: 10, scale: 0.8 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.8 }}
+              className="mb-2 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full shadow-md text-amber-900 text-xs font-medium"
+            >
+              {timeRemaining}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      
+        <motion.button
+          className="w-16 h-16 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group overflow-hidden relative"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => {
+            // If daily spin is available, show that dialog, otherwise show super spin
+            if (spinStatusQuery.data?.canSpinDaily || spinStatusQuery.data?.extraSpinsAvailable > 0) {
+              setIsDailySpinOpen(true);
+            } else {
+              setIsSuperSpinOpen(true);
+            }
+          }}
+        >
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-amber-400 to-amber-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          />
+          <img 
+            src="/assets/spin-wheel-icon.svg" 
+            className="w-12 h-12 relative z-10 transform group-hover:rotate-180 transition-transform duration-500" 
+            alt="Spin" 
+          />
+          
+          {/* Notification Badge */}
+          <AnimatePresence>
+            {showNotification && (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0 }}
+                className="absolute -top-1 -right-1 z-20"
+              >
+                <Badge variant="destructive" className="bg-green-500 hover:bg-green-600">
+                  Ready!
+                </Badge>
+              </motion.div>
+            )}
+          </AnimatePresence>
+          
+          {/* Extra Spins Badge */}
+          <AnimatePresence>
+            {spinStatusQuery.data?.extraSpinsAvailable > 0 && (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0 }}
+                className="absolute -bottom-1 -right-1 z-20"
+              >
+                <Badge variant="outline" className="bg-amber-100 text-amber-900 border-amber-300">
+                  +{spinStatusQuery.data?.extraSpinsAvailable}
+                </Badge>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.button>
+      </div>
 
       {/* Daily Spin Modal */}
       <SpinWheelModal
