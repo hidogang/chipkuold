@@ -245,8 +245,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             if (referrer) {
               console.log(`[Admin] Found referrer: ${referrer.id}`);
               
-              // Apply referral commission calculation
-              const commission = finalAmount * 0.05; // 5% referral commission
+              // Apply referral commission calculation (Level 1 - 10%)
+              const commission = finalAmount * 0.10; // 10% referral commission
               await storage.updateUserBalance(referrer.id, commission);
               await storage.updateUserReferralEarnings(referrer.id, commission);
               console.log(`[Admin] Added commission $${commission} to referrer ${referrer.id}`);
@@ -995,11 +995,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
               // Get commission rate for this level
               let commissionRate = 0;
               switch (level) {
-                case 2: commissionRate = 0.05; break; // 5% for level 2
-                case 3: commissionRate = 0.03; break; // 3% for level 3
-                case 4: commissionRate = 0.02; break; // 2% for level 4
-                case 5: commissionRate = 0.01; break; // 1% for level 5
-                case 6: commissionRate = 0.005; break; // 0.5% for level 6
+                case 2: commissionRate = 0.06; break; // 6% for level 2
+                case 3: commissionRate = 0.04; break; // 4% for level 3
+                case 4: commissionRate = 0.03; break; // 3% for level 4
+                case 5: commissionRate = 0.02; break; // 2% for level 5
+                case 6: commissionRate = 0.01; break; // 1% for level 6
               }
 
               // Calculate commission amount
