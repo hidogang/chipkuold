@@ -140,10 +140,10 @@ export default function MarketPage() {
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Water Resource Card */}
           <motion.div
-            className="chickfarms-shop-item"
+            className="w-full mx-auto max-w-xs sm:max-w-full chickfarms-shop-item"
             initial={{ opacity: 0, y: 30, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ delay: 0.1, duration: 0.5 }}
@@ -247,7 +247,7 @@ export default function MarketPage() {
 
           {/* Wheat Resource Card */}
           <motion.div
-            className="chickfarms-shop-item"
+            className="w-full mx-auto max-w-xs sm:max-w-full chickfarms-shop-item"
             initial={{ opacity: 0, y: 30, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
@@ -351,7 +351,7 @@ export default function MarketPage() {
 
           {/* Egg Selling Card */}
           <motion.div
-            className="chickfarms-shop-item"
+            className="w-full mx-auto max-w-xs sm:max-w-full chickfarms-shop-item"
             initial={{ opacity: 0, y: 30, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ delay: 0.3, duration: 0.5 }}
