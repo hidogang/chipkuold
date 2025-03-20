@@ -93,8 +93,7 @@ export default function WalletPage() {
 
   const rechargeMutation = useMutation({
     mutationFn: async (data: z.infer<typeof rechargeSchema>) => {
-      const res = await apiRequest("POST", "/api/wallet/recharge", data);
-      return res.json();
+      return await apiRequest("POST", "/api/wallet/recharge", data);
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
