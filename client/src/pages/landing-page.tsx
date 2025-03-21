@@ -567,7 +567,7 @@ export default function LandingPage() {
                   <div className="relative mb-8">
                     <div className="aspect-square max-w-xs mx-auto rounded-full overflow-hidden border-4 border-amber-300 shadow-lg">
                       <img
-                        src="/assets/spin-wheel-preview.svg"
+                        src="/assets/custom-spin-wheel.svg"
                         alt="Spin Wheel Preview"
                         className="w-full h-full object-cover rounded-full"
                       />
@@ -738,7 +738,7 @@ export default function LandingPage() {
                   transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", repeatType: "reverse" }}
                 >
                   <img
-                    src="/assets/spin-wheel-preview.svg"
+                    src="/assets/custom-spin-wheel.svg"
                     alt="Spin Wheel"
                     className="max-w-full rounded-full shadow-2xl border-4 border-amber-300"
                   />
