@@ -27,26 +27,26 @@ function Logo() {
 
 // Game icons
 function HomeIcon() {
-  return <img src="/assets/home-icon.png" className="w-8 h-8 object-contain" alt="Home" />;
+  return <img src="/assets/home-icon.png" className="w-6 h-6 sm:w-8 sm:h-8 object-contain" alt="Home" />;
 }
 
 function ShopIcon() {
-  return <img src="/assets/shop-icon.png" className="w-8 h-8 object-contain" alt="Shop" />;
+  return <img src="/assets/shop-icon.png" className="w-6 h-6 sm:w-8 sm:h-8 object-contain" alt="Shop" />;
 }
 
 function MarketIcon() {
-  return <img src="/assets/market-icon.png" className="w-8 h-8 object-contain" alt="Market" />;
+  return <img src="/assets/market-icon.png" className="w-6 h-6 sm:w-8 sm:h-8 object-contain" alt="Market" />;
 }
 
 function WalletIcon() {
-  return <img src="/assets/wallet-icon.png" className="w-8 h-8 object-contain" alt="Wallet" />;
+  return <img src="/assets/wallet-icon.png" className="w-6 h-6 sm:w-8 sm:h-8 object-contain" alt="Wallet" />;
 }
 
 function ReferralsIcon() {
   return (
     <img 
       src="/assets/referrals-megaphone-icon.png" 
-      className="w-8 h-8 object-contain" 
+      className="w-6 h-6 sm:w-8 sm:h-8 object-contain" 
       alt="Referrals" 
     />
   );
@@ -184,8 +184,8 @@ export default function Navigation() {
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
           className="block md:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t shadow-lg z-50"
         >
-          <div className="container mx-auto px-2">
-            <div className="flex items-center justify-between py-2">
+          <div className="container mx-auto px-1 sm:px-2">
+            <div className="flex items-center justify-between py-1 sm:py-2">
               {[
                 { path: "/home", icon: <HomeIcon />, label: "Home" },
                 { path: "/shop", icon: <ShopIcon />, label: "Shop" },
@@ -193,8 +193,8 @@ export default function Navigation() {
                 { path: "/wallet", icon: <WalletIcon />, label: "Wallet" },
                 { path: "/referrals", icon: <ReferralsIcon />, label: "Referrals" },
                 { path: "/account", icon: 
-                  <Avatar className="h-8 w-8 ring-1 ring-primary/20">
-                    <AvatarFallback className="bg-primary/10 text-xs">{initials}</AvatarFallback>
+                  <Avatar className="h-6 w-6 sm:h-8 sm:w-8 ring-1 ring-primary/20">
+                    <AvatarFallback className="bg-primary/10 text-[10px] sm:text-xs">{initials}</AvatarFallback>
                   </Avatar>, 
                   label: "Account" 
                 }
@@ -206,11 +206,11 @@ export default function Navigation() {
                   >
                     <Button 
                       variant={isActive(item.path) ? "default" : "ghost"}
-                      className={`flex flex-col items-center justify-center space-y-1 h-16 w-16 px-0
+                      className={`flex flex-col items-center justify-center space-y-1 h-14 w-14 sm:h-16 sm:w-16 px-0
                         ${isActive(item.path) ? 'bg-primary/10' : ''}`}
                     >
                       {item.icon}
-                      <span className="text-xs font-medium">{item.label}</span>
+                      <span className="text-[10px] sm:text-xs font-medium">{item.label}</span>
                     </Button>
                     {isActive(item.path) && (
                       <motion.div

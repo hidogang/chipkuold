@@ -105,12 +105,12 @@ export default function LandingPage() {
     <div className="min-h-screen bg-[#FEF3C7] flex flex-col overflow-x-hidden">
       {/* Navbar */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-amber-100">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <img src="/assets/chickfarms-logo.png" alt="ChickFarms Logo" className="h-10" />
-            <span className="text-xl font-bold text-amber-900">ChickFarms</span>
+        <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-4 flex justify-between items-center">
+          <div className="flex items-center space-x-1 sm:space-x-2">
+            <img src="/assets/chickfarms-logo.png" alt="ChickFarms Logo" className="h-8 sm:h-10" />
+            <span className="text-lg sm:text-xl font-bold text-amber-900">ChickFarms</span>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-1 sm:space-x-4">
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -118,10 +118,11 @@ export default function LandingPage() {
               <Button
                 variant="ghost"
                 onClick={() => setLocation(user ? "/home" : "/auth")}
-                className="text-amber-900 hover:text-amber-700 hover:bg-amber-50"
+                className="text-amber-900 hover:text-amber-700 hover:bg-amber-50 px-2 sm:px-4 h-9 sm:h-10 text-xs sm:text-sm"
               >
                 <span className="flex items-center">
-                  <span className="mr-1.5 text-lg">🏠</span> {user ? "Dashboard" : "Login"}
+                  <span className="mr-1 sm:mr-1.5 text-base sm:text-lg">🏠</span> 
+                  <span className="hidden xs:inline">{user ? "Dashboard" : "Login"}</span>
                 </span>
               </Button>
             </motion.div>
@@ -145,10 +146,12 @@ export default function LandingPage() {
                 <Button
                   variant="default"
                   onClick={() => setLocation("/auth")}
-                  className="bg-amber-500 hover:bg-amber-600 text-white relative z-10 border border-amber-400"
+                  className="bg-amber-500 hover:bg-amber-600 text-white relative z-10 border border-amber-400 px-2 sm:px-4 h-9 sm:h-10 text-xs sm:text-sm"
                 >
                   <span className="flex items-center">
-                    <span className="mr-1.5 text-lg">🐔</span> Sign Up
+                    <span className="mr-1 sm:mr-1.5 text-base sm:text-lg">🐔</span>
+                    <span className="hidden xs:inline">Sign Up</span>
+                    <span className="xs:hidden">Join</span>
                   </span>
                 </Button>
               </motion.div>
@@ -158,8 +161,8 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-20 md:py-32">
-        <div className="container mx-auto px-4 grid md:grid-cols-2 gap-8 items-center">
+      <section className="relative overflow-hidden py-12 sm:py-16 md:py-24 lg:py-32">
+        <div className="container mx-auto px-3 sm:px-4 grid md:grid-cols-2 gap-6 md:gap-8 items-center">
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
@@ -195,10 +198,10 @@ export default function LandingPage() {
                 <Button
                   onClick={handleGetStarted}
                   size="lg"
-                  className="bg-amber-500 hover:bg-amber-600 text-white px-8 rounded-full relative z-10 shadow-lg border-2 border-amber-400"
+                  className="bg-amber-500 hover:bg-amber-600 text-white px-4 sm:px-8 h-10 sm:h-12 text-sm sm:text-base rounded-full relative z-10 shadow-lg border-2 border-amber-400"
                 >
                   <span className="flex items-center">
-                    <span className="mr-2 text-xl">🐔</span> Start Playing
+                    <span className="mr-1 sm:mr-2 text-lg sm:text-xl">🐔</span> Start Playing
                   </span>
                 </Button>
               </motion.div>
@@ -214,10 +217,10 @@ export default function LandingPage() {
                     const howItWorksSection = document.getElementById("how-it-works");
                     howItWorksSection?.scrollIntoView({ behavior: "smooth" });
                   }}
-                  className="bg-white text-amber-600 hover:bg-amber-50 rounded-full shadow-lg border-2 border-amber-300 hover:border-amber-400 transition-all duration-200"
+                  className="bg-white text-amber-600 hover:bg-amber-50 rounded-full shadow-lg border-2 border-amber-300 hover:border-amber-400 transition-all duration-200 px-4 sm:px-8 h-10 sm:h-12 text-sm sm:text-base"
                 >
                   <span className="flex items-center">
-                    <span className="mr-2 text-xl">📘</span> Learn More
+                    <span className="mr-1 sm:mr-2 text-lg sm:text-xl">📘</span> Learn More
                   </span>
                 </Button>
               </motion.div>
@@ -243,21 +246,21 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works */}
-      <section id="how-it-works" className="py-20 bg-white relative overflow-hidden">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
+      <section id="how-it-works" className="py-12 sm:py-16 md:py-20 bg-white relative overflow-hidden">
+        <div className="container mx-auto px-3 sm:px-4">
+          <div className="text-center mb-8 sm:mb-12 md:mb-16">
             <Badge className="mb-4 bg-amber-100 text-amber-800 hover:bg-amber-200">
               Game Mechanics
             </Badge>
-            <h2 className="text-3xl md:text-4xl font-bold text-amber-900 mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-amber-900 mb-3 sm:mb-4">
               How ChickFarms Works
             </h2>
-            <p className="text-lg text-amber-700 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-amber-700 max-w-2xl mx-auto">
               A simple farming simulation game with real earnings potential
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {[
               {
                 title: "Buy Chickens",
@@ -285,15 +288,15 @@ export default function LandingPage() {
                 transition={{ duration: 0.5, delay: item.delay }}
                 viewport={{ once: true }}
               >
-                <Card className="border-amber-100 hover:shadow-md transition-shadow">
-                  <CardHeader>
-                    <div className="w-14 h-14 flex items-center justify-center rounded-full bg-amber-100 text-3xl mb-4">
+                <Card className="border-amber-100 hover:shadow-md transition-shadow h-full">
+                  <CardHeader className="pb-2">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-amber-100 text-2xl sm:text-3xl mb-3 sm:mb-4">
                       {item.icon}
                     </div>
-                    <CardTitle className="text-xl text-amber-900">{item.title}</CardTitle>
+                    <CardTitle className="text-lg sm:text-xl text-amber-900">{item.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-amber-700">{item.desc}</p>
+                    <p className="text-sm sm:text-base text-amber-700">{item.desc}</p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -301,19 +304,19 @@ export default function LandingPage() {
           </div>
 
           {/* Meet Your Chickens */}
-          <div className="mt-20">
-            <div className="grid md:grid-cols-2 gap-8 items-center">
+          <div className="mt-12 sm:mt-16 md:mt-20">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-center">
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
               >
-                <div className="bg-white p-6 rounded-lg shadow-lg border border-amber-100">
-                  <h3 className="text-2xl font-bold text-amber-900 mb-6">
+                <div className="bg-white p-4 sm:p-6 rounded-lg shadow-lg border border-amber-100">
+                  <h3 className="text-xl sm:text-2xl font-bold text-amber-900 mb-4 sm:mb-6">
                     Meet Your Chickens
                   </h3>
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     {[
                       {
                         title: "Baby Chicken",
@@ -343,10 +346,10 @@ export default function LandingPage() {
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3, delay: index * 0.1 }}
                         viewport={{ once: true }}
-                        className="p-6 rounded-lg border border-amber-100 bg-gradient-to-r from-amber-50 to-amber-100 hover:shadow-md transition-all"
+                        className="p-4 sm:p-6 rounded-lg border border-amber-100 bg-gradient-to-r from-amber-50 to-amber-100 hover:shadow-md transition-all"
                       >
                         <div className="flex justify-between items-start">
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2 sm:gap-3">
                             <motion.div
                               animate={{
                                 y: [0, -5, 0],
@@ -357,19 +360,20 @@ export default function LandingPage() {
                                 repeat: Infinity,
                                 ease: "easeInOut"
                               }}
+                              className="w-10 h-10 sm:w-auto sm:h-auto flex-shrink-0"
                             >
                               <ChickenDisplay type={chicken.type} />
                             </motion.div>
                             <div>
-                              <h4 className="font-bold text-lg text-amber-900">{chicken.title}</h4>
-                              <p className="text-amber-700 text-sm">{chicken.production}</p>
+                              <h4 className="font-bold text-base sm:text-lg text-amber-900">{chicken.title}</h4>
+                              <p className="text-amber-700 text-xs sm:text-sm">{chicken.production}</p>
                             </div>
                           </div>
                           <PriceDisplay amount={chicken.price} />
                         </div>
-                        <p className="mt-3 text-amber-700 text-sm">{chicken.desc}</p>
-                        <div className="mt-4">
-                          <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-200">
+                        <p className="mt-2 sm:mt-3 text-amber-700 text-xs sm:text-sm">{chicken.desc}</p>
+                        <div className="mt-3 sm:mt-4">
+                          <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-200 text-xs sm:text-sm">
                             ROI: {index === 0 ? "40" : index === 1 ? "30" : "20"} days
                           </Badge>
                         </div>
@@ -385,68 +389,68 @@ export default function LandingPage() {
                 viewport={{ once: true }}
                 className="space-y-6"
               >
-                <div className="bg-white p-6 rounded-lg shadow-lg border border-amber-100">
-                  <h3 className="text-xl font-bold text-amber-900 mb-4">
+                <div className="bg-white p-4 sm:p-6 rounded-lg shadow-lg border border-amber-100">
+                  <h3 className="text-lg sm:text-xl font-bold text-amber-900 mb-3 sm:mb-4">
                     Resource Management
                   </h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
+                  <div className="space-y-3 sm:space-y-4">
+                    <div className="flex items-center gap-2 sm:gap-3">
                       <ResourceIcon type="water" />
                       <div>
-                        <h4 className="font-semibold text-amber-900">Water Needs</h4>
-                        <p className="text-sm text-amber-700">Essential for egg production</p>
+                        <h4 className="font-semibold text-amber-900 text-sm sm:text-base">Water Needs</h4>
+                        <p className="text-xs sm:text-sm text-amber-700">Essential for egg production</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3">
                       <ResourceIcon type="wheat" />
                       <div>
-                        <h4 className="font-semibold text-amber-900">Wheat Feed</h4>
-                        <p className="text-sm text-amber-700">Required for healthy chickens</p>
+                        <h4 className="font-semibold text-amber-900 text-sm sm:text-base">Wheat Feed</h4>
+                        <p className="text-xs sm:text-sm text-amber-700">Required for healthy chickens</p>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div className="bg-white p-6 rounded-lg shadow-lg border border-amber-100">
-                  <h3 className="text-xl font-bold text-amber-900 mb-4">
+                <div className="bg-white p-4 sm:p-6 rounded-lg shadow-lg border border-amber-100">
+                  <h3 className="text-lg sm:text-xl font-bold text-amber-900 mb-3 sm:mb-4">
                     Earning Potential
                   </h3>
-                  <div className="space-y-4">
-                    <div className="text-amber-700">
+                  <div className="space-y-3 sm:space-y-4">
+                    <div className="text-amber-700 text-xs sm:text-sm">
                       • Baby Chickens earn <span className="font-semibold flex items-center gap-1 inline-flex">
                         <img 
                           src="/assets/tether-usdt-logo.png" 
                           alt="USDT" 
-                          className="w-4 h-4"
+                          className="w-3 h-3 sm:w-4 sm:h-4"
                           style={{ objectFit: "contain" }} 
                         />
                         $2 USDT
                       </span> daily
                     </div>
-                    <div className="text-amber-700">
+                    <div className="text-amber-700 text-xs sm:text-sm">
                       • Regular Chickens earn <span className="font-semibold flex items-center gap-1 inline-flex">
                         <img 
                           src="/assets/tether-usdt-logo.png" 
                           alt="USDT" 
-                          className="w-4 h-4"
+                          className="w-3 h-3 sm:w-4 sm:h-4"
                           style={{ objectFit: "contain" }} 
                         />
                         $4.8 USDT
                       </span> daily
                     </div>
-                    <div className="text-amber-700">
+                    <div className="text-amber-700 text-xs sm:text-sm">
                       • Golden Chickens earn <span className="font-semibold flex items-center gap-1 inline-flex">
                         <img 
                           src="/assets/tether-usdt-logo.png" 
                           alt="USDT" 
-                          className="w-4 h-4"
+                          className="w-3 h-3 sm:w-4 sm:h-4"
                           style={{ objectFit: "contain" }} 
                         />
                         $16 USDT
                       </span> daily
                     </div>
-                    <div className="mt-4 p-3 bg-amber-50 rounded-lg border border-amber-200">
-                      <p className="text-amber-800 text-sm flex items-center gap-2">
-                        <span className="text-xl">✨</span>
+                    <div className="mt-3 sm:mt-4 p-2 sm:p-3 bg-amber-50 rounded-lg border border-amber-200">
+                      <p className="text-amber-800 text-xs sm:text-sm flex items-center gap-1 sm:gap-2">
+                        <span className="text-base sm:text-xl">✨</span>
                         Your chickens will continue to produce eggs and earn USDT throughout their entire lifetime!
                       </p>
                     </div>
@@ -457,20 +461,20 @@ export default function LandingPage() {
           </div>
 
           {/* Mystery Boxes & Daily Rewards Section */}
-          <div className="mt-20"> 
-            <div className="text-center mb-12">
+          <div className="mt-12 sm:mt-16 md:mt-20"> 
+            <div className="text-center mb-6 sm:mb-8 md:mb-12">
               <Badge className="mb-4 bg-amber-100 text-amber-800 hover:bg-amber-200">
                 Exciting Rewards
               </Badge>
-              <h2 className="text-3xl font-bold text-amber-900 mb-4">
+              <h2 className="text-2xl sm:text-3xl font-bold text-amber-900 mb-3 sm:mb-4">
                 Mystery Boxes & Daily Rewards
               </h2>
-              <p className="text-lg text-amber-700 max-w-2xl mx-auto">
+              <p className="text-base sm:text-lg text-amber-700 max-w-2xl mx-auto">
                 Spin the wheel daily and open mystery boxes for amazing rewards
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
               {/* Mystery Boxes */}
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
@@ -479,15 +483,15 @@ export default function LandingPage() {
                 viewport={{ once: true }}
                 className="bg-white rounded-xl overflow-hidden shadow-xl"
               >
-                <div className="bg-gradient-to-r from-amber-600 to-orange-600 py-4 px-6">
-                  <h3 className="text-2xl font-bold text-white flex items-center gap-3">
-                    <Gift className="h-7 w-7" />
-                    <span className="text-3xl">🎁</span> Mystery Boxes
+                <div className="bg-gradient-to-r from-amber-600 to-orange-600 py-3 sm:py-4 px-4 sm:px-6">
+                  <h3 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2 sm:gap-3">
+                    <Gift className="h-5 w-5 sm:h-7 sm:w-7" />
+                    <span className="text-2xl sm:text-3xl">🎁</span> Mystery Boxes
                   </h3>
                 </div>
 
-                <div className="p-6">
-                  <p className="text-gray-700 mb-6">
+                <div className="p-4 sm:p-6">
+                  <p className="text-gray-700 mb-4 sm:mb-6 text-sm sm:text-base">
                     Purchase mystery boxes and open them to receive valuable rewards including USDT, chickens, resources, and more!
                   </p>
 
@@ -552,15 +556,15 @@ export default function LandingPage() {
                 viewport={{ once: true }}
                 className="bg-white rounded-xl overflow-hidden shadow-xl"
               >
-                <div className="bg-gradient-to-r from-amber-500 to-orange-500 py-4 px-6">
-                  <h3 className="text-2xl font-bold text-white flex items-center gap-3">
-                    <RefreshCw className="h-7 w-7" />
-                    <span className="text-3xl">🎡</span> Daily Spin Wheel
+                <div className="bg-gradient-to-r from-amber-500 to-orange-500 py-3 sm:py-4 px-4 sm:px-6">
+                  <h3 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2 sm:gap-3">
+                    <RefreshCw className="h-5 w-5 sm:h-7 sm:w-7" />
+                    <span className="text-2xl sm:text-3xl">🎡</span> Daily Spin Wheel
                   </h3>
                 </div>
 
-                <div className="p-6">
-                  <p className="text-gray-700 mb-6">
+                <div className="p-4 sm:p-6">
+                  <p className="text-gray-700 mb-4 sm:mb-6 text-sm sm:text-base">
                     Spin the wheel once daily for a chance to win eggs, resources, USDT, and even extra spins and chickens!
                   </p>
 
