@@ -25,7 +25,7 @@ export default function BalanceBar() {
   return (
     <div className="fixed top-0 left-0 right-0 z-30 bg-transparent">
       <motion.div
-        className="township-resource-bar max-w-4xl mx-auto overflow-hidden my-2 px-3"
+        className="township-resource-bar max-w-4xl mx-auto overflow-hidden my-2 px-2 sm:px-3"
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, type: "spring" }}
@@ -34,7 +34,7 @@ export default function BalanceBar() {
           borderRadius: "16px",
           boxShadow: "0 6px 12px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08)",
           display: "flex",
-          padding: "10px 12px",
+          padding: "8px 6px 8px 6px",
           border: "2px solid rgba(255, 208, 91, 0.7)",
           position: "relative",
           overflow: "hidden"
@@ -49,11 +49,11 @@ export default function BalanceBar() {
 
         {/* Water */}
         <motion.div 
-          className="township-resource-item flex-1 mx-1 relative"
+          className="township-resource-item flex-1 mx-0.5 sm:mx-1 relative"
           initial={{ 
             background: "rgba(255, 255, 255, 0.95)",
             borderRadius: "10px",
-            padding: "6px 10px",
+            padding: "4px 5px 4px 5px",
             border: "1px solid rgba(3, 169, 244, 0.3)",
             boxShadow: "0 2px 4px rgba(0,0,0,0.08), inset 0 1px 2px rgba(255, 255, 255, 0.5)",
             minWidth: 0,
@@ -135,11 +135,11 @@ export default function BalanceBar() {
 
         {/* Wheat */}
         <motion.div 
-          className="township-resource-item flex-1 mx-1 relative"
+          className="township-resource-item flex-1 mx-0.5 sm:mx-1 relative"
           initial={{ 
             background: "rgba(255, 255, 255, 0.95)",
             borderRadius: "10px",
-            padding: "6px 10px",
+            padding: "4px 5px 4px 5px",
             border: "1px solid rgba(255, 193, 7, 0.3)",
             boxShadow: "0 2px 4px rgba(0,0,0,0.08), inset 0 1px 2px rgba(255, 255, 255, 0.5)",
             minWidth: 0,
@@ -221,11 +221,11 @@ export default function BalanceBar() {
 
         {/* Eggs */}
         <motion.div 
-          className="township-resource-item flex-1 mx-1 relative"
+          className="township-resource-item flex-1 mx-0.5 sm:mx-1 relative"
           initial={{ 
             background: "rgba(255, 255, 255, 0.95)",
             borderRadius: "10px",
-            padding: "6px 10px",
+            padding: "4px 5px 4px 5px",
             border: "1px solid rgba(255, 183, 77, 0.3)",
             boxShadow: "0 2px 4px rgba(0,0,0,0.08), inset 0 1px 2px rgba(255, 255, 255, 0.5)",
             minWidth: 0,
