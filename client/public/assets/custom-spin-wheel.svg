@@ -21,7 +21,7 @@
 
   <!-- Center Button -->
   <circle cx="200" cy="200" r="30" fill="#fff" stroke="#333" stroke-width="5" />
-  <text x="190" y="210" font-size="14" font-weight="bold" fill="#333">SPIN</text>
+  <text x="200" y="205" font-size="14" font-weight="bold" fill="#333" text-anchor="middle" dominant-baseline="middle">SPIN</text>
 
   <!-- Arrow Indicator -->
   <polygon points="190,15 210,15 200,40" fill="red" />

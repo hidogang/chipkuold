@@ -198,7 +198,7 @@ export function SpinWheel({ onSpin, rewards, isSpinning, spinType }: SpinWheelPr
             {/* Center Button - Interactive */}
             <g onClick={handleSpin} style={{ cursor: isSpinning ? 'not-allowed' : 'pointer' }}>
               <circle cx="200" cy="200" r="30" fill="#fff" stroke="#333" strokeWidth="5" />
-              <text x="183" y="206" fontSize="16" fontWeight="bold" fill="#333">
+              <text x="200" y="205" fontSize="16" fontWeight="bold" fill="#333" textAnchor="middle" dominantBaseline="middle">
                 {isSpinning ? "..." : "SPIN"}
               </text>
             </g>
