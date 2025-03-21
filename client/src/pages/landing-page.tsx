@@ -459,13 +459,13 @@ export default function LandingPage() {
           {/* Mystery Boxes & Daily Rewards Section */}
           <div className="mt-20"> 
             <div className="text-center mb-12">
-              <Badge className="mb-4 bg-blue-100 text-blue-800 hover:bg-blue-200">
+              <Badge className="mb-4 bg-amber-100 text-amber-800 hover:bg-amber-200">
                 Exciting Rewards
               </Badge>
-              <h2 className="text-3xl font-bold text-blue-900 mb-4">
+              <h2 className="text-3xl font-bold text-amber-900 mb-4">
                 Mystery Boxes & Daily Rewards
               </h2>
-              <p className="text-lg text-blue-700 max-w-2xl mx-auto">
+              <p className="text-lg text-amber-700 max-w-2xl mx-auto">
                 Spin the wheel daily and open mystery boxes for amazing rewards
               </p>
             </div>
@@ -479,7 +479,7 @@ export default function LandingPage() {
                 viewport={{ once: true }}
                 className="bg-white rounded-xl overflow-hidden shadow-xl"
               >
-                <div className="bg-gradient-to-r from-purple-600 to-blue-600 py-4 px-6">
+                <div className="bg-gradient-to-r from-amber-600 to-orange-600 py-4 px-6">
                   <h3 className="text-2xl font-bold text-white flex items-center gap-3">
                     <Gift className="h-7 w-7" />
                     <span className="text-3xl">🎁</span> Mystery Boxes
@@ -497,7 +497,7 @@ export default function LandingPage() {
                         name: "Basic Box",
                         price: "$10",
                         features: ["Eggs", "Wheat", "Water", "Small USDT rewards"],
-                        color: "from-blue-50 to-blue-100 border-blue-200"
+                        color: "from-amber-50 to-amber-100 border-amber-200"
                       },
                       {
                         name: "Premium Box",
@@ -528,7 +528,7 @@ export default function LandingPage() {
                         <ul className="text-sm space-y-1">
                           {box.features.map((feature, j) => (
                             <li key={j} className="flex items-center">
-                              <span className="text-blue-600 mr-2">✓</span> {feature}
+                              <span className="text-amber-600 mr-2">✓</span> {feature}
                             </li>
                           ))}
                         </ul>
@@ -536,8 +536,8 @@ export default function LandingPage() {
                     ))}
                   </div>
 
-                  <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <p className="text-blue-800 text-sm">
+                  <div className="mt-6 p-4 bg-amber-50 rounded-lg border border-amber-200">
+                    <p className="text-amber-800 text-sm">
                       <span className="font-semibold">Pro Tip:</span> Daily login rewards can include free mystery boxes. Don't miss a day!
                     </p>
                   </div>
