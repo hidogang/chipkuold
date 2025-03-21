@@ -1,8 +1,13 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import cors from 'cors';
 
 const app = express();
+app.use(cors({
+  origin: ['http://localhost:5000', 'https://chickfarms.replit.app'],
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -39,19 +44,20 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
-
-    // Make sure the content type is set to application/json for API error responses
-    res.status(status).json({ message });
-    throw err;
-  });
-
   // Make sure we're setting the correct Content-Type header for API responses
   app.use('/api', (req, res, next) => {
     res.setHeader('Content-Type', 'application/json');
     next();
+  });
+  
+  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+    const status = err.status || err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
+
+    console.error("Server error:", err);
+    
+    // Make sure the content type is set to application/json for API error responses
+    res.status(status).json({ message });
   });
 
   // importantly only setup vite in development and after
@@ -66,11 +72,21 @@ app.use((req, res, next) => {
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client
   const port = 5000;
+  
+  console.log("Starting server on port", port);
+  
   server.listen({
     port,
     host: "0.0.0.0",
     reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
+    console.log(`Server is listening on http://0.0.0.0:${port}`);
+    console.log(`Environment: ${app.get("env")}`);
+    
+    // Add a test route that's easy to access
+    app.get('/test', (req, res) => {
+      res.send('Server is working!');
+    });
   });
 })();
