@@ -8,6 +8,11 @@ import { dailySpinRewards, superJackpotRewards } from "@shared/schema";
 export async function registerRoutes(app: Express): Promise<Server> {
   setupAuth(app);
 
+  // Health endpoint for monitoring
+  app.get("/api/health", (req, res) => {
+    res.json({ status: "ok" });
+  });
+
   // Admin routes
   app.get("/api/admin/transactions", async (req, res) => {
     try {
